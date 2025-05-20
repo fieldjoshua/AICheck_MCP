@@ -1,12 +1,27 @@
 # AICheck MCP - Multimodal Control Protocol
 
-One command. That's it.
+AICheck MCP is a system for AI-assisted development that provides structure, documentation, and control for working with Claude Code and other AI systems.
+
+## One-Command Installation
+
+Install AICheck MCP in any project with a single command:
 
 ```bash
-curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/simple_installer.sh | bash
+curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
 ```
 
-Then copy the activation text and paste to Claude. Done.
+This will:
+1. Create the AICheck directory structure and files
+2. Set up git hooks for AICheck compliance
+3. Create the Claude Code activation script
+
+After installation, run:
+
+```bash
+./activate_aicheck_claude.sh
+```
+
+This will copy the AICheck activation prompt to your clipboard. Paste this into a new Claude Code conversation to activate AICheck.
 
 ## What is AICheck MCP?
 
@@ -16,8 +31,80 @@ AICheck MCP is a structured protocol for AI-assisted development that helps Clau
 - Action-based development workflow
 - Dependency tracking
 - Git integration
-- Built-in slash commands
+- Built-in command line tools
+
+## AICheck Command Reference
+
+AICheck provides a command-line interface for managing actions:
+
+```bash
+# Show current action status
+./aicheck status
+
+# Create a new action
+./aicheck action new ActionName
+
+# Set the active action
+./aicheck action set ActionName
+
+# Complete an action
+./aicheck action complete [ActionName]
+
+# Add external dependency
+./aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]
+
+# Add internal dependency
+./aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]
+
+# Toggle system maintenance mode
+./aicheck exec
+```
+
+## Documentation-First Development
+
+AICheck follows a structured approach to development:
+
+1. **Create an Action**: Define its purpose, requirements, and success criteria
+2. **Write Tests First**: Follow test-driven development practices
+3. **Implement with AI**: Let Claude Code work within clear boundaries
+4. **Document Dependencies**: Track all external and internal dependencies
+5. **Complete with Verification**: Ensure all requirements and tests pass
+
+## Directory Structure
+
+```
+/
+├── .aicheck/                          # AICheck system files
+│   ├── actions/                       # All PROJECT ACTIONS
+│   │   └── [action-name]/             # Individual ACTION directory
+│   │       ├── [action-name]-plan.md  # ACTION PLAN
+│   │       └── supporting_docs/       # ACTION-specific documentation
+│   ├── current_action                 # Current active action
+│   ├── actions_index.md               # Master list of all actions
+│   ├── rules.md                       # AICheck system rules
+│   └── templates/                     # Templates for prompts and actions
+├── documentation/                     # Permanent documentation
+├── tests/                             # Test suite
+```
+
+## Troubleshooting
+
+If you encounter any issues with the installation:
+
+1. Make sure you have the necessary permissions in your project directory
+2. Check for existing `.aicheck` directory that might conflict
+3. Run the script directly after downloading if curl pipe fails:
+   ```bash
+   curl -s -o install.sh https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh
+   chmod +x install.sh
+   ./install.sh
+   ```
+4. If Claude Code doesn't recognize AICheck, try running `./aicheck status` first to verify your installation
 
 ## Learn More
 
 After installation, read `.aicheck/rules.md` for complete documentation.
+
+## License
+
+MIT License
