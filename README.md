@@ -2,22 +2,18 @@
 
 AICheck is a Multimodal Control Protocol that helps Claude Code follow structured development practices.
 
-## Quick Start (3 Simple Steps)
+## Quick Start (1 Simple Step)
 
 ```bash
-# 1. Download the setup script
-curl -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup_aicheck_complete.sh
-chmod +x setup_aicheck_complete.sh
-
-# 2. Run the script in your project folder
-./setup_aicheck_complete.sh
-
-# 3. Activate in your next Claude conversation
-./activate_aicheck_claude.sh
-# Copy the text that opens and paste it to Claude
+# Download and run the installer
+curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup.sh | bash
 ```
 
-That's it! Claude will now follow AICheck rules and understand commands like `/aicheck status`.
+That's it! The installer will:
+1. Set up the AICheck structure
+2. Install git hooks
+3. Configure status display
+4. Activate AICheck in your next Claude conversation
 
 ## What AICheck Does
 
@@ -46,6 +42,13 @@ Run `aicheck_status` anytime to see:
 - Current action and progress
 - Git branch and status
 - Last commit time
+
+## Troubleshooting
+
+If commands aren't working, try:
+```bash
+source ~/.zshrc  # Or source ~/.bashrc for Bash users
+```
 
 ## Detailed Documentation
 
