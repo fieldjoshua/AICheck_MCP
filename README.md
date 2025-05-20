@@ -1,26 +1,23 @@
 # AICheck MCP
 
-Simple structure for Claude AI workflows.
-
 ## Setup
 
 ```bash
-# Clone repo
+# Step 1: Get the files
 git clone https://github.com/fieldjoshua/AICheck_MCP.git
-
-# Copy files to your project
 cp AICheck_MCP/*.sh /path/to/your/project/
 cd /path/to/your/project/
 
-# Run setup
+# Step 2: Install
 ./setup_aicheck_complete.sh
 ./setup_aicheck_hooks.sh
 ./setup_aicheck_status.sh
-source ~/.zshrc  # Or ~/.bashrc
+source ~/.zshrc
 
-# Get activation text
+# Step 3: Display activation text
 cat /tmp/aicheck_prompt.md
-# Copy output and paste to Claude
+
+# Step 4: Copy this text and paste to Claude in a new conversation
 ```
 
 ## Commands
@@ -33,6 +30,4 @@ cat /tmp/aicheck_prompt.md
 /aicheck dependency add NAME VERSION
 ```
 
-## Further Reading
-
-After installation, see `.aicheck/rules.md` for details.
+For details, see `.aicheck/rules.md` after installation.
