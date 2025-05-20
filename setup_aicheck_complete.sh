@@ -23,10 +23,33 @@ mkdir -p documentation/configuration
 mkdir -p documentation/deployment
 mkdir -p documentation/testing
 mkdir -p documentation/user
+mkdir -p documentation/dependencies
 mkdir -p tests/unit
 mkdir -p tests/integration
 mkdir -p tests/e2e
 mkdir -p tests/fixtures
+
+# Create dependency index
+cat > documentation/dependencies/dependency_index.md << 'EOL'
+# Dependency Index
+
+This document tracks all dependencies in the PROJECT. All dependencies must be registered here.
+
+## External Dependencies
+
+| Dependency | Version | Added By | Date Added | Justification | Actions Using |
+|------------|---------|----------|------------|---------------|---------------|
+| *None yet* | | | | | |
+
+## Internal Dependencies
+
+| Dependency Action | Dependent Action | Type | Date Added | Description |
+|-------------------|------------------|------|------------|-------------|
+| *None yet* | | | | |
+
+---
+*Last Updated: $(date +"%Y-%m-%d")*
+EOL
 
 echo -e "${GREEN}✓ Created AICheck directory structure${NC}"
 
@@ -246,6 +269,142 @@ BLUE="\033[0;34m"
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
 NC="\033[0m" # No Color
+
+function add_dependency() {
+  local dependency_name=$1
+  local version=$2
+  local justification=$3
+  local action=$4
+  
+  if [ -z "$dependency_name" ] || [ -z "$version" ] || [ -z "$justification" ]; then
+    echo -e "${RED}Error: Missing required parameters${NC}"
+    echo "Usage: /aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]"
+    exit 1
+  fi
+  
+  # Current date
+  local date_added=$(date +"%Y-%m-%d")
+  
+  # Current user
+  local added_by=$(whoami)
+  
+  # Current action if not specified
+  if [ -z "$action" ]; then
+    action=$(cat .aicheck/current_action)
+    if [ "$action" = "None" ] || [ "$action" = "AICheckExec" ]; then
+      action="N/A"
+    fi
+  fi
+  
+  # Check if dependency index exists
+  if [ ! -f "documentation/dependencies/dependency_index.md" ]; then
+    mkdir -p documentation/dependencies
+    cat > documentation/dependencies/dependency_index.md << END_INDEX
+# Dependency Index
+
+This document tracks all dependencies in the PROJECT. All dependencies must be registered here.
+
+## External Dependencies
+
+| Dependency | Version | Added By | Date Added | Justification | Actions Using |
+|------------|---------|----------|------------|---------------|---------------|
+| *None yet* | | | | | |
+
+## Internal Dependencies
+
+| Dependency Action | Dependent Action | Type | Date Added | Description |
+|-------------------|------------------|------|------------|-------------|
+| *None yet* | | | | |
+
+---
+*Last Updated: $(date +"%Y-%m-%d")*
+END_INDEX
+  fi
+  
+  # Get the line number of the "External Dependencies" table's end
+  line_num=$(grep -n "\| \*None yet\* \| \| \| \| \| \|" documentation/dependencies/dependency_index.md | head -1 | cut -d':' -f1)
+  
+  if [ -n "$line_num" ]; then
+    # Replace the "None yet" line with the new dependency
+    sed -i "$line_num s/| \*None yet\* | | | | | |/| $dependency_name | $version | $added_by | $date_added | $justification | $action |\n| \*None yet\* | | | | | |/" documentation/dependencies/dependency_index.md
+  else
+    # Find the line after the header row
+    line_num=$(grep -n "\| Dependency \| Version \| Added By \| Date Added \| Justification \| Actions Using \|" documentation/dependencies/dependency_index.md | cut -d':' -f1)
+    if [ -n "$line_num" ]; then
+      line_num=$((line_num + 2)) # Skip the header separator line
+      awk -v line="$line_num" -v dep="| $dependency_name | $version | $added_by | $date_added | $justification | $action |" 'NR==line{print dep}1' documentation/dependencies/dependency_index.md > documentation/dependencies/dependency_index.md.tmp
+      mv documentation/dependencies/dependency_index.md.tmp documentation/dependencies/dependency_index.md
+    fi
+  fi
+  
+  # Update last updated date
+  sed -i "s/\*Last Updated: .*\*/\*Last Updated: $date_added\*/" documentation/dependencies/dependency_index.md
+  
+  echo -e "${GREEN}✓ Added dependency: $dependency_name (version $version)${NC}"
+  echo -e "${BLUE}For action: $action${NC}"
+}
+
+function add_internal_dependency() {
+  local dependency_action=$1
+  local dependent_action=$2
+  local dep_type=$3
+  local description=$4
+  
+  if [ -z "$dependency_action" ] || [ -z "$dependent_action" ] || [ -z "$dep_type" ]; then
+    echo -e "${RED}Error: Missing required parameters${NC}"
+    echo "Usage: /aicheck dependency internal DEPENDENCY_ACTION DEPENDENT_ACTION TYPE [DESCRIPTION]"
+    exit 1
+  fi
+  
+  # Current date
+  local date_added=$(date +"%Y-%m-%d")
+  
+  # Check if dependency index exists
+  if [ ! -f "documentation/dependencies/dependency_index.md" ]; then
+    mkdir -p documentation/dependencies
+    cat > documentation/dependencies/dependency_index.md << END_INDEX
+# Dependency Index
+
+This document tracks all dependencies in the PROJECT. All dependencies must be registered here.
+
+## External Dependencies
+
+| Dependency | Version | Added By | Date Added | Justification | Actions Using |
+|------------|---------|----------|------------|---------------|---------------|
+| *None yet* | | | | | |
+
+## Internal Dependencies
+
+| Dependency Action | Dependent Action | Type | Date Added | Description |
+|-------------------|------------------|------|------------|-------------|
+| *None yet* | | | | |
+
+---
+*Last Updated: $(date +"%Y-%m-%d")*
+END_INDEX
+  fi
+  
+  # Get the line number of the "Internal Dependencies" table's end
+  line_num=$(grep -n "\| \*None yet\* \| \| \| \| \|" documentation/dependencies/dependency_index.md | tail -1 | cut -d':' -f1)
+  
+  if [ -n "$line_num" ]; then
+    # Replace the "None yet" line with the new dependency
+    sed -i "$line_num s/| \*None yet\* | | | | |/| $dependency_action | $dependent_action | $dep_type | $date_added | $description |\n| \*None yet\* | | | | |/" documentation/dependencies/dependency_index.md
+  else
+    # Find the line after the header row
+    line_num=$(grep -n "\| Dependency Action \| Dependent Action \| Type \| Date Added \| Description \|" documentation/dependencies/dependency_index.md | cut -d':' -f1)
+    if [ -n "$line_num" ]; then
+      line_num=$((line_num + 2)) # Skip the header separator line
+      awk -v line="$line_num" -v dep="| $dependency_action | $dependent_action | $dep_type | $date_added | $description |" 'NR==line{print dep}1' documentation/dependencies/dependency_index.md > documentation/dependencies/dependency_index.md.tmp
+      mv documentation/dependencies/dependency_index.md.tmp documentation/dependencies/dependency_index.md
+    fi
+  fi
+  
+  # Update last updated date
+  sed -i "s/\*Last Updated: .*\*/\*Last Updated: $date_added\*/" documentation/dependencies/dependency_index.md
+  
+  echo -e "${GREEN}✓ Added internal dependency: $dependency_action -> $dependent_action (Type: $dep_type)${NC}"
+}
 
 function create_action() {
   local action_name=$1
@@ -480,6 +639,20 @@ case "$CMD" in
         ;;
     esac
     ;;
+  "dependency" | "dep")
+    case "$1" in
+      "add")
+        add_dependency "$2" "$3" "$4" "$5"
+        ;;
+      "internal")
+        add_internal_dependency "$2" "$3" "$4" "$5"
+        ;;
+      *)
+        echo -e "${RED}Unknown dependency command: $1${NC}"
+        echo "Available commands: add, internal"
+        ;;
+    esac
+    ;;
   "exec")
     exec_mode
     ;;
@@ -488,7 +661,7 @@ case "$CMD" in
     ;;
   *)
     echo -e "${RED}Unknown command: $CMD${NC}"
-    echo "Available commands: action, exec, status"
+    echo "Available commands: action, dependency, exec, status"
     ;;
 esac
 EOL
@@ -665,3 +838,5 @@ echo -e "  ${BLUE}/aicheck action new ActionName${NC} - Create a new action"
 echo -e "  ${BLUE}/aicheck action set ActionName${NC} - Set the current active action"
 echo -e "  ${BLUE}/aicheck exec${NC} - Toggle exec mode for system maintenance"
 echo -e "  ${BLUE}/aicheck status${NC} - Show the current action status"
+echo -e "  ${BLUE}/aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]${NC} - Add external dependency"
+echo -e "  ${BLUE}/aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]${NC} - Add internal dependency
