@@ -27,10 +27,16 @@ source ~/.zshrc  # Or source ~/.bashrc for Bash users
 ### Step 3: Activate in Claude
 
 ```bash
-# Generate and copy activation text
+# Generate activation text
 ./activate_aicheck_claude.sh
-# Copy text from opened file, then paste to Claude in a new conversation
+
+# If the file doesn't open automatically, open it manually
+open /tmp/aicheck_prompt.md
+
+# Copy text from this file, then paste to Claude in a new conversation
 ```
+
+**Note**: After running the activation script, if the file doesn't open automatically, you can find it at `/tmp/aicheck_prompt.md`. Simply open this file, copy all its contents, and paste it to Claude in a new conversation.
 
 ## What AICheck Does
 
@@ -78,6 +84,31 @@ cd /path/to/your/project/
 ```
 
 3. Activate as described above.
+
+## Troubleshooting
+
+### Activation Text Not Opening
+
+If the activation file doesn't open automatically:
+```bash
+# Open the file manually
+open /tmp/aicheck_prompt.md
+
+# Or display it in terminal
+cat /tmp/aicheck_prompt.md
+```
+
+### Shell Prompt Shows "$(aicheck_prompt)"
+
+This is expected! It means the AICheck shell integration is working. The status will display properly once you're in a project with an active action.
+
+### Commands Not Found
+
+If commands aren't recognized:
+```bash
+# Reload your shell configuration
+source ~/.zshrc  # Or source ~/.bashrc for Bash users
+```
 
 ## Detailed Documentation
 
