@@ -2,19 +2,35 @@
 
 AICheck is a Multimodal Control Protocol that helps Claude Code follow structured development practices.
 
-## Quick Start (1 Simple Step)
+## Installation (3 Steps)
+
+### Step 1: Clone the Repository
 
 ```bash
-# Download and run the installer (v1.0)
-curl -s "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup.sh?$(date +%s)" | bash
+# Clone the AICheck MCP repository
+git clone https://github.com/fieldjoshua/AICheck_MCP.git
+cd AICheck_MCP
 ```
 
-That's it! The installer will:
-1. Set up the AICheck structure
-2. Install git hooks
-3. Configure status display
-4. Automatically copy activation text to clipboard
-5. Tell you when it's ready to paste to Claude
+### Step 2: Run Setup Scripts
+
+```bash
+# Run all setup scripts
+./setup_aicheck_complete.sh  # Core AICheck setup
+./setup_aicheck_hooks.sh     # Git hooks setup
+./setup_aicheck_status.sh    # Status display setup
+
+# Load shell configuration to activate commands
+source ~/.zshrc  # Or source ~/.bashrc for Bash users
+```
+
+### Step 3: Activate in Claude
+
+```bash
+# Generate and copy activation text
+./activate_aicheck_claude.sh
+# Copy text from opened file, then paste to Claude in a new conversation
+```
 
 ## What AICheck Does
 
@@ -44,17 +60,24 @@ Run `aicheck_status` anytime to see:
 - Git branch and status
 - Last commit time
 
-## Troubleshooting
+## Using in Other Projects
 
-If commands aren't working, try:
+To use AICheck in a different project:
+
+1. Copy the setup scripts to your project:
 ```bash
-source ~/.zshrc  # Or source ~/.bashrc for Bash users
+cp AICheck_MCP/*.sh /path/to/your/project/
 ```
 
-If you don't see the AICheck activation text copied to your clipboard, run:
+2. Run the setup scripts in your project:
 ```bash
-./activate_aicheck_claude.sh
+cd /path/to/your/project/
+./setup_aicheck_complete.sh
+./setup_aicheck_hooks.sh
+./setup_aicheck_status.sh
 ```
+
+3. Activate as described above.
 
 ## Detailed Documentation
 
