@@ -38,14 +38,39 @@ echo -e "\n${BLUE}Setting up AICheck status display...${NC}"
 echo -e "\n${GREEN}AICheck MCP installation complete!${NC}"
 echo -e "${GREEN}All components have been installed successfully.${NC}"
 
-# Remind about activation
-echo -e "\n${YELLOW}To activate in your current terminal session, run:${NC}"
-echo -e "  source ~/.zshrc ${YELLOW}or${NC} source ~/.bashrc"
-
-# Prompt for activation
-echo -e "\n${BLUE}Would you like to activate AICheck in Claude now? (y/n)${NC}"
-read -r activate_claude
-
-if [[ "$activate_claude" == "y" || "$activate_claude" == "Y" ]]; then
-  ./activate_aicheck_claude.sh
+# Source shell config automatically
+SOURCE_CMD=""
+if [ -f ~/.zshrc ]; then
+  SOURCE_CMD="source ~/.zshrc"
+  echo -e "\n${BLUE}Activating commands by sourcing your shell configuration...${NC}"
+  source ~/.zshrc
+elif [ -f ~/.bashrc ]; then
+  SOURCE_CMD="source ~/.bashrc"
+  echo -e "\n${BLUE}Activating commands by sourcing your shell configuration...${NC}"
+  source ~/.bashrc
 fi
+
+# Automatically run activation script and copy to clipboard if possible
+echo -e "\n${BLUE}Activating AICheck for Claude Code...${NC}"
+
+# Generate the activation text
+if [ -f ./activate_aicheck_claude.sh ]; then
+  ./activate_aicheck_claude.sh
+  
+  # Try to copy to clipboard automatically if possible
+  if command -v pbcopy >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ Copied AICheck activation text to clipboard!${NC}"
+    echo -e "${GREEN}✓ Just paste it to Claude in a new conversation${NC}"
+    cat /tmp/aicheck_prompt.md | pbcopy
+  elif command -v xclip >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ Copied AICheck activation text to clipboard!${NC}"
+    echo -e "${GREEN}✓ Just paste it to Claude in a new conversation${NC}"
+    cat /tmp/aicheck_prompt.md | xclip -selection clipboard
+  else
+    echo -e "${YELLOW}Manually copy the text from the opened file and paste to Claude${NC}"
+  fi
+else
+  echo -e "${RED}Activation script not found. Run ./activate_aicheck_claude.sh manually.${NC}"
+fi
+
+echo -e "\n${GREEN}Setup complete! AICheck is ready to use.${NC}"
