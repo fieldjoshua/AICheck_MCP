@@ -24,6 +24,8 @@ This repository follows the AICheck system, a documentation-first, test-driven d
 │   ├── current_action                # Current ActionActivity for EDITOR
 │   ├── actions_index.md              # Master list of all ACTIONS
 │   └── rules.md                      # Project rules
+├── .claude/                          # Claude-specific configuration
+│   └── commands/                     # Custom Claude commands
 ├── .mcp/                             # MCP server for AICheck integration
 │   ├── server/                       # MCP server implementation
 │   └── mcp.json                      # MCP configuration
@@ -40,6 +42,28 @@ Claude Code functions as an AI engineer within the AICheck workflow:
 - Enhance/generate documentation based on implementation details
 - Assist with migrations and refactoring
 - Support debugging complex issues
+
+## Custom Claude Commands
+
+The AICheck system includes custom Claude commands to help interact with the governance system:
+
+### Action Management
+
+- `/action list` - List all actions in the project
+- `/action current` - Show the currently active action
+- `/action new <action_name>` - Create a new action (requires approval)
+- `/action plan <action_name>` - Show or create an action plan
+- `/action set <action_name>` - Set the currently active action (requires approval)
+
+### Claude Interaction Logging
+
+- `/claude-log <purpose>` - Log a Claude interaction for the current action
+
+### AICheck System Management
+
+- `/aicheck rules` - Show the AICheck rules
+- `/aicheck status` - Show the status of the AICheck system
+- `/aicheck verify` - Verify the AICheck structure
 
 ## MCP Integration
 
@@ -161,7 +185,3 @@ All errors must include:
 - Product documentation → /documentation/[CATEGORY]/
 - API documentation → /documentation/api/
 - Architecture documentation → /documentation/architecture/
-
-## Command Reference
-
-Project-specific commands will be added as they are defined in the codebase.

@@ -26,7 +26,7 @@ This repository integrates the AICheck governance system with Claude through the
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/AICheck_MCP.git
+   git clone https://github.com/fieldjoshua/AICheck_MCP.git
    cd AICheck_MCP
    ```
 
@@ -42,24 +42,58 @@ This repository integrates the AICheck governance system with Claude through the
 
 ## Using AICheck with Claude
 
-Claude can interact with the AICheck system using the MCP tools:
+Claude integrates with the AICheck system in multiple ways:
 
-1. Get the currently active action:
-   ```
-   aicheck.getCurrentAction()
-   ```
+### Custom Claude Commands
 
-2. List all actions:
-   ```
-   aicheck.listActions()
-   ```
+The AICheck system includes custom Claude commands for direct interaction:
 
-3. Create a new action directory:
-   ```
-   aicheck.createActionDirectory({ action: "MyNewAction" })
-   ```
+```
+# Action Management
+/action list                  # List all actions in the project
+/action current               # Show the currently active action
+/action new <action_name>     # Create a new action (requires approval)
+/action plan <action_name>    # Show or create an action plan
+/action set <action_name>     # Set the currently active action (requires approval)
 
-4. And more (see CLAUDE.md for details)
+# Claude Interaction Logging
+/claude-log <purpose>         # Log a Claude interaction for the current action
+
+# AICheck System Management
+/aicheck rules                # Show the AICheck rules
+/aicheck status               # Show the status of the AICheck system
+/aicheck verify               # Verify the AICheck structure
+```
+
+### MCP Tools
+
+Claude can also interact with the AICheck system using the MCP tools:
+
+```javascript
+// Get the currently active action
+aicheck.getCurrentAction()
+
+// List all actions
+aicheck.listActions()
+
+// Create a new action directory
+aicheck.createActionDirectory({ action: "MyNewAction" })
+
+// Write an action plan (requires approval)
+aicheck.writeActionPlan({ action: "MyAction", content: "# Action Plan..." })
+
+// Set the currently active action (requires approval)
+aicheck.setCurrentAction({ action: "MyAction" })
+
+// Log a Claude interaction
+aicheck.logClaudeInteraction({
+  purpose: "Generate error handler",
+  prompt: "I need help with...",
+  response: "Here's the solution..."
+})
+```
+
+See CLAUDE.md for complete details on available commands and tools.
 
 ## Project Structure
 
@@ -68,6 +102,7 @@ The repository is organized according to the AICheck system:
 ```
 /
 ├── .aicheck/              # AICheck governance system
+├── .claude/               # Claude-specific configuration and commands
 ├── .mcp/                  # MCP integration for Claude
 ├── documentation/         # Permanent project documentation
 └── tests/                 # Test suite
@@ -79,6 +114,10 @@ This repository includes an MCP server (`/.mcp/server/`) that provides Claude wi
 
 - `.mcp/server/README.md`: Documentation for the MCP server
 - `CLAUDE.md`: Instructions for Claude when working with this repository
+
+## Custom Commands Integration
+
+The AICheck system includes custom Claude commands in the `.claude/commands/` directory. These commands allow Claude to interact directly with the AICheck system without using MCP tools.
 
 ## License
 
