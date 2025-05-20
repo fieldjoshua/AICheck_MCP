@@ -1,143 +1,129 @@
-# AICheck MCP
+# AICheck MCP 
 
-AICheck MCP is a governance system for AI-assisted software development projects that integrates with Claude through the Model Context Protocol (MCP).
+AICheck is a Multimodal Control Protocol (MCP) for AI-assisted development, designed to help Claude Code follow consistent development practices and documentation standards.
 
-## Overview
+## What is AICheck?
 
-AICheck is a documentation-first, test-driven development approach with clear rules for managing actions. The system emphasizes thorough planning, comprehensive testing, and detailed documentation, organized into discrete ACTIONS.
+AICheck provides a structured framework for AI development, featuring:
 
-This repository integrates the AICheck governance system with Claude through the Model Context Protocol (MCP), allowing Claude to interact with and enforce the AICheck rules.
+- Documentation-first approach with clear rules and templates
+- Action-based work organization with planning and tracking
+- Test-driven development practices
+- Dependency management and tracking
+- Git integration with helpful hooks
+- Persistent status display
 
-## Core Principles
+## Installation
 
-1. **Documentation-First**: All implementations must follow approved PLAN documents
-2. **Test-Driven Development**: Tests must be created and approved before implementation
-3. **Action-Based Development**: Work is organized into discrete ACTIONS with clear boundaries and objectives
-4. **Governance**: Clear rules for what requires approval and what can be done autonomously
+### Option 1: Complete Setup (Recommended)
 
-## Getting Started
+To install the full AICheck system in your project:
 
-### Prerequisites
+```bash
+# Clone this repository
+git clone https://github.com/fieldjoshua/AICheck_MCP.git
 
-- Node.js (v14 or higher)
-- Claude CLI (`npm install -g @anthropic-ai/claude-cli`)
+# Copy the setup script to your project
+cp AICheck_MCP/setup_aicheck_complete.sh /path/to/your/project/
 
-### Installation
+# Navigate to your project
+cd /path/to/your/project
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/fieldjoshua/AICheck_MCP.git
-   cd AICheck_MCP
-   ```
-
-2. Run the setup script:
-   ```
-   .mcp/setup.sh
-   ```
-
-3. Verify the setup:
-   ```
-   claude mcp list
-   ```
-
-## Using AICheck with Claude
-
-Claude integrates with the AICheck system in multiple ways:
-
-### Custom Claude Commands
-
-The AICheck system includes custom Claude commands for direct interaction:
-
-```
-# Action Management
-/actionindex                   # Lists all actions in the project with their status and descriptions
-/AA                           # Shows the currently active action and a brief summary of its details
-/actionnew <instruction>      # Proposes the creation of a new Action directory and PLAN
-/AASet                        # Suggests which Action should be the Active Action based on chat context
-
-# Claude Interaction Logging
-/claude-log <purpose>         # Logs a Claude interaction for the current action
-
-# AICheck System Management
-/aicheck rules                # Shows the AICheck governance rules from rules.md
-/aicheck status               # Displays overall status of the AICheck system
-/aicheck verify               # Verifies that the AICheck structure follows requirements
-/aicheck testing              # Verifies test-first concept for current Active Action
-/aicheck exec                 # Temporarily suspends the ActiveAction (toggle)
-
-# System Operations
-/githubupdate                 # Enters AICheck exec mode and helps push changes to GitHub
-/vulnerabilities              # Enters AICheck exec mode and analyzes GitHub vulnerabilities
-/audit <instructions>         # Enters AICheck exec mode and performs a detailed audit
+# Run the setup script
+chmod +x setup_aicheck_complete.sh
+./setup_aicheck_complete.sh
 ```
 
-### Exec Mode
+This will:
+- Create the AICheck directory structure
+- Add command templates and hooks
+- Configure Claude Code integration
+- Set up git hooks and status display
 
-AICheck includes an "exec mode" that temporarily suspends the Active Action governance system for specific system-level operations:
+### Option 2: Individual Components
 
-- Enter exec mode with `/aicheck exec`
-- Perform system-level tasks (GitHub updates, audits, vulnerability analysis)
-- Return to normal ACTION-based workflow with `/aicheck exec` again
+If you prefer to install specific components:
 
-### MCP Tools
+```bash
+# For basic AICheck setup
+./setup_aicheck.sh
 
-Claude can also interact with the AICheck system using the MCP tools:
+# For git hooks
+./setup_aicheck_hooks.sh
 
-```javascript
-// Get the currently active action
-aicheck.getCurrentAction()
-
-// List all actions
-aicheck.listActions()
-
-// Create a new action directory
-aicheck.createActionDirectory({ action: "MyNewAction" })
-
-// Write an action plan (requires approval)
-aicheck.writeActionPlan({ action: "MyAction", content: "# Action Plan..." })
-
-// Set the currently active action (requires approval)
-aicheck.setCurrentAction({ action: "MyAction" })
-
-// Log a Claude interaction
-aicheck.logClaudeInteraction({
-  purpose: "Generate error handler",
-  prompt: "I need help with...",
-  response: "Here's the solution..."
-})
+# For status display
+./setup_aicheck_status.sh
 ```
 
-See CLAUDE.md for complete details on available commands and tools.
+## Using AICheck with Claude Code
 
-## Project Structure
+After installation:
 
-The repository is organized according to the AICheck system:
+1. Run `./activate_aicheck_claude.sh` to generate a template prompt
+2. Start a new Claude Code conversation
+3. Paste the generated prompt as your first message
+4. Claude will recognize the AICheck system and follow its rules
+
+## AICheck Commands
+
+AICheck provides these slash commands for Claude Code:
+
+- `/aicheck action new ActionName` - Create a new action
+- `/aicheck action set ActionName` - Set the current active action  
+- `/aicheck action complete` - Complete current action with dependency verification
+- `/aicheck dependency add NAME VERSION JUSTIFICATION` - Document external dependency
+- `/aicheck dependency internal DEP_ACTION ACTION TYPE` - Document action dependency
+- `/aicheck exec` - Toggle system maintenance mode
+- `/aicheck status` - Show current action status
+
+## Directory Structure
 
 ```
 /
-├── .aicheck/              # AICheck governance system
-├── .claude/               # Claude-specific configuration and commands
-├── .mcp/                  # MCP integration for Claude
-├── documentation/         # Permanent project documentation
-└── tests/                 # Test suite
+├── .aicheck/                      # AICheck system files
+│   ├── actions/                   # Individual actions
+│   ├── current_action             # Active action tracking
+│   ├── rules.md                   # System rules
+│   └── templates/                 # Claude prompt templates
+├── documentation/                 # Project documentation
+│   ├── api/                       # API docs
+│   ├── dependencies/              # Dependency tracking
+│   └── ...                        # Other documentation
+└── tests/                         # Test suite
 ```
 
-## MCP Integration
+## Status Display
 
-This repository includes an MCP server (`/.mcp/server/`) that provides Claude with tools to interact with the AICheck governance system. For details on the MCP integration, see:
+AICheck provides three ways to display status information:
 
-- `.mcp/server/README.md`: Documentation for the MCP server
-- `CLAUDE.md`: Instructions for Claude when working with this repository
+1. **TMux Status Bar**: Shows in the status bar if using tmux
+2. **Shell Prompt**: Integrates with your terminal prompt
+3. **Command**: Run `aicheck_status` anytime
 
-## Custom Commands Integration
+The status display shows:
+- Current action and progress
+- Dependency count
+- Git branch and status
+- Last commit information
 
-The AICheck system includes custom Claude commands in the `.claude/commands/` directory. These commands allow Claude to interact directly with the AICheck system without using MCP tools.
+## Documentation
+
+AICheck follows a documentation-first approach:
+1. Create a new action with `/aicheck action new`
+2. Plan the action before implementation
+3. Document dependencies as they're added
+4. Complete actions with `/aicheck action complete`
+
+## Requirements
+
+- Bash-compatible shell
+- Git (for hook functionality)
+- TMux (optional, for status bar display)
 
 ## License
 
-[MIT License](LICENSE)
+MIT
 
-## Acknowledgments
+---
 
-- [Anthropic](https://www.anthropic.com/) for Claude and the MCP protocol
-- [Model Context Protocol](https://modelcontextprotocol.io/) for the standardized interface
+🤖 Created with [Claude Code](https://claude.ai/code)
