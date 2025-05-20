@@ -122,6 +122,12 @@ This document is the controlling reference for all work managed by the AICheck s
 - Store secrets in environment variables, never in code
 - Apply proper authentication and authorization
 
+### 1.5 Dependency Management
+- All external dependencies must be documented in dependency_index.md
+- All internal dependencies between actions must be documented
+- External dependencies require justification and version specification
+- Dependencies must be verified before action completion
+
 ## 2. Action Management
 
 ### 2.1 AI Editor Scope
@@ -158,6 +164,8 @@ The following ALWAYS require human manager approval:
 │   ├── api/                          # API documentation
 │   ├── architecture/                 # System architecture docs
 │   ├── configuration/                # Configuration guides
+│   ├── dependencies/                 # Dependency documentation
+│   │   └── dependency_index.md       # Index of all dependencies
 │   ├── deployment/                   # Deployment procedures
 │   ├── testing/                      # Testing strategies
 │   └── user/                         # User documentation
@@ -326,7 +334,7 @@ END_INDEX
   
   if [ -n "$line_num" ]; then
     # Replace the "None yet" line with the new dependency
-    sed -i "$line_num s/| \*None yet\* | | | | | |/| $dependency_name | $version | $added_by | $date_added | $justification | $action |\n| \*None yet\* | | | | | |/" documentation/dependencies/dependency_index.md
+    sed -i "$line_num s/| \*None yet\* | | | | | |/| $dependency_name | $version | $added_by | $date_added | $justification | $action |\\n| \*None yet\* | | | | | |/" documentation/dependencies/dependency_index.md
   else
     # Find the line after the header row
     line_num=$(grep -n "\| Dependency \| Version \| Added By \| Date Added \| Justification \| Actions Using \|" documentation/dependencies/dependency_index.md | cut -d':' -f1)
@@ -389,7 +397,7 @@ END_INDEX
   
   if [ -n "$line_num" ]; then
     # Replace the "None yet" line with the new dependency
-    sed -i "$line_num s/| \*None yet\* | | | | |/| $dependency_action | $dependent_action | $dep_type | $date_added | $description |\n| \*None yet\* | | | | |/" documentation/dependencies/dependency_index.md
+    sed -i "$line_num s/| \*None yet\* | | | | |/| $dependency_action | $dependent_action | $dep_type | $date_added | $description |\\n| \*None yet\* | | | | |/" documentation/dependencies/dependency_index.md
   else
     # Find the line after the header row
     line_num=$(grep -n "\| Dependency Action \| Dependent Action \| Type \| Date Added \| Description \|" documentation/dependencies/dependency_index.md | cut -d':' -f1)
@@ -566,6 +574,101 @@ function set_active_action() {
   echo -e "${GREEN}✓ Set current action to: $action_name${NC}"
 }
 
+function complete_action() {
+  local action_name=$1
+  
+  if [ -z "$action_name" ]; then
+    # Use current action if not specified
+    action_name=$(cat .aicheck/current_action)
+    if [ "$action_name" = "None" ] || [ "$action_name" = "AICheckExec" ]; then
+      echo -e "${RED}Error: No active action to complete${NC}"
+      echo "Usage: /aicheck action complete [ACTION_NAME]"
+      exit 1
+    fi
+  fi
+  
+  # Convert PascalCase to kebab-case for directories
+  local dir_name=$(echo "$action_name" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  
+  # Check if action exists
+  if [ ! -d ".aicheck/actions/$dir_name" ]; then
+    echo -e "${RED}Error: Action '$action_name' does not exist${NC}"
+    echo "Available actions:"
+    ls -1 .aicheck/actions/ | grep -v "README"
+    exit 1
+  fi
+  
+  # Check for dependencies
+  echo -e "${BLUE}Verifying dependencies for $action_name...${NC}"
+  
+  # Check if any dependencies are recorded for this action
+  dependencies_found=$(grep -c "$action_name" documentation/dependencies/dependency_index.md || true)
+  
+  if [ "$dependencies_found" -eq 0 ]; then
+    echo -e "${YELLOW}WARNING: No dependencies found for this action${NC}"
+    echo -e "${YELLOW}If this action uses external libraries or depends on other actions,${NC}"
+    echo -e "${YELLOW}they should be documented before completing the action.${NC}"
+    
+    read -p "Do you want to add dependencies now? (y/n): " add_deps
+    if [[ "$add_deps" == "y" || "$add_deps" == "Y" ]]; then
+      echo -e "${BLUE}Please add dependencies with:${NC}"
+      echo "  /aicheck dependency add NAME VERSION JUSTIFICATION"
+      echo "  /aicheck dependency internal DEPENDENCY_ACTION ACTION TYPE DESCRIPTION"
+      exit 0
+    fi
+    
+    read -p "Confirm action completion without dependencies? (y/n): " confirm
+    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+      echo -e "${YELLOW}Action completion cancelled${NC}"
+      exit 0
+    fi
+  else
+    echo -e "${GREEN}✓ Dependencies verified${NC}"
+  fi
+  
+  # Update status to Completed
+  echo "Completed" > ".aicheck/actions/$dir_name/status.txt"
+  
+  # Get completion date
+  local completion_date=$(date +"%Y-%m-%d")
+  
+  # Move from Active to Completed in actions_index.md
+  local action_line
+  action_line=$(grep -n "| $action_name |" .aicheck/actions_index.md | head -1 | cut -d':' -f1)
+  
+  if [ -n "$action_line" ]; then
+    # Get the description
+    local description
+    description=$(sed -n "${action_line}p" .aicheck/actions_index.md | awk -F '|' '{print $6}' | xargs)
+    
+    # Delete the line from Active Actions
+    sed -i "${action_line}d" .aicheck/actions_index.md
+    
+    # Add to Completed Actions
+    line_num=$(grep -n "\| \*None yet\* \| \| \| \|" .aicheck/actions_index.md | grep -A1 "Completed Actions" | cut -d':' -f1)
+    if [ -n "$line_num" ]; then
+      sed -i "${line_num}s/| \*None yet\* | | | |/| $action_name | | $completion_date | $description |\\n| \*None yet\* | | | |/" .aicheck/actions_index.md
+    fi
+    
+    # Update the progress in plan
+    sed -i "s/Progress: [0-9]*%/Progress: 100%/" ".aicheck/actions/$dir_name/$dir_name-plan.md"
+    
+    # Update last updated date
+    sed -i "s/\*Last Updated: .*\*/\*Last Updated: $completion_date\*/" .aicheck/actions_index.md
+    
+    # If this was the current action, set current_action to None
+    if [ "$(cat .aicheck/current_action)" = "$action_name" ]; then
+      echo "None" > .aicheck/current_action
+    fi
+    
+    echo -e "${GREEN}✓ Completed ACTION: $action_name${NC}"
+    echo -e "${BLUE}Completion Date: $completion_date${NC}"
+  else
+    echo -e "${RED}Error: Could not find action in index${NC}"
+    exit 1
+  fi
+}
+
 function exec_mode() {
   # Save current action
   local current_action=$(cat .aicheck/current_action)
@@ -610,6 +713,14 @@ function show_status() {
     echo -e "Status: ${GREEN}$status${NC}"
     echo -e "Progress: ${GREEN}$progress%${NC}"
     echo -e "Plan: ${BLUE}.aicheck/actions/$dir_name/$dir_name-plan.md${NC}"
+    
+    # Check if this action has recorded dependencies
+    local dep_count=$(grep -c "$current_action" documentation/dependencies/dependency_index.md || true)
+    if [ "$dep_count" -gt 0 ]; then
+      echo -e "Dependencies: ${GREEN}$dep_count recorded${NC}"
+    else
+      echo -e "Dependencies: ${YELLOW}None recorded${NC}"
+    fi
   elif [ "$current_action" = "AICheckExec" ]; then
     echo -e "${YELLOW}SYSTEM IS IN EXEC MODE${NC}"
     echo -e "${YELLOW}For system maintenance only${NC}"
@@ -633,9 +744,12 @@ case "$CMD" in
       "set")
         set_active_action "$2"
         ;;
+      "complete")
+        complete_action "$2"
+        ;;
       *)
         echo -e "${RED}Unknown action command: $1${NC}"
-        echo "Available commands: new, set"
+        echo "Available commands: new, set, complete"
         ;;
     esac
     ;;
@@ -688,8 +802,18 @@ Claude Code now supports the following AICheck slash commands:
 
 - `/aicheck action new ActionName` - Create a new action
 - `/aicheck action set ActionName` - Set the current active action
+- `/aicheck action complete [ActionName]` - Complete an action (requires dependency verification)
 - `/aicheck exec` - Toggle exec mode for system maintenance
 - `/aicheck status` - Show the current action status
+- `/aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]` - Add external dependency
+- `/aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]` - Add internal dependency
+
+## Dependency Verification
+
+Before an action can be completed, its dependencies must be verified:
+1. External dependencies must be recorded in the dependency index
+2. Internal dependencies between actions must be documented
+3. Dependency verification happens automatically when completing an action
 
 ## Project Structure
 
@@ -700,6 +824,7 @@ The AICheck system follows a structured approach to development:
   - `templates/` - Templates for Claude prompts
   - `rules.md` - AICheck system rules
 - `documentation/` - Project documentation
+  - `dependencies/` - Dependency documentation and index
 - `tests/` - Test suite
 
 ## Getting Started
@@ -709,6 +834,8 @@ The AICheck system follows a structured approach to development:
 3. Plan your action in the generated plan file
 4. Set it as your active action with `/aicheck action set ActionName`
 5. Implement according to the plan
+6. Document dependencies with `/aicheck dependency add` or `/aicheck dependency internal`
+7. Complete the action with `/aicheck action complete`
 
 ## Documentation-First Approach
 
@@ -717,7 +844,8 @@ AICheck follows a documentation-first, test-driven approach:
 1. Document your plan thoroughly before implementation
 2. Write tests before implementing features
 3. Keep documentation updated as the project evolves
-4. Migrate completed action documentation to the central documentation directories
+4. Document all dependencies
+5. Migrate completed action documentation to the central documentation directories
 EOL
 
 # Create a custom CLAUDE.md file with AICheck integration
@@ -734,8 +862,11 @@ Claude should follow the rules specified in `.aicheck/RULES.md` and use AICheck 
 
 - `/aicheck action new ActionName` - Create a new action 
 - `/aicheck action set ActionName` - Set the current active action
+- `/aicheck action complete [ActionName]` - Complete an action with dependency verification
 - `/aicheck exec` - Toggle exec mode for system maintenance
 - `/aicheck status` - Show the current action status
+- `/aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]` - Add external dependency
+- `/aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]` - Add internal dependency
 
 ## Project Rules
 
@@ -748,6 +879,19 @@ Claude should follow the rules specified in `.aicheck/RULES.md` with focus on do
 3. Create tests before implementation code
 4. Document all Claude interactions in supporting_docs/claude-interactions/
 5. Only work within the scope of the active action
+6. Document all dependencies before completing an action
+
+## Dependency Management
+
+When adding external libraries or frameworks:
+1. Document with `/aicheck dependency add NAME VERSION JUSTIFICATION`
+2. Include specific version requirements
+3. Provide clear justification for adding the dependency
+
+When creating dependencies between actions:
+1. Document with `/aicheck dependency internal DEP_ACTION ACTION TYPE DESCRIPTION`
+2. Specify the type of dependency (data, function, service, etc.)
+3. Add detailed description of the dependency relationship
 
 ## Claude Workflow
 
@@ -756,8 +900,9 @@ When the user requests work:
 2. Consult the action plan for guidance
 3. Follow test-driven development practices
 4. Document your thought process
-5. Implement according to the plan
-6. Verify your implementation against the success criteria
+5. Document all dependencies
+6. Implement according to the plan
+7. Verify your implementation against the success criteria
 
 ## Project-Specific Commands
 
@@ -780,7 +925,8 @@ I'll follow the AICheck workflow and adhere to the rules in `.aicheck/RULES.md`.
 
 1. Using the slash commands: 
    - `/aicheck status` to check current action
-   - `/aicheck action new/set` to manage actions
+   - `/aicheck action new/set/complete` to manage actions
+   - `/aicheck dependency add/internal` to document dependencies
    - `/aicheck exec` for maintenance mode
 
 2. Following the documentation-first approach:
@@ -788,6 +934,12 @@ I'll follow the AICheck workflow and adhere to the rules in `.aicheck/RULES.md`.
    - Documenting all Claude interactions
    - Adhering to the ACTION plan
    - Focusing only on the active action's scope
+   - Documenting all dependencies
+
+3. Dependency Management:
+   - Documenting all external dependencies
+   - Recording all internal dependencies between actions
+   - Verifying dependencies before completing actions
 
 Let me check the current action status now with `/aicheck status` and proceed accordingly.
 EOL
@@ -836,7 +988,8 @@ echo -e "3. Paste it as your first message to Claude"
 echo -e "\nAvailable Claude Code slash commands:"
 echo -e "  ${BLUE}/aicheck action new ActionName${NC} - Create a new action"
 echo -e "  ${BLUE}/aicheck action set ActionName${NC} - Set the current active action"
+echo -e "  ${BLUE}/aicheck action complete [ActionName]${NC} - Complete action (with dependency verification)"
 echo -e "  ${BLUE}/aicheck exec${NC} - Toggle exec mode for system maintenance"
 echo -e "  ${BLUE}/aicheck status${NC} - Show the current action status"
 echo -e "  ${BLUE}/aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]${NC} - Add external dependency"
-echo -e "  ${BLUE}/aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]${NC} - Add internal dependency
+echo -e "  ${BLUE}/aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]${NC} - Add internal dependency"
