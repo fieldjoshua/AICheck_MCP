@@ -65,6 +65,59 @@ Verify outputs against action requirements
 Document all Claude interactions in ACTION's supporting_docs
 Use standardized prompt templates stored in .aicheck/templates/claude/
 
+### 1.5 AICheck Exec Mode
+
+AICheck includes a special "Exec Mode" that temporarily suspends the Active Action governance system for specific system-level operations. This mode is an intentional exception to the standard ACTION-based workflow and must be used judiciously.
+
+#### 1.5.1 Exec Mode Purpose
+
+Exec Mode exists to facilitate:
+
+1. System-level maintenance and audits that span multiple ACTIONS
+2. Security vulnerability assessments and remediations
+3. Repository and dependency health checks
+4. Infrastructure and CI/CD pipeline maintenance
+5. Cross-cutting concerns that do not fit within a single ACTION's scope
+
+#### 1.5.2 Exec Mode Rules
+
+When operating in Exec Mode:
+
+1. The standard ActiveAction is temporarily suspended but preserved
+2. Actions are not tracked against any specific ACTION
+3. Changes should be limited to system-level concerns
+4. The mode should be exited as soon as the system-level task is complete
+5. Return to the previously suspended ActiveAction after completion
+
+#### 1.5.3 Exec Mode Documentation
+
+All work performed in Exec Mode must be documented:
+
+1. When entering Exec Mode, record the reason and expected outcomes
+2. Document all actions taken while in Exec Mode
+3. Create a summary of changes made during the Exec Mode session
+4. If substantive changes were made that impact multiple ACTIONS, create a documentation entry in `/documentation/maintenance/`
+
+#### 1.5.4 Exec Mode Commands
+
+Claude Code can enter and exit Exec Mode using the `/aicheck exec` command, which toggles between normal ACTION-based mode and Exec Mode.
+
+System-specific commands that automatically enter Exec Mode:
+
+- `/githubupdate` - For GitHub repository maintenance
+- `/vulnerabilities` - For system-wide vulnerability analysis
+- `/audit <instructions>` - For detailed system audits
+
+#### 1.5.5 Exec Mode Constraints
+
+Even in Exec Mode, the following activities still require human approval:
+
+1. Creating a new ACTION
+2. Deleting or archiving an ACTION
+3. Modifying the core AICheck system files
+4. Making architectural changes that affect multiple ACTIONS
+5. Adding or removing major dependencies
+
 ## 2. Glossary and Key Concepts
 
 Before proceeding, it is essential to understand the following key terms as used throughout this document:
@@ -79,6 +132,7 @@ PLAN: A documented specification for an ACTION; includes requirements, approach,
 ActiveAction: An ACTION that is currently being worked on by one or more EDITORs; tracked in .aicheck/current_action for individual EDITORs.
 Process Documentation: Temporary documentation relevant only during an ACTION's lifecycle; stored in the ACTION's supporting_docs directory.
 Product Documentation: Documentation with enduring relevance beyond ACTION completion; stored in the centralized documentation directory.
+Exec Mode: A temporary operational state that suspends the ActiveAction for system-level tasks; reverts back to the ActiveAction upon completion.
 
 ### 2.2 Workflow Terminology
 
@@ -845,8 +899,8 @@ Reviewed quarterly
 
 ---
 
-**Document Version**: 2.0
-**Last Updated**: 2025-05-16
+**Document Version**: 2.1
+**Last Updated**: 2025-05-19
 **Owner**: Joshua Field
 **Next Review**: Quarterly
 [EOF]
