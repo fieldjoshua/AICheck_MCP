@@ -5,15 +5,16 @@ AICheck is a Multimodal Control Protocol that helps Claude Code follow structure
 ## Quick Start (1 Simple Step)
 
 ```bash
-# Download and run the installer
-curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup.sh | bash
+# Download and run the installer (v1.0)
+curl -s "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup.sh?$(date +%s)" | bash
 ```
 
 That's it! The installer will:
 1. Set up the AICheck structure
 2. Install git hooks
 3. Configure status display
-4. Activate AICheck in your next Claude conversation
+4. Automatically copy activation text to clipboard
+5. Tell you when it's ready to paste to Claude
 
 ## What AICheck Does
 
@@ -48,6 +49,11 @@ Run `aicheck_status` anytime to see:
 If commands aren't working, try:
 ```bash
 source ~/.zshrc  # Or source ~/.bashrc for Bash users
+```
+
+If you don't see the AICheck activation text copied to your clipboard, run:
+```bash
+./activate_aicheck_claude.sh
 ```
 
 ## Detailed Documentation
