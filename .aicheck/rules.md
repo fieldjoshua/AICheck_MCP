@@ -84,10 +84,12 @@ Exec Mode exists to facilitate:
 When operating in Exec Mode:
 
 1. The standard ActiveAction is temporarily suspended but preserved
-2. Actions are not tracked against any specific ACTION
-3. Changes should be limited to system-level concerns
-4. The mode should be exited as soon as the system-level task is complete
-5. Return to the previously suspended ActiveAction after completion
+2. Current ActiveAction display changes to "AICheckExec" to indicate Exec Mode is active
+3. Actions are not tracked against any specific ACTION
+4. **NO SUBSTANTIVE CHANGES** should be made to the codebase during Exec Mode
+5. Changes should be limited to system-level analysis, documentation, and minor maintenance
+6. The mode should be exited as soon as the system-level task is complete
+7. Return to the previously suspended ActiveAction after completion
 
 #### 1.5.3 Exec Mode Documentation
 
@@ -96,7 +98,7 @@ All work performed in Exec Mode must be documented:
 1. When entering Exec Mode, record the reason and expected outcomes
 2. Document all actions taken while in Exec Mode
 3. Create a summary of changes made during the Exec Mode session
-4. If substantive changes were made that impact multiple ACTIONS, create a documentation entry in `/documentation/maintenance/`
+4. If any changes were made that impact multiple ACTIONS, create a documentation entry in `/documentation/maintenance/`
 
 #### 1.5.4 Exec Mode Commands
 
@@ -110,6 +112,8 @@ System-specific commands that automatically enter Exec Mode:
 
 #### 1.5.5 Exec Mode Constraints
 
+Exec Mode is primarily for analysis, documentation, and minor maintenance. Substantive code changes MUST wait until returning to ActiveAction mode.
+
 Even in Exec Mode, the following activities still require human approval:
 
 1. Creating a new ACTION
@@ -117,6 +121,7 @@ Even in Exec Mode, the following activities still require human approval:
 3. Modifying the core AICheck system files
 4. Making architectural changes that affect multiple ACTIONS
 5. Adding or removing major dependencies
+6. Any substantive code changes to the PROGRAM
 
 ## 2. Glossary and Key Concepts
 
@@ -130,9 +135,10 @@ ACTION: A discrete unit of work that contributes to the PROGRAM; has clear bound
 EDITOR: Any human or AI contributor who performs work on ACTIONS; includes developers, writers, designers, and Claude Code.
 PLAN: A documented specification for an ACTION; includes requirements, approach, expected outcomes, and testing strategy.
 ActiveAction: An ACTION that is currently being worked on by one or more EDITORs; tracked in .aicheck/current_action for individual EDITORs.
+AICheckExec: The special state displayed during Exec Mode, indicating that the standard ActiveAction is temporarily suspended and no substantive changes should be made.
 Process Documentation: Temporary documentation relevant only during an ACTION's lifecycle; stored in the ACTION's supporting_docs directory.
 Product Documentation: Documentation with enduring relevance beyond ACTION completion; stored in the centralized documentation directory.
-Exec Mode: A temporary operational state that suspends the ActiveAction for system-level tasks; reverts back to the ActiveAction upon completion.
+Exec Mode: A temporary operational state that suspends the ActiveAction for system-level analysis and maintenance tasks; displays as "AICheckExec"; reverts back to the ActiveAction upon completion.
 
 ### 2.2 Workflow Terminology
 
@@ -899,7 +905,7 @@ Reviewed quarterly
 
 ---
 
-**Document Version**: 2.1
+**Document Version**: 2.2
 **Last Updated**: 2025-05-19
 **Owner**: Joshua Field
 **Next Review**: Quarterly
