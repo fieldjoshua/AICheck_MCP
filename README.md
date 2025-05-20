@@ -50,20 +50,34 @@ The AICheck system includes custom Claude commands for direct interaction:
 
 ```
 # Action Management
-/action list                  # List all actions in the project
-/action current               # Show the currently active action
-/action new <action_name>     # Create a new action (requires approval)
-/action plan <action_name>    # Show or create an action plan
-/action set <action_name>     # Set the currently active action (requires approval)
+/actionindex                   # Lists all actions in the project with their status and descriptions
+/AA                           # Shows the currently active action and a brief summary of its details
+/actionnew <instruction>      # Proposes the creation of a new Action directory and PLAN
+/AASet                        # Suggests which Action should be the Active Action based on chat context
 
 # Claude Interaction Logging
-/claude-log <purpose>         # Log a Claude interaction for the current action
+/claude-log <purpose>         # Logs a Claude interaction for the current action
 
 # AICheck System Management
-/aicheck rules                # Show the AICheck rules
-/aicheck status               # Show the status of the AICheck system
-/aicheck verify               # Verify the AICheck structure
+/aicheck rules                # Shows the AICheck governance rules from rules.md
+/aicheck status               # Displays overall status of the AICheck system
+/aicheck verify               # Verifies that the AICheck structure follows requirements
+/aicheck testing              # Verifies test-first concept for current Active Action
+/aicheck exec                 # Temporarily suspends the ActiveAction (toggle)
+
+# System Operations
+/githubupdate                 # Enters AICheck exec mode and helps push changes to GitHub
+/vulnerabilities              # Enters AICheck exec mode and analyzes GitHub vulnerabilities
+/audit <instructions>         # Enters AICheck exec mode and performs a detailed audit
 ```
+
+### Exec Mode
+
+AICheck includes an "exec mode" that temporarily suspends the Active Action governance system for specific system-level operations:
+
+- Enter exec mode with `/aicheck exec`
+- Perform system-level tasks (GitHub updates, audits, vulnerability analysis)
+- Return to normal ACTION-based workflow with `/aicheck exec` again
 
 ### MCP Tools
 
