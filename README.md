@@ -10,29 +10,42 @@ Install AICheck MCP in any project with a single command:
 curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
 ```
 
+**⚡ Smart Installer** - Automatically detects your system and configures everything possible:
+
 This will:
 1. Create the AICheck directory structure and files
 2. Set up git hooks for AICheck compliance
-3. Create the Claude Code activation script
-4. **Install the complete AICheck MCP server infrastructure**
+3. **Install and configure the complete AICheck MCP server** (if Claude CLI available)
+4. **Copy activation prompt to clipboard** (if clipboard tools available)
+5. Provide smart next steps based on your system
 
 ## Next Steps
 
-After installation, follow these steps for full integration:
+The installer now **automatically handles most setup**! Here's what happens:
 
-### 1. Set up MCP Server (New!)
+### Automatic Setup (Best Case)
+If you have Claude Code CLI installed:
+1. **✅ MCP server automatically configured**
+2. **✅ Activation prompt automatically copied to clipboard**
+3. **You're ready!** Just start Claude Code and paste
+
+### Manual Steps (If Needed)
+If automation isn't available:
+
+**1. Set up MCP Server (if Claude CLI not found):**
 ```bash
 ./.mcp/setup.sh
 ```
 
-This sets up the Model Context Protocol server that gives Claude direct access to AICheck governance tools.
-
-### 2. Activate Claude Code Integration
+**2. Copy Activation Prompt (if clipboard failed):**
 ```bash
 ./activate_aicheck_claude.sh
 ```
 
-This copies the AICheck activation prompt to your clipboard. Paste this into a new Claude Code conversation to activate AICheck.
+### Final Step (Always Required)
+1. Start a new Claude Code conversation
+2. Paste the activation text (already in clipboard if automated)
+3. Claude will recognize and use AICheck with full MCP integration
 
 ## MCP Server Integration
 
