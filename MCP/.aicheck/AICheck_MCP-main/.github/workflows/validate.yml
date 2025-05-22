@@ -1,0 +1,41 @@
+name: Validate AICheck Structure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          cd .mcp/server
+          npm install
+          
+      - name: Validate AICheck Structure
+        run: |
+          # Check for required directories
+          echo "Validating AICheck structure..."
+          [ -d ".aicheck" ] || { echo "ERROR: Missing .aicheck directory"; exit 1; }
+          [ -d ".aicheck/actions" ] || { echo "ERROR: Missing .aicheck/actions directory"; exit 1; }
+          [ -d ".aicheck/templates" ] || { echo "ERROR: Missing .aicheck/templates directory"; exit 1; }
+          [ -d "documentation" ] || { echo "ERROR: Missing documentation directory"; exit 1; }
+          [ -d "tests" ] || { echo "ERROR: Missing tests directory"; exit 1; }
+          
+          # Check for required files
+          [ -f ".aicheck/rules.md" ] || { echo "ERROR: Missing .aicheck/rules.md file"; exit 1; }
+          [ -f ".aicheck/actions_index.md" ] || { echo "ERROR: Missing .aicheck/actions_index.md file"; exit 1; }
+          [ -f ".aicheck/current_action" ] || { echo "ERROR: Missing .aicheck/current_action file"; exit 1; }
+          [ -f "CLAUDE.md" ] || { echo "ERROR: Missing CLAUDE.md file"; exit 1; }
+          
+          echo "AICheck structure validation successful!"

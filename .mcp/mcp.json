@@ -1,12 +1,9 @@
 {
   "mcpServers": {
     "aicheck": {
-      "type": "stdio",
       "command": "node",
-      "args": ["${workspaceFolder}/.mcp/server/index.js"],
-      "env": {
-        "DEBUG": "true"
-      }
+      "args": [".mcp/server/index.js"],
+      "transport": "stdio"
     }
   }
 }

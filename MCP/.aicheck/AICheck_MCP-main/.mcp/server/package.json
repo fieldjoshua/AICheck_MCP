@@ -1,0 +1,23 @@
+{
+  "name": "aicheck-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for AICheck governance system",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "aicheck",
+    "mcp",
+    "claude"
+  ],
+  "author": "Joshua Field",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.15.1",
+    "express": "^4.18.3",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10"
+  }
+}

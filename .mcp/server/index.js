@@ -1,649 +1,341 @@
 #!/usr/bin/env node
 
-/**
- * AICheck MCP Server
- * 
- * This MCP server provides tools that integrate Claude with the AICheck governance system.
- * It allows Claude to interact with and enforce the rules defined in RULES.md.
- */
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import {
+  CallToolRequestSchema,
+  ListResourcesRequestSchema,
+  ListToolsRequestSchema,
+  ReadResourceRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { execSync } from 'child_process';
 
-const fs = require('fs-extra');
-const path = require('path');
-const { glob } = require('glob');
-
-// Find the root of the AICheck project
-let projectRoot = process.cwd();
-while (!fs.existsSync(path.join(projectRoot, '.aicheck')) && projectRoot !== '/') {
-  projectRoot = path.dirname(projectRoot);
-}
-
-if (projectRoot === '/') {
-  console.error('Could not find AICheck project root');
-  process.exit(1);
-}
-
-console.log(`AICheck project root: ${projectRoot}`);
-
-// MCP server configuration
-const server = {
-  capabilities: {
-    name: 'aicheck-mcp',
-    version: '0.1.0',
-    description: 'AICheck governance system MCP server',
-    resources: {
-      'aicheck/rules': {
-        type: 'text/markdown',
-        description: 'The rules governing the AICheck system',
-        usage: 'Read the AICheck rules to understand the governance system'
+class AICheckMCPServer {
+  constructor() {
+    this.server = new Server(
+      {
+        name: 'aicheck-mcp-server',
+        version: '1.0.0',
       },
-      'aicheck/actions_index': {
-        type: 'text/markdown',
-        description: 'The index of all actions in the project',
-        usage: 'Read the actions index to see all actions and their status'
-      },
-      'aicheck/current_action': {
-        type: 'text/plain',
-        description: 'The currently active action',
-        usage: 'Read the current action to see what is being worked on'
+      {
+        capabilities: {
+          resources: {},
+          tools: {},
+        },
       }
-    },
-    tools: {
-      'aicheck.getCurrentAction': {
-        name: 'aicheck.getCurrentAction',
-        description: 'Get the currently active action',
-        usage: 'Use this to check which action is currently active',
-        parameters: {},
-        returns: {
-          type: 'object',
-          properties: {
-            action: {
-              type: 'string',
-              description: 'The name of the active action'
-            },
-            status: {
-              type: 'string',
-              description: 'The status of the active action'
-            }
-          }
-        }
-      },
-      'aicheck.listActions': {
-        name: 'aicheck.listActions',
-        description: 'List all actions in the project',
-        usage: 'Use this to get a list of all actions in the project',
-        parameters: {
-          status: {
-            type: 'string',
-            description: 'Filter actions by status (optional)',
-            enum: ['Not Started', 'ActiveAction', 'Completed', 'Blocked', 'On Hold']
-          }
-        },
-        returns: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: {
-                type: 'string',
-                description: 'The name of the action'
-              },
-              status: {
-                type: 'string',
-                description: 'The status of the action'
-              },
-              description: {
-                type: 'string',
-                description: 'A brief description of the action'
-              }
-            }
-          }
-        }
-      },
-      'aicheck.getActionPlan': {
-        name: 'aicheck.getActionPlan',
-        description: 'Get the plan for a specific action',
-        usage: 'Use this to read the plan for an action',
-        parameters: {
-          action: {
-            type: 'string',
-            description: 'The name of the action'
-          }
-        },
-        returns: {
-          type: 'object',
-          properties: {
-            content: {
-              type: 'string',
-              description: 'The content of the action plan'
-            },
-            exists: {
-              type: 'boolean',
-              description: 'Whether the action plan exists'
-            }
-          }
-        }
-      },
-      'aicheck.createActionDirectory': {
-        name: 'aicheck.createActionDirectory',
-        description: 'Create a new action directory with the required structure',
-        usage: 'Use this to create a new action',
-        parameters: {
-          action: {
-            type: 'string',
-            description: 'The name of the action'
-          }
-        },
-        returns: {
-          type: 'object',
-          properties: {
-            success: {
-              type: 'boolean',
-              description: 'Whether the action directory was created successfully'
-            },
-            path: {
-              type: 'string',
-              description: 'The path to the created action directory'
-            }
-          }
-        }
-      },
-      'aicheck.writeActionPlan': {
-        name: 'aicheck.writeActionPlan',
-        description: 'Write an action plan (requires human approval)',
-        usage: 'Use this to create or update an action plan',
-        parameters: {
-          action: {
-            type: 'string',
-            description: 'The name of the action'
+    );
+    
+    this.setupHandlers();
+  }
+
+  setupHandlers() {
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
+      return {
+        resources: [
+          {
+            uri: 'aicheck://rules',
+            name: 'AICheck Rules',
+            description: 'The rules governing the AICheck system',
+            mimeType: 'text/markdown',
           },
-          content: {
-            type: 'string',
-            description: 'The content of the action plan'
-          }
-        },
-        returns: {
-          type: 'object',
-          properties: {
-            success: {
-              type: 'boolean',
-              description: 'Whether the action plan was written successfully'
-            },
-            message: {
-              type: 'string',
-              description: 'A message describing the result'
-            },
-            requiresApproval: {
-              type: 'boolean',
-              description: 'Whether the action plan requires human approval'
+          {
+            uri: 'aicheck://actions_index',
+            name: 'Actions Index',
+            description: 'The index of all actions in the project',
+            mimeType: 'text/markdown',
+          },
+          {
+            uri: 'aicheck://current_action',
+            name: 'Current Action',
+            description: 'The currently active action',
+            mimeType: 'text/plain',
+          },
+        ],
+      };
+    });
+
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      const { uri } = request.params;
+      
+      try {
+        let content = '';
+        
+        switch (uri) {
+          case 'aicheck://rules':
+            if (existsSync('.aicheck/RULES.md')) {
+              content = readFileSync('.aicheck/RULES.md', 'utf-8');
+            } else {
+              content = 'AICheck rules not found';
             }
-          }
-        }
-      },
-      'aicheck.setCurrentAction': {
-        name: 'aicheck.setCurrentAction',
-        description: 'Set the currently active action (requires human approval)',
-        usage: 'Use this to change the active action',
-        parameters: {
-          action: {
-            type: 'string',
-            description: 'The name of the action to set as active'
-          }
-        },
-        returns: {
-          type: 'object',
-          properties: {
-            success: {
-              type: 'boolean',
-              description: 'Whether the active action was set successfully'
-            },
-            message: {
-              type: 'string',
-              description: 'A message describing the result'
-            },
-            requiresApproval: {
-              type: 'boolean',
-              description: 'Whether setting the active action requires human approval'
+            break;
+            
+          case 'aicheck://actions_index':
+            if (existsSync('.aicheck/actions_index.md')) {
+              content = readFileSync('.aicheck/actions_index.md', 'utf-8');
+            } else {
+              content = 'Actions index not found';
             }
-          }
-        }
-      },
-      'aicheck.logClaudeInteraction': {
-        name: 'aicheck.logClaudeInteraction',
-        description: 'Log a Claude interaction for the current action',
-        usage: 'Use this to log Claude interactions as required by RULES.md',
-        parameters: {
-          purpose: {
-            type: 'string',
-            description: 'The purpose of the interaction'
-          },
-          prompt: {
-            type: 'string',
-            description: 'The prompt used for the interaction'
-          },
-          response: {
-            type: 'string',
-            description: 'Claude\'s response'
-          },
-          modifications: {
-            type: 'string',
-            description: 'Any modifications made (optional)'
-          },
-          verification: {
-            type: 'string',
-            description: 'How the output was verified (optional)'
-          }
-        },
-        returns: {
-          type: 'object',
-          properties: {
-            success: {
-              type: 'boolean',
-              description: 'Whether the interaction was logged successfully'
-            },
-            path: {
-              type: 'string',
-              description: 'The path to the interaction log file'
+            break;
+            
+          case 'aicheck://current_action':
+            if (existsSync('.aicheck/current_action')) {
+              content = readFileSync('.aicheck/current_action', 'utf-8').trim();
+            } else {
+              content = 'None';
             }
-          }
+            break;
+            
+          default:
+            throw new Error(`Unknown resource: ${uri}`);
         }
+        
+        return {
+          contents: [
+            {
+              uri,
+              mimeType: uri.includes('rules') || uri.includes('actions_index') ? 'text/markdown' : 'text/plain',
+              text: content,
+            },
+          ],
+        };
+      } catch (error) {
+        throw new Error(`Failed to read resource ${uri}: ${error.message}`);
       }
+    });
+
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          {
+            name: 'aicheck.getCurrentAction',
+            description: 'Get the currently active action',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck.listActions',
+            description: 'List all actions in the project',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck.getActionPlan',
+            description: 'Get the plan for a specific action',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                actionName: {
+                  type: 'string',
+                  description: 'The name of the action',
+                },
+              },
+              required: ['actionName'],
+            },
+          },
+          {
+            name: 'aicheck.setCurrentAction',
+            description: 'Set the currently active action (requires human approval)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                actionName: {
+                  type: 'string',
+                  description: 'The name of the action to set as current',
+                },
+              },
+              required: ['actionName'],
+            },
+          },
+          {
+            name: 'aicheck.logClaudeInteraction',
+            description: 'Log a Claude interaction for the current action',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                purpose: {
+                  type: 'string',
+                  description: 'The purpose of the interaction',
+                },
+                content: {
+                  type: 'string',
+                  description: 'The content of the interaction',
+                },
+              },
+              required: ['purpose', 'content'],
+            },
+          },
+        ],
+      };
+    });
+
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+      
+      try {
+        switch (name) {
+          case 'aicheck.getCurrentAction':
+            return await this.getCurrentAction();
+            
+          case 'aicheck.listActions':
+            return await this.listActions();
+            
+          case 'aicheck.getActionPlan':
+            return await this.getActionPlan(args.actionName);
+            
+          case 'aicheck.setCurrentAction':
+            return await this.setCurrentAction(args.actionName);
+            
+          case 'aicheck.logClaudeInteraction':
+            return await this.logClaudeInteraction(args.purpose, args.content);
+            
+          default:
+            throw new Error(`Unknown tool: ${name}`);
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error: ${error.message}`,
+            },
+          ],
+        };
+      }
+    });
+  }
+
+  async getCurrentAction() {
+    try {
+      const current = existsSync('.aicheck/current_action') 
+        ? readFileSync('.aicheck/current_action', 'utf-8').trim()
+        : 'None';
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: current,
+          },
+        ],
+      };
+    } catch (error) {
+      throw new Error(`Failed to get current action: ${error.message}`);
     }
   }
-};
 
-// Implementation of resource providers
-const resourceProviders = {
-  'aicheck/rules': async () => {
+  async listActions() {
     try {
-      return await fs.readFile(path.join(projectRoot, '.aicheck', 'rules.md'), 'utf8');
+      const actionsIndex = existsSync('.aicheck/actions_index.md')
+        ? readFileSync('.aicheck/actions_index.md', 'utf-8')
+        : 'No actions found';
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: actionsIndex,
+          },
+        ],
+      };
     } catch (error) {
-      console.error('Error reading rules:', error);
-      return 'Error: Rules not found';
-    }
-  },
-  'aicheck/actions_index': async () => {
-    try {
-      return await fs.readFile(path.join(projectRoot, '.aicheck', 'actions_index.md'), 'utf8');
-    } catch (error) {
-      console.error('Error reading actions index:', error);
-      return 'Error: Actions index not found';
-    }
-  },
-  'aicheck/current_action': async () => {
-    try {
-      return await fs.readFile(path.join(projectRoot, '.aicheck', 'current_action'), 'utf8');
-    } catch (error) {
-      console.error('Error reading current action:', error);
-      return 'Error: Current action not found';
+      throw new Error(`Failed to list actions: ${error.message}`);
     }
   }
-};
 
-// Implementation of tool handlers
-const toolHandlers = {
-  'aicheck.getCurrentAction': async () => {
+  async getActionPlan(actionName) {
     try {
-      const currentAction = await fs.readFile(path.join(projectRoot, '.aicheck', 'current_action'), 'utf8');
+      const dirName = actionName.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+      const planPath = `.aicheck/actions/${dirName}/${dirName}-plan.md`;
+      
+      if (!existsSync(planPath)) {
+        throw new Error(`Action plan not found for ${actionName}`);
+      }
+      
+      const plan = readFileSync(planPath, 'utf-8');
+      
       return {
-        action: currentAction.trim(),
-        status: 'Unknown' // In a full implementation, we would parse the status from the action directory
+        content: [
+          {
+            type: 'text',
+            text: plan,
+          },
+        ],
       };
     } catch (error) {
-      console.error('Error getting current action:', error);
-      return {
-        action: 'None',
-        status: 'None'
-      };
+      throw new Error(`Failed to get action plan: ${error.message}`);
     }
-  },
-  'aicheck.listActions': async (params) => {
+  }
+
+  async setCurrentAction(actionName) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Setting current action to ${actionName} requires human approval. Please run: ./aicheck action set ${actionName}`,
+        },
+      ],
+    };
+  }
+
+  async logClaudeInteraction(purpose, content) {
     try {
-      const actionsDir = path.join(projectRoot, '.aicheck', 'actions');
-      if (!fs.existsSync(actionsDir)) {
-        return [];
+      const currentAction = existsSync('.aicheck/current_action')
+        ? readFileSync('.aicheck/current_action', 'utf-8').trim()
+        : null;
+      
+      if (!currentAction || currentAction === 'None') {
+        throw new Error('No current action set');
       }
       
-      const actionDirs = await fs.readdir(actionsDir);
-      const actions = [];
+      const dirName = currentAction.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+      const interactionDir = `.aicheck/actions/${dirName}/supporting_docs/claude-interactions`;
       
-      for (const dir of actionDirs) {
-        const actionDir = path.join(actionsDir, dir);
-        const stats = await fs.stat(actionDir);
-        
-        if (!stats.isDirectory()) {
-          continue;
-        }
-        
-        const statusPath = path.join(actionDir, 'status.txt');
-        let status = 'Unknown';
-        
-        if (fs.existsSync(statusPath)) {
-          status = (await fs.readFile(statusPath, 'utf8')).trim();
-        }
-        
-        if (params.status && status !== params.status) {
-          continue;
-        }
-        
-        const planPath = path.join(actionDir, `${dir}-plan.md`);
-        let description = 'No description available';
-        
-        if (fs.existsSync(planPath)) {
-          const planContent = await fs.readFile(planPath, 'utf8');
-          const descriptionMatch = planContent.match(/## Description\s+(.*?)(?=\s+##|$)/s);
-          if (descriptionMatch) {
-            description = descriptionMatch[1].trim();
-          }
-        }
-        
-        actions.push({
-          name: dir,
-          status,
-          description
-        });
-      }
-      
-      return actions;
-    } catch (error) {
-      console.error('Error listing actions:', error);
-      return [];
-    }
-  },
-  'aicheck.getActionPlan': async (params) => {
-    try {
-      const planPath = path.join(projectRoot, '.aicheck', 'actions', params.action, `${params.action}-plan.md`);
-      
-      if (!fs.existsSync(planPath)) {
-        return {
-          content: '',
-          exists: false
-        };
-      }
-      
-      const content = await fs.readFile(planPath, 'utf8');
-      
-      return {
-        content,
-        exists: true
-      };
-    } catch (error) {
-      console.error('Error getting action plan:', error);
-      return {
-        content: '',
-        exists: false
-      };
-    }
-  },
-  'aicheck.createActionDirectory': async (params) => {
-    try {
-      const actionDir = path.join(projectRoot, '.aicheck', 'actions', params.action);
-      
-      if (fs.existsSync(actionDir)) {
-        return {
-          success: false,
-          path: actionDir,
-          message: 'Action directory already exists'
-        };
-      }
-      
-      await fs.mkdirp(actionDir);
-      await fs.mkdirp(path.join(actionDir, 'supporting_docs'));
-      await fs.mkdirp(path.join(actionDir, 'supporting_docs', 'claude-interactions'));
-      await fs.mkdirp(path.join(actionDir, 'supporting_docs', 'process-tests'));
-      await fs.mkdirp(path.join(actionDir, 'supporting_docs', 'research'));
-      await fs.mkdirp(path.join(actionDir, 'supporting_docs', 'diagrams'));
-      
-      await fs.writeFile(path.join(actionDir, 'status.txt'), 'Not Started');
-      await fs.writeFile(path.join(actionDir, 'progress.md'), `# ${params.action} Progress\n\nProgress: 0%\n`);
-      
-      return {
-        success: true,
-        path: actionDir
-      };
-    } catch (error) {
-      console.error('Error creating action directory:', error);
-      return {
-        success: false,
-        path: '',
-        message: `Error: ${error.message}`
-      };
-    }
-  },
-  'aicheck.writeActionPlan': async (params) => {
-    // In a real implementation, this would require human approval
-    // For now, we'll just note that approval is required
-    try {
-      const actionDir = path.join(projectRoot, '.aicheck', 'actions', params.action);
-      
-      if (!fs.existsSync(actionDir)) {
-        await toolHandlers['aicheck.createActionDirectory']({ action: params.action });
-      }
-      
-      const planPath = path.join(actionDir, `${params.action}-plan.md`);
-      
-      await fs.writeFile(planPath, params.content);
-      
-      return {
-        success: true,
-        message: 'Action plan written successfully, but requires human approval',
-        requiresApproval: true
-      };
-    } catch (error) {
-      console.error('Error writing action plan:', error);
-      return {
-        success: false,
-        message: `Error: ${error.message}`,
-        requiresApproval: true
-      };
-    }
-  },
-  'aicheck.setCurrentAction': async (params) => {
-    // In a real implementation, this would require human approval
-    // For now, we'll just note that approval is required
-    try {
-      const actionDir = path.join(projectRoot, '.aicheck', 'actions', params.action);
-      
-      if (!fs.existsSync(actionDir)) {
-        return {
-          success: false,
-          message: 'Action does not exist',
-          requiresApproval: true
-        };
-      }
-      
-      await fs.writeFile(path.join(projectRoot, '.aicheck', 'current_action'), params.action);
-      
-      return {
-        success: true,
-        message: 'Current action set successfully, but requires human approval',
-        requiresApproval: true
-      };
-    } catch (error) {
-      console.error('Error setting current action:', error);
-      return {
-        success: false,
-        message: `Error: ${error.message}`,
-        requiresApproval: true
-      };
-    }
-  },
-  'aicheck.logClaudeInteraction': async (params) => {
-    try {
-      const currentAction = (await fs.readFile(path.join(projectRoot, '.aicheck', 'current_action'), 'utf8')).trim();
-      
-      if (!currentAction || currentAction === 'No active action currently assigned.') {
-        return {
-          success: false,
-          path: '',
-          message: 'No active action set'
-        };
-      }
-      
-      const interactionsDir = path.join(
-        projectRoot, 
-        '.aicheck', 
-        'actions', 
-        currentAction, 
-        'supporting_docs', 
-        'claude-interactions'
-      );
-      
-      if (!fs.existsSync(interactionsDir)) {
-        await fs.mkdirp(interactionsDir);
+      if (!existsSync(interactionDir)) {
+        mkdirSync(interactionDir, { recursive: true });
       }
       
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const logPath = path.join(interactionsDir, `interaction-${timestamp}.md`);
+      const filename = `${timestamp}-${purpose.replace(/\s+/g, '-').toLowerCase()}.md`;
+      const filepath = join(interactionDir, filename);
       
-      const logContent = `# Claude Interaction Log
+      const logContent = `# Claude Interaction: ${purpose}
 
-**Date**: ${new Date().toISOString().split('T')[0]}
-**ACTION**: ${currentAction}
-**Purpose**: ${params.purpose}
-**Template Used**: custom
-**Prompt Hash**: ${Buffer.from(params.prompt).toString('base64').substr(0, 8)}
+**Date:** ${new Date().toISOString()}
+**Purpose:** ${purpose}
+**Action:** ${currentAction}
 
-## Prompt
+## Content
 
-${params.prompt}
-
-## Response
-
-${params.response}
-
-## Modifications
-
-${params.modifications || 'None'}
-
-## Verification
-
-${params.verification || 'None'}
-
-## Iterations
-
-[Number of attempts: 1]
+${content}
 `;
       
-      await fs.writeFile(logPath, logContent);
+      writeFileSync(filepath, logContent);
       
       return {
-        success: true,
-        path: logPath
+        content: [
+          {
+            type: 'text',
+            text: `Claude interaction logged: ${filepath}`,
+          },
+        ],
       };
     } catch (error) {
-      console.error('Error logging Claude interaction:', error);
-      return {
-        success: false,
-        path: '',
-        message: `Error: ${error.message}`
-      };
+      throw new Error(`Failed to log Claude interaction: ${error.message}`);
     }
   }
-};
 
-// MCP message handling
-process.stdin.setEncoding('utf8');
-let buffer = '';
-
-process.stdin.on('data', (chunk) => {
-  buffer += chunk;
-  
-  // Process complete messages
-  let newlineIndex;
-  while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-    const message = buffer.slice(0, newlineIndex);
-    buffer = buffer.slice(newlineIndex + 1);
-    
-    handleMessage(message);
-  }
-});
-
-async function handleMessage(message) {
-  try {
-    const parsedMessage = JSON.parse(message);
-    
-    if (!parsedMessage.jsonrpc || parsedMessage.jsonrpc !== '2.0') {
-      sendErrorResponse(parsedMessage.id, -32600, 'Invalid Request');
-      return;
-    }
-    
-    if (parsedMessage.method === 'getCapabilities') {
-      sendResponse(parsedMessage.id, server.capabilities);
-      return;
-    }
-    
-    if (parsedMessage.method === 'getResource') {
-      const resourceName = parsedMessage.params.name;
-      
-      if (!resourceProviders[resourceName]) {
-        sendErrorResponse(parsedMessage.id, -32602, `Resource not found: ${resourceName}`);
-        return;
-      }
-      
-      try {
-        const content = await resourceProviders[resourceName]();
-        sendResponse(parsedMessage.id, { content });
-      } catch (error) {
-        sendErrorResponse(parsedMessage.id, -32603, `Error getting resource: ${error.message}`);
-      }
-      
-      return;
-    }
-    
-    if (parsedMessage.method === 'runTool') {
-      const toolName = parsedMessage.params.name;
-      const toolParams = parsedMessage.params.parameters || {};
-      
-      if (!toolHandlers[toolName]) {
-        sendErrorResponse(parsedMessage.id, -32602, `Tool not found: ${toolName}`);
-        return;
-      }
-      
-      try {
-        const result = await toolHandlers[toolName](toolParams);
-        sendResponse(parsedMessage.id, { result });
-      } catch (error) {
-        sendErrorResponse(parsedMessage.id, -32603, `Error running tool: ${error.message}`);
-      }
-      
-      return;
-    }
-    
-    sendErrorResponse(parsedMessage.id, -32601, `Method not found: ${parsedMessage.method}`);
-  } catch (error) {
-    console.error('Error handling message:', error);
-    
-    try {
-      const parsedMessage = JSON.parse(message);
-      sendErrorResponse(parsedMessage.id, -32700, `Parse error: ${error.message}`);
-    } catch {
-      // Can't parse the message to get an ID, so we can't send a proper error response
-      console.error('Cannot parse message to send error response');
-    }
+  async run() {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    console.error('AICheck MCP server running on stdio');
   }
 }
 
-function sendResponse(id, result) {
-  const response = {
-    jsonrpc: '2.0',
-    id,
-    result
-  };
-  
-  process.stdout.write(JSON.stringify(response) + '\n');
-}
-
-function sendErrorResponse(id, code, message) {
-  const response = {
-    jsonrpc: '2.0',
-    id,
-    error: {
-      code,
-      message
-    }
-  };
-  
-  process.stdout.write(JSON.stringify(response) + '\n');
-}
-
-console.log('AICheck MCP server started');
+const server = new AICheckMCPServer();
+server.run().catch(console.error);
