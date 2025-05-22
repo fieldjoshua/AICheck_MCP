@@ -735,8 +735,8 @@ function create_action() {
     exit 1
   fi
   
-  # Convert PascalCase to kebab-case for directories
-  local dir_name=$(echo "$action_name" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  # Convert PascalCase to kebab-case for directories (compatible with macOS)
+  local dir_name=$(echo "$action_name" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
   
   # Create action directory
   mkdir -p ".aicheck/actions/$dir_name"
@@ -859,8 +859,8 @@ function set_active_action() {
     exit 1
   fi
   
-  # Convert PascalCase to kebab-case for directories
-  local dir_name=$(echo "$action_name" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  # Convert PascalCase to kebab-case for directories (compatible with macOS)
+  local dir_name=$(echo "$action_name" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
   
   # Check if action exists
   if [ ! -d ".aicheck/actions/$dir_name" ]; then
@@ -904,8 +904,8 @@ function complete_action() {
     exit 1
   fi
   
-  # Convert PascalCase to kebab-case for directories
-  local dir_name=$(echo "$action_name" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  # Convert PascalCase to kebab-case for directories (compatible with macOS)
+  local dir_name=$(echo "$action_name" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
   
   # Check if action exists
   if [ ! -d ".aicheck/actions/$dir_name" ]; then
@@ -1495,6 +1495,74 @@ EOL
 
 chmod +x activate_aicheck_claude.sh
 
+# Create migration script for existing PascalCase directories
+cat > migrate_action_names.sh << 'MIGRATE'
+#!/bin/bash
+
+# AICheck Action Name Migration Script
+# Converts existing PascalCase action directories to kebab-case
+
+GREEN="\033[0;32m"
+YELLOW="\033[0;33m"
+BLUE="\033[0;34m"
+RED="\033[0;31m"
+NC="\033[0m"
+
+echo -e "${BLUE}AICheck Action Name Migration${NC}"
+echo "Converting PascalCase action directories to kebab-case..."
+echo ""
+
+if [ ! -d ".aicheck/actions" ]; then
+  echo -e "${RED}Error: .aicheck/actions directory not found${NC}"
+  exit 1
+fi
+
+migrated_count=0
+for dir in .aicheck/actions/*/; do
+  if [ -d "$dir" ]; then
+    action_dir=$(basename "$dir")
+    # Convert PascalCase to kebab-case
+    kebab_name=$(echo "$action_dir" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+    
+    if [ "$action_dir" != "$kebab_name" ]; then
+      echo -e "${YELLOW}Migrating: $action_dir -> $kebab_name${NC}"
+      
+      # Create new directory with kebab-case name
+      if [ ! -d ".aicheck/actions/$kebab_name" ]; then
+        mv ".aicheck/actions/$action_dir" ".aicheck/actions/$kebab_name"
+        
+        # Update plan file name if it exists
+        old_plan=".aicheck/actions/$kebab_name/$action_dir-plan.md"
+        new_plan=".aicheck/actions/$kebab_name/$kebab_name-plan.md"
+        if [ -f "$old_plan" ]; then
+          mv "$old_plan" "$new_plan"
+        fi
+        
+        # Update current_action file if it points to the old name
+        if [ -f ".aicheck/current_action" ] && [ "$(cat .aicheck/current_action)" = "$action_dir" ]; then
+          echo "$kebab_name" > .aicheck/current_action
+          echo -e "${BLUE}Updated current action reference${NC}"
+        fi
+        
+        migrated_count=$((migrated_count + 1))
+      else
+        echo -e "${RED}Warning: Target directory $kebab_name already exists, skipping${NC}"
+      fi
+    fi
+  fi
+done
+
+if [ $migrated_count -eq 0 ]; then
+  echo -e "${GREEN}✓ No PascalCase directories found - all actions already use kebab-case${NC}"
+else
+  echo ""
+  echo -e "${GREEN}✓ Migration complete! Migrated $migrated_count action directories${NC}"
+  echo -e "${BLUE}All action directories now use kebab-case naming convention${NC}"
+fi
+MIGRATE
+
+chmod +x migrate_action_names.sh
+
 echo -e "${GREEN}✓ Created AICheck activation script${NC}"
 
 # Done!
@@ -1508,5 +1576,8 @@ echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
 echo -e "${BLUE}2. Start a new Claude Code conversation${NC}"
 echo -e "${BLUE}3. Paste the activation text to Claude${NC}"
 echo -e "${BLUE}4. Claude will automatically recognize and use AICheck${NC}\n"
+
+echo -e "${YELLOW}If you have existing PascalCase action directories:${NC}"
+echo -e "   ${YELLOW}./migrate_action_names.sh${NC} to convert them to kebab-case\n"
 
 echo -e "${GREEN}${BOLD}Enjoy using AICheck MCP!${NC}"
