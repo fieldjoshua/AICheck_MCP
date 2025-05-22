@@ -4,47 +4,22 @@ AICheck is a comprehensive development governance system that brings structure, 
 
 ## 🚀 Quick Installation
 
-### One-Line Install
-
 ```bash
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
 ```
 
-### Manual Install
-
-1. **Download the installer:**
-   ```bash
-   curl -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh
-   chmod +x ultimate_aicheck_installer.sh
-   ```
-
-2. **Run the installer:**
-   ```bash
-   ./ultimate_aicheck_installer.sh
-   ```
-
-3. **Follow the post-installation steps displayed by the installer**
+**📖 For detailed installation instructions, troubleshooting, and setup options, see [INSTALLATION.md](INSTALLATION.md)**
 
 ## ✨ Features
 
-- **Structured Development**: Organized ACTION-based workflow
+- **Structured Development**: Organized ACTION-based workflow with governance
 - **Todo Management**: Integrated task tracking with Claude Code's todo functions
 - **Documentation-First**: Enforces planning before implementation
 - **Test-Driven**: Requires tests before features
-- **AI Integration**: Deep integration with Claude Code
+- **AI Integration**: Deep integration with Claude Code and MCP server
 - **Dependency Tracking**: External and internal dependency management
 - **Git Hook Integration**: Automated compliance checking
-- **MCP Server Support**: Optional Model Context Protocol server
-
-## 📋 What Gets Installed
-
-The installer creates:
-- `.aicheck/` directory structure
-- RULES.md with governance guidelines
-- Action templates and todo templates
-- Git hooks for compliance
-- Documentation structure
-- Testing framework directories
+- **Template System**: Consistent development patterns
 
 ## Claude Code Commands
 
@@ -114,36 +89,18 @@ AICheck follows a documentation-first, test-driven approach:
 
 ## 🔧 Requirements
 
-- **Git**: Version control system
-- **Bash**: Shell environment (included on macOS/Linux)
-- **Claude Code** (optional): For AI-enhanced development workflows
+- **Git** and **Bash** (standard on macOS/Linux)
+- **Claude Code** (optional, for AI workflows)
+- **Node.js** (optional, for MCP server)
 
-## 🎯 MCP Server Setup (Optional)
-
-If you want to use the AICheck MCP server with Claude Code:
-
-1. **Install the MCP server:**
-   ```bash
-   cd .mcp
-   ./setup.sh
-   ```
-
-2. **The setup script will:**
-   - Install Node.js dependencies
-   - Configure the MCP server
-   - Register with Claude Code
-
-3. **Verify installation:**
-   ```bash
-   claude mcp list
-   ```
+*See [INSTALLATION.md](INSTALLATION.md) for detailed requirements and setup instructions.*
 
 ## 📚 Learn More
 
+- **[Installation Guide](INSTALLATION.md)**: Complete setup instructions and troubleshooting
+- **AICheck Rules**: Review `.aicheck/rules.md` for governance details (created after install)
+- **Templates**: Check `.aicheck/templates/` for prompt templates (created after install)
 - **Full Documentation**: See the `/documentation` directory after installation
-- **AICheck Rules**: Review `.aicheck/rules.md` for governance details
-- **Templates**: Check `.aicheck/templates/` for prompt templates
-- **MCP Setup Guide**: See `MCP_SETUP_GUIDE.md` for detailed MCP instructions
 
 ## 🤝 Contributing
 
