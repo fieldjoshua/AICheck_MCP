@@ -107,11 +107,17 @@ The MCP server enables deep integration with Claude Code. To set it up:
 
 ### Manual MCP Registration
 
-If automated registration fails:
+If automated registration fails, try these commands in order:
 
-```bash
-claude mcp add -s local -t stdio aicheck node "/absolute/path/to/your/project/.mcp/server/index.js"
-```
+1. **Simple registration** (try this first):
+   ```bash
+   claude mcp add aicheck
+   ```
+
+2. **Detailed registration** (if simple fails):
+   ```bash
+   claude mcp add -s local -t stdio aicheck node "/absolute/path/to/your/project/.mcp/server/index.js"
+   ```
 
 ## ⚙️ Requirements
 
