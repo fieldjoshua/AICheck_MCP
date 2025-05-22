@@ -6,11 +6,27 @@ This guide explains how to set up the AICheck Model Context Protocol (MCP) serve
 
 - Node.js (version 14 or higher)
 - Claude Code CLI installed and available in PATH
-- Project with AICheck directory structure
+- Project with AICheck directory structure (created by the AICheck installer)
 
-## Quick Setup
+## Automatic Setup (Recommended)
 
-The easiest way to set up the MCP server is to use the automated setup script:
+**The MCP server is now automatically included in the AICheck installer!** When you run the ultimate AICheck installer, it creates all necessary MCP files.
+
+After running the installer, simply execute:
+
+```bash
+./.mcp/setup.sh
+```
+
+This is now **Step 1** in the installer's next steps and will:
+1. Install all required dependencies
+2. Update the Anthropic SDK to the latest version
+3. Make the server executable
+4. Register the server with Claude Code
+
+## Quick Setup (Manual Projects)
+
+For existing AICheck projects, use the automated setup script:
 
 ```bash
 cd /path/to/your/aicheck/project

@@ -14,25 +14,42 @@ This will:
 1. Create the AICheck directory structure and files
 2. Set up git hooks for AICheck compliance
 3. Create the Claude Code activation script
-4. Install the AICheck MCP server for Claude Code integration
+4. **Install the complete AICheck MCP server infrastructure**
 
-After installation, run:
+## Next Steps
 
-```bash
-./activate_aicheck_claude.sh
-```
+After installation, follow these steps for full integration:
 
-This will copy the AICheck activation prompt to your clipboard. Paste this into a new Claude Code conversation to activate AICheck.
-
-## MCP Server Setup
-
-For enhanced Claude Code integration, set up the AICheck MCP server:
-
+### 1. Set up MCP Server (New!)
 ```bash
 ./.mcp/setup.sh
 ```
 
-This enables Claude Code to directly interact with the AICheck governance system. See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed instructions.
+This sets up the Model Context Protocol server that gives Claude direct access to AICheck governance tools.
+
+### 2. Activate Claude Code Integration
+```bash
+./activate_aicheck_claude.sh
+```
+
+This copies the AICheck activation prompt to your clipboard. Paste this into a new Claude Code conversation to activate AICheck.
+
+## MCP Server Integration
+
+The installer now includes a complete MCP server that provides Claude with direct access to:
+
+- **aicheck.getCurrentAction** - Get the currently active action
+- **aicheck.listActions** - List all actions in the project  
+- **aicheck.getActionPlan** - Get the plan for a specific action
+- **aicheck.setCurrentAction** - Set the currently active action (requires approval)
+- **aicheck.logClaudeInteraction** - Log Claude interactions for the current action
+
+Plus access to AICheck resources:
+- AICheck rules and governance
+- Actions index and status
+- Current action details
+
+This enables Claude Code to directly interact with the AICheck governance system without requiring manual command execution. See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed instructions.
 
 ## What is AICheck MCP?
 
