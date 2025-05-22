@@ -2064,16 +2064,25 @@ fi
 
 # Register the MCP server with Claude
 echo "Registering the MCP server with Claude..."
+echo "Using path: $MCP_SERVER_DIR/index.js"
 
-# Try simple registration first
-if claude mcp add aicheck > /dev/null 2>&1; then
-    echo "✓ AICheck MCP server registered successfully (simple method)"
-elif claude mcp add -s local -t stdio aicheck node "$MCP_SERVER_DIR/index.js" > /dev/null 2>&1; then
-    echo "✓ AICheck MCP server registered successfully (detailed method)"
+# Remove any existing aicheck registration first
+claude mcp remove aicheck > /dev/null 2>&1 || true
+
+# Register the MCP server
+if claude mcp add -s local -t stdio aicheck node "$MCP_SERVER_DIR/index.js"; then
+    echo "✓ AICheck MCP server registered successfully"
+    
+    # Verify registration
+    if claude mcp list | grep -q "aicheck"; then
+        echo "✓ Registration verified"
+    else
+        echo "⚠ Registration verification failed"
+    fi
 else
-    echo "⚠ Registration failed. Manual setup required:"
-    echo "   Run: claude mcp add aicheck"
-    echo "   Or: claude mcp add -s local -t stdio aicheck node \"$MCP_SERVER_DIR/index.js\""
+    echo "⚠ Registration failed. Manual registration required:"
+    echo "   Run: claude mcp add -s local -t stdio aicheck node \"$MCP_SERVER_DIR/index.js\""
+    exit 1
 fi
 
 echo "AICheck MCP server setup complete!"
@@ -2187,7 +2196,6 @@ elif [ "$CLAUDE_AVAILABLE" = true ]; then
     echo -e "${GREEN}✓ Claude CLI available${NC}"
     echo -e "${BRIGHT_BLURPLE}1. Set up the MCP server:${NC}"
     echo -e "   ${YELLOW}./.mcp/setup.sh${NC}"
-    echo -e "${BRIGHT_BLURPLE}   OR try the simple command: ${YELLOW}claude mcp add aicheck${NC}"
     echo -e "${BRIGHT_BLURPLE}2. Run the activation script:${NC}"
     echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
     echo -e "${BRIGHT_BLURPLE}3. Start Claude Code and paste the activation text${NC}"
@@ -2195,7 +2203,6 @@ else
     echo -e "${BRIGHT_BLURPLE}MANUAL SETUP REQUIRED:${NC}"
     echo -e "${BRIGHT_BLURPLE}1. Install Claude CLI: ${YELLOW}npm install -g @anthropic-ai/claude-code${NC}"
     echo -e "${BRIGHT_BLURPLE}2. Set up MCP server: ${YELLOW}./.mcp/setup.sh${NC}"
-    echo -e "${BRIGHT_BLURPLE}   OR try the simple command: ${YELLOW}claude mcp add aicheck${NC}"
     echo -e "${BRIGHT_BLURPLE}3. Copy activation prompt: ${YELLOW}./activate_aicheck_claude.sh${NC}"
     echo -e "${BRIGHT_BLURPLE}4. Start Claude Code and paste the activation text${NC}\n"
     
