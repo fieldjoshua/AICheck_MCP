@@ -2002,11 +2002,37 @@ chmod +x .mcp/setup.sh
 
 echo -e "${GREEN}✓ Created MCP server infrastructure${NC}"
 
+# Check for and install Claude CLI if needed
+echo -e "${BRIGHT_BLURPLE}Checking for Claude CLI...${NC}"
+
+if command -v claude &> /dev/null; then
+    echo -e "${GREEN}✓ Claude CLI already installed${NC}"
+    CLAUDE_AVAILABLE=true
+elif command -v npm &> /dev/null; then
+    echo -e "${YELLOW}Claude CLI not found, but npm is available${NC}"
+    echo -e "${BRIGHT_BLURPLE}Installing Claude CLI automatically...${NC}"
+    
+    # Install Claude CLI via npm
+    if npm install -g @anthropic-ai/claude-code; then
+        echo -e "${GREEN}✓ Claude CLI installed successfully${NC}"
+        CLAUDE_AVAILABLE=true
+    else
+        echo -e "${RED}✗ Failed to install Claude CLI${NC}"
+        echo -e "${YELLOW}You can install it manually: npm install -g @anthropic-ai/claude-code${NC}"
+        CLAUDE_AVAILABLE=false
+    fi
+else
+    echo -e "${YELLOW}Neither Claude CLI nor npm found${NC}"
+    echo -e "${YELLOW}Install Node.js and npm first, then Claude CLI${NC}"
+    echo -e "${YELLOW}Or install Claude Code from https://claude.ai/code${NC}"
+    CLAUDE_AVAILABLE=false
+fi
+
 # Automatically set up MCP server if Claude CLI is available
 echo -e "${BRIGHT_BLURPLE}Attempting automatic MCP server setup...${NC}"
 
-if command -v claude &> /dev/null; then
-    echo -e "${GREEN}Claude CLI found! Setting up MCP server automatically...${NC}"
+if [ "$CLAUDE_AVAILABLE" = true ]; then
+    echo -e "${GREEN}Claude CLI available! Setting up MCP server automatically...${NC}"
     
     # Run MCP setup
     if ./.mcp/setup.sh; then
@@ -2017,8 +2043,7 @@ if command -v claude &> /dev/null; then
         MCP_SETUP_SUCCESS=false
     fi
 else
-    echo -e "${YELLOW}Claude CLI not found - MCP setup will need to be run manually${NC}"
-    echo -e "${YELLOW}Install Claude Code from https://claude.ai/code first${NC}"
+    echo -e "${YELLOW}Claude CLI not available - MCP setup will need to be run manually${NC}"
     MCP_SETUP_SUCCESS=false
 fi
 
@@ -2055,11 +2080,14 @@ else
 fi
 
 if [ "$MCP_SETUP_SUCCESS" = true ] && [ "$CLIPBOARD_SUCCESS" = true ]; then
-    echo -e "${GREEN}✓ MCP server configured and activation prompt ready${NC}"
+    echo -e "${GREEN}${BOLD}🚀 FULLY AUTOMATED SETUP COMPLETE!${NC}"
+    echo -e "${GREEN}✓ Claude CLI installed/configured${NC}"
+    echo -e "${GREEN}✓ MCP server configured and registered${NC}" 
+    echo -e "${GREEN}✓ Activation prompt copied to clipboard${NC}"
     echo -e "${BRIGHT_BLURPLE}READY TO USE:${NC}"
     echo -e "${BRIGHT_BLURPLE}1. Start a new Claude Code conversation${NC}"
     echo -e "${BRIGHT_BLURPLE}2. Paste the activation text (already in clipboard)${NC}"
-    echo -e "${BRIGHT_BLURPLE}3. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+    echo -e "${BRIGHT_BLURPLE}3. Start coding with full AICheck + MCP integration!${NC}\n"
     
     echo -e "${CYAN}To verify MCP setup: ${YELLOW}claude mcp list${NC}"
 elif [ "$MCP_SETUP_SUCCESS" = true ]; then
@@ -2071,14 +2099,21 @@ elif [ "$MCP_SETUP_SUCCESS" = true ]; then
     echo -e "${BRIGHT_BLURPLE}4. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
     
     echo -e "${CYAN}To verify MCP setup: ${YELLOW}claude mcp list${NC}"
-else
-    echo -e "${BRIGHT_BLURPLE}1. Set up the MCP server for full AICheck integration:${NC}"
+elif [ "$CLAUDE_AVAILABLE" = true ]; then
+    echo -e "${GREEN}✓ Claude CLI available${NC}"
+    echo -e "${BRIGHT_BLURPLE}1. Set up the MCP server:${NC}"
     echo -e "   ${YELLOW}./.mcp/setup.sh${NC}"
-    echo -e "${BRIGHT_BLURPLE}2. Run the activation script to copy the Claude Code prompt:${NC}"
+    echo -e "${BRIGHT_BLURPLE}2. Run the activation script:${NC}"
     echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
-    echo -e "${BRIGHT_BLURPLE}3. Start a new Claude Code conversation${NC}"
-    echo -e "${BRIGHT_BLURPLE}4. Paste the activation text to Claude${NC}"
-    echo -e "${BRIGHT_BLURPLE}5. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+    echo -e "${BRIGHT_BLURPLE}3. Start Claude Code and paste the activation text${NC}"
+else
+    echo -e "${BRIGHT_BLURPLE}MANUAL SETUP REQUIRED:${NC}"
+    echo -e "${BRIGHT_BLURPLE}1. Install Claude CLI: ${YELLOW}npm install -g @anthropic-ai/claude-code${NC}"
+    echo -e "${BRIGHT_BLURPLE}2. Set up MCP server: ${YELLOW}./.mcp/setup.sh${NC}"
+    echo -e "${BRIGHT_BLURPLE}3. Copy activation prompt: ${YELLOW}./activate_aicheck_claude.sh${NC}"
+    echo -e "${BRIGHT_BLURPLE}4. Start Claude Code and paste the activation text${NC}\n"
+    
+    echo -e "${YELLOW}Note: You'll need Node.js and npm if not already installed${NC}"
 fi
 
 echo -e "${YELLOW}If you have existing PascalCase action directories:${NC}"
