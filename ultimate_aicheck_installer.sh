@@ -1056,7 +1056,7 @@ function add_dependency() {
   # Create dependency index if it doesn't exist
   mkdir -p documentation/dependencies
   if [ ! -f "documentation/dependencies/dependency_index.md" ]; then
-    cat > documentation/dependencies/dependency_index.md << 'EOL'
+    cat > documentation/dependencies/dependency_index.md << 'EODOC'
 # Dependency Index
 
 This document tracks all dependencies in the PROJECT. All dependencies must be registered here.
@@ -1075,7 +1075,7 @@ This document tracks all dependencies in the PROJECT. All dependencies must be r
 
 ---
 *Last Updated: $(date +"%Y-%m-%d")*
-EOL
+EODOC
   fi
   
   # Check if dependency already exists
@@ -1135,7 +1135,7 @@ function add_internal_dependency() {
   # Create dependency index if it doesn't exist
   mkdir -p documentation/dependencies
   if [ ! -f "documentation/dependencies/dependency_index.md" ]; then
-    cat > documentation/dependencies/dependency_index.md << 'EOL'
+    cat > documentation/dependencies/dependency_index.md << 'EODOC2'
 # Dependency Index
 
 This document tracks all dependencies in the PROJECT. All dependencies must be registered here.
@@ -1154,7 +1154,7 @@ This document tracks all dependencies in the PROJECT. All dependencies must be r
 
 ---
 *Last Updated: $(date +"%Y-%m-%d")*
-EOL
+EODOC2
   fi
   
   # Check if both actions exist
