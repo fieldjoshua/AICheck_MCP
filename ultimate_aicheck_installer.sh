@@ -2002,19 +2002,84 @@ chmod +x .mcp/setup.sh
 
 echo -e "${GREEN}✓ Created MCP server infrastructure${NC}"
 
+# Automatically set up MCP server if Claude CLI is available
+echo -e "${BRIGHT_BLURPLE}Attempting automatic MCP server setup...${NC}"
+
+if command -v claude &> /dev/null; then
+    echo -e "${GREEN}Claude CLI found! Setting up MCP server automatically...${NC}"
+    
+    # Run MCP setup
+    if ./.mcp/setup.sh; then
+        echo -e "${GREEN}✓ MCP server setup completed automatically${NC}"
+        MCP_SETUP_SUCCESS=true
+    else
+        echo -e "${YELLOW}⚠ MCP setup encountered issues - you may need to run it manually${NC}"
+        MCP_SETUP_SUCCESS=false
+    fi
+else
+    echo -e "${YELLOW}Claude CLI not found - MCP setup will need to be run manually${NC}"
+    echo -e "${YELLOW}Install Claude Code from https://claude.ai/code first${NC}"
+    MCP_SETUP_SUCCESS=false
+fi
+
 # Done!
 echo -e "\n${GREEN}${BOLD}✓ AICheck MCP installed successfully!${NC}"
 echo -e "${GREEN}Directory structure and core files created in current directory.${NC}\n"
 
-# Display activation instructions
+# Display next steps based on MCP setup success
 echo -e "${BOLD}${BRIGHT_BLURPLE}NEXT STEPS:${NC}"
-echo -e "${BRIGHT_BLURPLE}1. Set up the MCP server for full AICheck integration:${NC}"
-echo -e "   ${YELLOW}./.mcp/setup.sh${NC}"
-echo -e "${BRIGHT_BLURPLE}2. Run the activation script to copy the Claude Code prompt:${NC}"
-echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
-echo -e "${BRIGHT_BLURPLE}3. Start a new Claude Code conversation${NC}"
-echo -e "${BRIGHT_BLURPLE}4. Paste the activation text to Claude${NC}"
-echo -e "${BRIGHT_BLURPLE}5. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+
+# Auto-copy activation prompt to clipboard
+echo -e "${BRIGHT_BLURPLE}Copying AICheck activation prompt to clipboard...${NC}"
+
+CLIPBOARD_SUCCESS=false
+
+if command -v pbcopy > /dev/null; then
+    # macOS
+    cat .aicheck/claude_aicheck_prompt.md | pbcopy
+    CLIPBOARD_SUCCESS=true
+elif command -v xclip > /dev/null; then
+    # Linux with xclip
+    cat .aicheck/claude_aicheck_prompt.md | xclip -selection clipboard
+    CLIPBOARD_SUCCESS=true
+elif command -v clip.exe > /dev/null; then
+    # Windows with clip.exe (WSL)
+    cat .aicheck/claude_aicheck_prompt.md | clip.exe
+    CLIPBOARD_SUCCESS=true
+fi
+
+if [ "$CLIPBOARD_SUCCESS" = true ]; then
+    echo -e "${GREEN}✓ AICheck activation prompt copied to clipboard${NC}"
+else
+    echo -e "${YELLOW}⚠ Could not copy to clipboard - will show manual steps${NC}"
+fi
+
+if [ "$MCP_SETUP_SUCCESS" = true ] && [ "$CLIPBOARD_SUCCESS" = true ]; then
+    echo -e "${GREEN}✓ MCP server configured and activation prompt ready${NC}"
+    echo -e "${BRIGHT_BLURPLE}READY TO USE:${NC}"
+    echo -e "${BRIGHT_BLURPLE}1. Start a new Claude Code conversation${NC}"
+    echo -e "${BRIGHT_BLURPLE}2. Paste the activation text (already in clipboard)${NC}"
+    echo -e "${BRIGHT_BLURPLE}3. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+    
+    echo -e "${CYAN}To verify MCP setup: ${YELLOW}claude mcp list${NC}"
+elif [ "$MCP_SETUP_SUCCESS" = true ]; then
+    echo -e "${GREEN}✓ MCP server configured${NC}"
+    echo -e "${BRIGHT_BLURPLE}1. Run the activation script to copy the Claude Code prompt:${NC}"
+    echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
+    echo -e "${BRIGHT_BLURPLE}2. Start a new Claude Code conversation${NC}"
+    echo -e "${BRIGHT_BLURPLE}3. Paste the activation text to Claude${NC}"
+    echo -e "${BRIGHT_BLURPLE}4. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+    
+    echo -e "${CYAN}To verify MCP setup: ${YELLOW}claude mcp list${NC}"
+else
+    echo -e "${BRIGHT_BLURPLE}1. Set up the MCP server for full AICheck integration:${NC}"
+    echo -e "   ${YELLOW}./.mcp/setup.sh${NC}"
+    echo -e "${BRIGHT_BLURPLE}2. Run the activation script to copy the Claude Code prompt:${NC}"
+    echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
+    echo -e "${BRIGHT_BLURPLE}3. Start a new Claude Code conversation${NC}"
+    echo -e "${BRIGHT_BLURPLE}4. Paste the activation text to Claude${NC}"
+    echo -e "${BRIGHT_BLURPLE}5. Claude will automatically recognize and use AICheck with MCP tools${NC}\n"
+fi
 
 echo -e "${YELLOW}If you have existing PascalCase action directories:${NC}"
 echo -e "   ${YELLOW}./migrate_action_names.sh${NC} to convert them to kebab-case\n"
