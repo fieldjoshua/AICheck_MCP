@@ -69,6 +69,20 @@ AICheck provides a command-line interface for managing actions:
 
 # Toggle system maintenance mode
 ./aicheck exec
+
+# Migrate existing PascalCase action directories to kebab-case
+./migrate_action_names.sh
+```
+
+## Naming Conventions
+
+AICheck uses **kebab-case** for action directory names:
+- ✅ `my-action`, `setup-database`, `create-user-interface`
+- ❌ `MyAction`, `SetupDatabase`, `CreateUserInterface`
+
+If you have existing PascalCase directories, run the migration script:
+```bash
+./migrate_action_names.sh
 ```
 
 ## Documentation-First Development
@@ -102,15 +116,29 @@ AICheck follows a structured approach to development:
 
 If you encounter any issues with the installation:
 
-1. Make sure you have the necessary permissions in your project directory
-2. Check for existing `.aicheck` directory that might conflict
-3. Run the script directly after downloading if curl pipe fails:
+1. **Missing `./aicheck` executable**: Re-run the installer or check file permissions:
+   ```bash
+   curl -s https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
+   chmod +x ./aicheck
+   ```
+
+2. **PascalCase action directories**: Run the migration script:
+   ```bash
+   ./migrate_action_names.sh
+   ```
+
+3. **Permission issues**: Make sure you have the necessary permissions in your project directory
+
+4. **Conflicting directories**: Check for existing `.aicheck` directory that might conflict
+
+5. **Installation failures**: Run the script directly after downloading if curl pipe fails:
    ```bash
    curl -s -o install.sh https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh
    chmod +x install.sh
    ./install.sh
    ```
-4. If Claude Code doesn't recognize AICheck, try running `./aicheck status` first to verify your installation
+
+6. **Claude Code integration**: If Claude Code doesn't recognize AICheck, try running `./aicheck status` first to verify your installation
 
 ## Learn More
 
