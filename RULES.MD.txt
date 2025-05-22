@@ -105,6 +105,7 @@ Code implementing the ActiveAction plan (after PLAN approval)
 Documentation updates for ActiveAction
 Bug fixes and tests within ActiveAction scope
 Refactoring within ActiveAction scope
+Managing todo.md files within ActiveAction scope (creating, updating task status, marking complete)
 
 The following ALWAYS require human manager approval:
 
@@ -206,9 +207,40 @@ Each interaction must include:
 [Reason for iterations: Added security constraints]
 ```
 
-## 4. Project Structure and Organization
+## 4. Todo Management Integration
 
-### 4.1 Directory Structure
+### 4.1 Todo File Requirements
+
+- **MANDATORY**: Every ACTION directory MUST contain a todo.md file
+- Todo files track task progress, priorities, and completion status
+- Claude Code automatically manages todo.md files using native todo functions
+- Todo items must align with ACTION plan and success criteria
+
+### 4.2 Todo File Format
+
+```markdown
+# TODO: [Action Name]
+
+## Active Tasks
+- [ ] Task description (priority: high/medium/low, status: pending/in_progress/completed)
+
+## Completed Tasks
+- [x] Completed task description
+
+## Notes
+Additional context or dependencies for tasks
+```
+
+### 4.3 Todo Management Workflow
+
+- Claude Code automatically creates todo.md when starting an ACTION
+- Tasks are derived from ACTION plan phases and requirements
+- Progress tracked in real-time as tasks complete
+- Todo status integrates with overall ACTION progress tracking
+
+## 5. Project Structure and Organization
+
+### 5.1 Directory Structure
 
 ```text
 /
@@ -216,6 +248,7 @@ Each interaction must include:
 │   ├── actions/                      # All PROJECT ACTIONS
 │   │   └── [action-name]/            # Individual ACTION directory
 │   │       ├── [action-name]-plan.md # ACTION PLAN (requires approval)
+│   │       ├── todo.md              # ACTION TODO tracking (required)
 │   │       └── supporting_docs/      # ACTION-specific documentation
 │   │           ├── claude-interactions/  # Claude Code logs
 │   │           ├── process-tests/        # Temporary tests for ACTION
@@ -238,13 +271,14 @@ Each interaction must include:
 │   └── fixtures/                     # Test data and fixtures
 ```
 
-### 4.2 Action Directory Structure
+### 5.2 Action Directory Structure
 
 Each ACTION must follow this structure:
 
 ```text
 .aicheck/actions/[action-name]/
 ├── [action-name]-plan.md        # ACTION plan (REQUIRED)
+├── todo.md                      # ACTION TODO tracking (REQUIRED)
 ├── progress.md                  # Progress tracking
 ├── status.txt                   # Current status and percentage
 └── supporting_docs/             # All ACTION-specific docs
@@ -254,9 +288,9 @@ Each ACTION must follow this structure:
     └── diagrams/                # Visual documentation
 ```
 
-## 5. Workflow and Processes
+## 6. Workflow and Processes
 
-### 5.1 Standard Action Lifecycle
+### 6.1 Standard Action Lifecycle
 
 1. **Creation**: ACTION directory created with initial PLAN
 2. **Planning**: PLAN.md developed with requirements and approach
@@ -268,19 +302,20 @@ Each ACTION must follow this structure:
 8. **Completion**: ACTION marked complete, documents migrated
 9. **Archival**: ACTION retained for reference
 
-#### 5.1.1 ACTION Creation Checklist
+#### 6.1.1 ACTION Creation Checklist
 
 When creating a new ACTION:
 
 - [ ] Create directory: `.aicheck/actions/[action-name]/`
 - [ ] Create PLAN file: `[action-name]-plan.md`
+- [ ] Create todo.md file (Claude Code will auto-generate from PLAN)
 - [ ] Add to actions index: `.aicheck/actions_index.md`
 - [ ] Create supporting_docs directory
 - [ ] Define success criteria in PLAN
 - [ ] Specify test requirements
 - [ ] Get PLAN approval
 
-### 5.2 Claude Code Enhanced Workflow
+### 6.2 Claude Code Enhanced Workflow
 
 claude action new [action-name]: Initialize ACTION structure
 claude action test: Generate test specifications
@@ -289,7 +324,7 @@ claude prompt [template]: Generate prompt from template
 claude verify [file]: Verify generated content
 claude document [file]: Document interactions
 
-#### 5.2.1 Optimal Claude-Human Collaboration Patterns
+#### 6.2.1 Optimal Claude-Human Collaboration Patterns
 
 ### Pattern 1: Test-Implementation-Document Cycle
 
@@ -344,7 +379,7 @@ Human: "Approved for completion"
 4. Claude: Verify fixes
 5. Document review in supporting_docs/
 
-#### 5.2.2 Security Guidelines for Claude Code
+#### 6.2.2 Security Guidelines for Claude Code
 
 When using Claude for security-sensitive code:
 
@@ -355,7 +390,7 @@ When using Claude for security-sensitive code:
 5. Verify generated code against OWASP guidelines
 6. Add security-specific tests for all generated auth code
 
-### 5.3 Quick Response (Emergency Fix) Protocol
+### 6.3 Quick Response (Emergency Fix) Protocol
 
 For urgent production issues requiring immediate resolution:
 
@@ -381,15 +416,15 @@ For urgent production issues requiring immediate resolution:
    - Emergency fix details
    - Follow-up ACTION reference
 
-### 5.4 Approval Process
+### 6.4 Approval Process
 
 All approvals are done by Joshua Field
 
-### 5.5 Approval Authorities
+### 6.5 Approval Authorities
 
 Joshua Field: Approves all ACTION PLANs and significant changes
 
-#### 5.5.1 Multi-Editor Coordination
+#### 6.5.1 Multi-Editor Coordination
 
 When multiple EDITORs work on related ACTIONS:
 
@@ -398,7 +433,7 @@ When multiple EDITORs work on related ACTIONS:
 - Blocking dependencies tracked in `.aicheck/blockers.md`
 - Resolution requires joint planning sessions
 
-### 5.6 Git Hook Compliance (Phased Approach)
+### 6.6 Git Hook Compliance (Phased Approach)
 
 Commit message enforcement is implemented progressively to maintain workflow efficiency while improving compliance:
 
@@ -420,7 +455,7 @@ Commit message enforcement is implemented progressively to maintain workflow eff
 2. Documentation checks
 3. Automated documentation migration
 
-### 5.7 Process Documentation Versioning
+### 6.7 Process Documentation Versioning
 
 All PLANs must include version information:
 
@@ -435,7 +470,7 @@ Progress: 45%
 
 Major changes require version increment and changelog.
 
-### 5.8 AI-Assisted Migration Process
+### 6.8 AI-Assisted Migration Process
 
 When migrating documentation or tests:
 
@@ -446,7 +481,7 @@ When migrating documentation or tests:
 5. Human: Validate migrated content
 6. Claude: Update all references
 
-### 5.9 Feature Flag Management
+### 6.9 Feature Flag Management
 
 For gradual rollouts:
 
@@ -455,7 +490,7 @@ For gradual rollouts:
 - Migration plan for flag removal
 - Performance impact analysis
 
-### 5.10 Dependency Management
+### 6.10 Dependency Management
 
 External dependencies require:
 
@@ -471,9 +506,9 @@ Future Enhancements (Not Currently Implemented):
 - AI-assisted code review workflows
 - Automated documentation migration
 
-## 6. Style and Documentation Standards
+## 7. Style and Documentation Standards
 
-### 6.1 Documentation Style
+### 7.1 Documentation Style
 
 Use ATX-style headers, fenced code blocks with language specification
 Use bullet points for lists, bold for emphasis
@@ -485,7 +520,7 @@ Follow documentation structure in documentation/README.md
 Separate technical from user-facing documentation
 Document configuration files in documentation/configuration/
 
-### 6.2 Claude Code Prompt Style
+### 7.2 Claude Code Prompt Style
 
 Claude Code prompts MUST:
 
@@ -497,7 +532,7 @@ Specify verification criteria
 Use consistent formatting with clear sections
 End with explicit output expectations
 
-### 6.3 Commit and Status Practices
+### 7.3 Commit and Status Practices
 
 Write commit messages that begin with a present-tense verb
 Keep commit message subject lines under 50 characters (hard limit)
@@ -517,9 +552,9 @@ Add user authentication module [auth-system]
 - Creates login/logout endpoints
 - Includes unit tests for all components
 
-## 7. Testing Framework
+## 8. Testing Framework
 
-### 7.1 Test-Driven Development
+### 8.1 Test-Driven Development
 
 ACTIONS MUST have tests written before implementation with coverage for:
 
@@ -531,7 +566,7 @@ Error handling tests
 Test data SHOULD be maintained in standard locations and formats.
 Test fixtures SHOULD be reused across related ACTIONS when appropriate.
 
-#### 7.1.1 Performance Testing Requirements
+#### 8.1.1 Performance Testing Requirements
 
 For ACTIONS affecting system performance:
 
@@ -541,7 +576,7 @@ For ACTIONS affecting system performance:
 - Regression tests for critical paths
 - Claude may suggest performance optimizations with benchmarks
 
-### 7.2 Testing Documentation
+### 8.2 Testing Documentation
 
 Organized into:
 
@@ -551,7 +586,7 @@ Test Data Management: Guidelines for test data
 Testing Tools: Documentation of utilities/frameworks
 Test Coverage Reports: Analysis of coverage and gaps
 
-### 7.3 Test Migration Requirements
+### 8.3 Test Migration Requirements
 
 When tests are migrated, the following requirements MUST be met:
 
@@ -577,7 +612,7 @@ A one-week observation period has passed with no regressions
 
 Version Alignment - Test versions MUST align with the ACTIONS they validate, maintaining traceability
 
-### 7.4 Test Location Specifications
+### 8.4 Test Location Specifications
 
 Directory Structure:
 
@@ -598,7 +633,7 @@ Test directory structure SHOULD mirror the code structure being tested
 Shared test utilities → tests/utils/
 Test data → tests/fixtures/
 
-### 7.5 Claude Code Test Generation
+### 8.5 Claude Code Test Generation
 
 Claude Code MAY be used to generate tests for ACTIONS under the following conditions:
 
@@ -614,9 +649,9 @@ Generated tests MUST be validated against the ACTION PLAN
 Generated tests MUST follow the project's testing standards and patterns
 Any manual modifications to generated tests MUST be documented
 
-## 8. Documentation Organization
+## 9. Documentation Organization
 
-### 8.1 Documentation Types and Locations
+### 9.1 Documentation Types and Locations
 
 ACTION Process Documentation (.aicheck/actions/[action-name]/supporting_docs/)
 
@@ -638,7 +673,7 @@ WHEN the ACTION is completed, OR
 WHEN documentation has value beyond the ACTION's scope, AND
 WHEN approved by the technical lead
 
-### 8.2 Documentation Migration Requirements
+### 9.2 Documentation Migration Requirements
 
 Migration from ACTION to product documentation MUST:
 
@@ -650,9 +685,9 @@ Obtain approval from documentation owner
 Leave forwarding references in ACTION directory
 Add migration notice to ACTION's README
 
-## 9. Language-Specific Standards
+## 10. Language-Specific Standards
 
-### 9.1 Python Standards
+### 10.1 Python Standards
 
 Follow PEP 8 style guide with these specific exceptions:
 
@@ -667,7 +702,7 @@ Import order:
 2. Third-party imports
 3. Local application imports
 
-### 9.2 JavaScript/TypeScript Standards
+### 10.2 JavaScript/TypeScript Standards
 
 Use ESLint with the project's configuration
 Prefer TypeScript for new files
@@ -676,7 +711,7 @@ Follow Airbnb style guide with modifications
 Async/await over promises
 Functional programming patterns where appropriate
 
-### 9.3 Documentation Language
+### 10.3 Documentation Language
 
 Write in clear, concise English
 Use active voice
@@ -684,9 +719,9 @@ Avoid jargon without explanation
 Include examples for complex concepts
 Maintain consistent terminology
 
-## 10. Implementation Standards
+## 11. Implementation Standards
 
-### 10.1 Environment Configuration
+### 11.1 Environment Configuration
 
 Never hard-code credentials or secrets
 Use environment variables for configuration
@@ -694,7 +729,7 @@ Document all required environment variables
 Provide example .env.example file
 Support multiple deployment environments
 
-### 10.2 Error Handling
+### 11.2 Error Handling
 
 All errors must include:
 
@@ -704,7 +739,7 @@ Suggested resolution steps
 Context about where the error occurred
 Logging at appropriate level
 
-### 10.3 Dependency Management
+### 11.3 Dependency Management
 
 Document all dependencies in appropriate manifest
 Pin major versions for production dependencies
@@ -712,9 +747,9 @@ Regular security audits of dependencies
 Graceful degradation for optional dependencies
 Clear installation instructions
 
-## 11. Version Control Best Practices
+## 12. Version Control Best Practices
 
-### 11.1 Branching Strategy
+### 12.1 Branching Strategy
 
 Main branch is always deployable
 Feature branches for new ACTIONS
@@ -722,7 +757,7 @@ Hotfix branches for emergency fixes
 No direct commits to main
 All changes through pull requests
 
-### 11.2 Pull Request Requirements
+### 12.2 Pull Request Requirements
 
 Reference ACTION in PR title
 Tests must pass before merge
@@ -730,7 +765,7 @@ Code review required
 Update documentation if needed
 Clean commit history
 
-### 11.3 Commit Best Practices
+### 12.3 Commit Best Practices
 
 Atomic commits (one logical change)
 Present-tense imperative mood
@@ -738,9 +773,9 @@ Reference ACTION and issue numbers
 Explain why, not just what
 Sign commits when required
 
-## 12. Review and Approval Process
+## 13. Review and Approval Process
 
-### 12.1 Pre-Implementation Review
+### 13.1 Pre-Implementation Review
 
 ACTION PLAN must be reviewed
 Test specifications approved
@@ -748,7 +783,7 @@ Architecture decisions documented
 Security implications considered
 Performance impact assessed
 
-### 12.2 Code Review Focus Areas
+### 13.2 Code Review Focus Areas
 
 Correctness and functionality
 Security vulnerabilities
@@ -757,7 +792,7 @@ Code maintainability
 Documentation completeness
 Test coverage
 
-### 12.3 Post-Implementation Review
+### 13.3 Post-Implementation Review
 
 All tests passing
 Documentation updated
@@ -765,9 +800,9 @@ Dependencies documented
 Deployment instructions clear
 Monitoring in place
 
-## 13. Continuous Improvement
+## 14. Continuous Improvement
 
-### 13.1 Retrospectives
+### 14.1 Retrospectives
 
 Regular ACTION retrospectives
 Document lessons learned
@@ -775,7 +810,7 @@ Update RULES based on experience
 Share knowledge across team
 Improve tooling and processes
 
-### 13.2 Metrics and Monitoring
+### 14.2 Metrics and Monitoring
 
 Track ACTION completion times
 Monitor test coverage trends
@@ -783,7 +818,7 @@ Measure documentation quality
 Analyze error rates
 Review performance metrics
 
-### 13.3 Tool Development
+### 14.3 Tool Development
 
 Create tools to enforce RULES
 Automate repetitive tasks
@@ -791,9 +826,9 @@ Improve developer experience
 Enhance Claude Code integration
 Streamline approval processes
 
-## 14. Compliance and Governance
+## 15. Compliance and Governance
 
-### 14.1 Audit Trail
+### 15.1 Audit Trail
 
 All ACTIONS tracked in index
 Decisions documented in PLANs
@@ -801,7 +836,7 @@ Changes tracked in version control
 Reviews recorded in PRs
 Approvals logged appropriately
 
-### 14.2 Security Compliance
+### 15.2 Security Compliance
 
 Regular security assessments
 Dependency vulnerability scanning
@@ -809,7 +844,7 @@ Access control reviews
 Incident response procedures
 Compliance reporting
 
-### 14.3 Quality Assurance
+### 15.3 Quality Assurance
 
 Code quality metrics
 Test coverage requirements
@@ -817,9 +852,9 @@ Documentation standards
 Performance benchmarks
 Accessibility compliance
 
-## 15. Exception Handling
+## 16. Exception Handling
 
-### 15.1 Rule Exceptions
+### 16.1 Rule Exceptions
 
 Must be documented
 Require approval from Joshua Field
@@ -827,7 +862,7 @@ Time-limited when possible
 Reviewed regularly
 Lessons learned captured
 
-### 15.2 Emergency Procedures
+### 16.2 Emergency Procedures
 
 Clear escalation path
 Documented in runbooks
@@ -835,7 +870,7 @@ Tested regularly
 Post-incident reviews
 Process improvements
 
-### 15.3 Technical Debt
+### 16.3 Technical Debt
 
 Tracked as ACTIONS
 Prioritized regularly
@@ -845,8 +880,8 @@ Reviewed quarterly
 
 ---
 
-**Document Version**: 2.0
-**Last Updated**: 2025-05-16
+**Document Version**: 2.1
+**Last Updated**: 2025-05-22
 **Owner**: Joshua Field
 **Next Review**: Quarterly
 [EOF]
