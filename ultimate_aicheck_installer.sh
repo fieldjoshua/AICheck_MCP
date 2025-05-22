@@ -11,16 +11,18 @@
 
 set -e  # Exit on any error
 
-# Colors for pretty output
+# Colors for pretty output - Neon Blurple Theme
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
+NEON_BLURPLE='\033[38;5;99m'      # Neon blurple highlight color
+BRIGHT_BLURPLE='\033[38;5;135m'   # Bright blurple for text
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Banner
-echo -e "${BOLD}${BLUE}"
+# Banner with Neon Blurple
+echo -e "${BOLD}${NEON_BLURPLE}"
 echo "  █████╗ ██╗ ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗"
 echo " ██╔══██╗██║██╔════╝██║  ██║██╔════╝██╔════╝██║ ██╔╝"
 echo " ███████║██║██║     ███████║█████╗  ██║     █████╔╝ "
@@ -28,20 +30,20 @@ echo " ██╔══██║██║██║     ██╔══██║�
 echo " ██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗"
 echo " ╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝"
 echo -e "${NC}"
-echo -e "${BOLD}${BLUE}Multimodal Control Protocol - Ultimate Installer${NC}"
-echo -e "${BLUE}===============================================${NC}\n"
+echo -e "${BOLD}${BRIGHT_BLURPLE}Multimodal Control Protocol - Ultimate Installer${NC}"
+echo -e "${NEON_BLURPLE}===============================================${NC}\n"
 
-echo -e "${BLUE}Installing AICheck MCP in current directory...${NC}"
+echo -e "${BRIGHT_BLURPLE}Installing AICheck MCP in current directory...${NC}"
 
 # Create directory structure
-echo -e "${BLUE}Creating directory structure...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating directory structure...${NC}"
 mkdir -p .aicheck/actions
 mkdir -p .aicheck/templates/claude
 mkdir -p documentation/api documentation/architecture documentation/configuration documentation/dependencies documentation/deployment documentation/testing documentation/user
 mkdir -p tests/unit tests/integration tests/e2e tests/fixtures
 
 # Create core files
-echo -e "${BLUE}Creating core files...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating core files...${NC}"
 echo "None" > .aicheck/current_action
 
 # Create actions index
@@ -283,7 +285,7 @@ EOL
 echo -e "${GREEN}✓ Created AICheck core files${NC}"
 
 # Create README.md
-echo -e "${BLUE}Creating AICheck README.md...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating AICheck README.md...${NC}"
 
 cat > README.md << 'EOL'
 # AICheck MCP Project
@@ -334,7 +336,7 @@ EOL
 echo -e "${GREEN}✓ Created project README.md${NC}"
 
 # Setup git hooks
-echo -e "${BLUE}Setting up AICheck git hooks...${NC}"
+echo -e "${BRIGHT_BLURPLE}Setting up AICheck git hooks...${NC}"
 
 # Create hooks directory if it doesn't exist
 if [ -d ".git" ]; then
@@ -348,9 +350,11 @@ if [ -d ".git" ]; then
 # Helps maintain compliance without being too restrictive
 
 GREEN="\033[0;32m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m" # No Color
 
 # Get current action
@@ -363,7 +367,7 @@ fi
 FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
 # 1. Check commit message format (run during commit-msg hook, but check staged files here)
-echo -e "${BLUE}Analyzing staged changes...${NC}"
+echo -e "${BRIGHT_BLURPLE}Analyzing staged changes...${NC}"
 
 # 2. Check for dependency changes
 DEPENDENCY_CHANGES=0
@@ -449,9 +453,11 @@ EOL
 # Validates commit message format
 
 GREEN="\033[0;32m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m" # No Color
 
 COMMIT_MSG_FILE=$1
@@ -514,9 +520,11 @@ else
 # Helps maintain compliance without being too restrictive
 
 GREEN="\033[0;32m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m" # No Color
 
 # Get current action
@@ -529,7 +537,7 @@ fi
 FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
 # 1. Check commit message format (run during commit-msg hook, but check staged files here)
-echo -e "${BLUE}Analyzing staged changes...${NC}"
+echo -e "${BRIGHT_BLURPLE}Analyzing staged changes...${NC}"
 
 # 2. Check for dependency changes
 DEPENDENCY_CHANGES=0
@@ -612,9 +620,11 @@ EOL
 # Validates commit message format
 
 GREEN="\033[0;32m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m" # No Color
 
 COMMIT_MSG_FILE=$1
@@ -675,7 +685,7 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Setting up AICheck git hooks...${NC}"
+echo -e "${BRIGHT_BLURPLE}Setting up AICheck git hooks...${NC}"
 
 # Check if git is initialized
 if [ ! -d ".git" ]; then
@@ -695,7 +705,7 @@ chmod +x .git/hooks/pre-commit
 chmod +x .git/hooks/commit-msg
 
 echo -e "${GREEN}✓ AICheck git hooks installed successfully${NC}"
-echo -e "${BLUE}Hooks will now provide helpful guidance during git commits${NC}"
+echo -e "${BRIGHT_BLURPLE}Hooks will now provide helpful guidance during git commits${NC}"
 EOL
 
   chmod +x .aicheck/init_git_hooks.sh
@@ -705,7 +715,7 @@ EOL
 fi
 
 # Create aicheck command script
-echo -e "${BLUE}Creating AICheck command script...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating AICheck command script...${NC}"
 
 cat > ./aicheck << 'EOL'
 #!/bin/bash
@@ -720,9 +730,11 @@ shift
 ARGS=$@
 
 GREEN="\033[0;32m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 YELLOW="\033[0;33m"
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m" # No Color
 
 # Function to create a new action
@@ -845,7 +857,7 @@ $(date +"%Y-%m-%d") - Action created
   sed -i "" "s/\*Last Updated: .*\*/\*Last Updated: $(date +"%Y-%m-%d")\*/" .aicheck/actions_index.md
   
   echo -e "${GREEN}✓ Created new ACTION: $action_name${NC}"
-  echo -e "${BLUE}Directory: .aicheck/actions/$dir_name${NC}"
+  echo -e "${BRIGHT_BLURPLE}Directory: .aicheck/actions/$dir_name${NC}"
   echo -e "${YELLOW}NOTE: This ACTION requires planning and approval before implementation${NC}"
 }
 
@@ -916,7 +928,7 @@ function complete_action() {
   fi
   
   # Verify dependencies
-  echo -e "${BLUE}Verifying dependencies for $action_name...${NC}"
+  echo -e "${BRIGHT_BLURPLE}Verifying dependencies for $action_name...${NC}"
   
   local has_dependencies=0
   if [ -f "documentation/dependencies/dependency_index.md" ]; then
@@ -926,7 +938,7 @@ function complete_action() {
       echo -e "${GREEN}✓ Dependencies documented for $action_name${NC}"
       
       # Display documented dependencies
-      echo -e "${BLUE}Dependencies documented:${NC}"
+      echo -e "${BRIGHT_BLURPLE}Dependencies documented:${NC}"
       grep -A 1 -B 1 "$action_name" documentation/dependencies/dependency_index.md
     fi
   fi
@@ -992,11 +1004,11 @@ function complete_action() {
   # If this was the current action, set current action to None
   if [ -f ".aicheck/current_action" ] && [ "$(cat .aicheck/current_action)" = "$action_name" ]; then
     echo "None" > .aicheck/current_action
-    echo -e "${BLUE}Current action reset to None${NC}"
+    echo -e "${BRIGHT_BLURPLE}Current action reset to None${NC}"
   fi
   
   echo -e "${GREEN}✓ Completed ACTION: $action_name${NC}"
-  echo -e "${BLUE}Updated status, progress, and actions index${NC}"
+  echo -e "${BRIGHT_BLURPLE}Updated status, progress, and actions index${NC}"
 }
 
 # Function to toggle exec mode
@@ -1011,11 +1023,11 @@ function exec_mode() {
       echo "$previous_action" > .aicheck/current_action
       rm .aicheck/previous_action
       echo -e "${GREEN}✓ Exited Exec Mode${NC}"
-      echo -e "${BLUE}Returned to action: $previous_action${NC}"
+      echo -e "${BRIGHT_BLURPLE}Returned to action: $previous_action${NC}"
     else
       echo "None" > .aicheck/current_action
       echo -e "${GREEN}✓ Exited Exec Mode${NC}"
-      echo -e "${BLUE}No previous action found${NC}"
+      echo -e "${BRIGHT_BLURPLE}No previous action found${NC}"
     fi
   else
     # Enter exec mode, save current action
@@ -1115,7 +1127,7 @@ EODOC
   
   echo -e "${GREEN}✓ Added external dependency: $name@$version${NC}"
   if [ -n "$action" ]; then
-    echo -e "${BLUE}Associated with action: $action${NC}"
+    echo -e "${BRIGHT_BLURPLE}Associated with action: $action${NC}"
   fi
 }
 
@@ -1189,14 +1201,14 @@ EODOC2
   sed -i "" "s/\*Last Updated: .*\*/\*Last Updated: $(date +"%Y-%m-%d")\*/" documentation/dependencies/dependency_index.md
   
   echo -e "${GREEN}✓ Added internal dependency${NC}"
-  echo -e "${BLUE}$action depends on $dep_action ($type)${NC}"
+  echo -e "${BRIGHT_BLURPLE}$action depends on $dep_action ($type)${NC}"
 }
 
 # Function to show the current status
 function show_status() {
   local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
   
-  echo -e "${BLUE}AICheck Status${NC}"
+  echo -e "${BRIGHT_BLURPLE}AICheck Status${NC}"
   echo -e "-------------------"
   echo -e "Current Action: ${GREEN}$current_action${NC}"
   
@@ -1210,7 +1222,7 @@ function show_status() {
       
       echo -e "Status: ${GREEN}$status${NC}"
       echo -e "Progress: ${GREEN}$progress%${NC}"
-      echo -e "Plan: ${BLUE}.aicheck/actions/$dir_name/$dir_name-plan.md${NC}"
+      echo -e "Plan: ${BRIGHT_BLURPLE}.aicheck/actions/$dir_name/$dir_name-plan.md${NC}"
       
       # Show dependencies
       if [ -f "documentation/dependencies/dependency_index.md" ]; then
@@ -1228,7 +1240,7 @@ function show_status() {
     echo -e "${YELLOW}For system maintenance only${NC}"
     if [ -f .aicheck/previous_action ]; then
       local previous_action=$(cat .aicheck/previous_action)
-      echo -e "Previous action: ${BLUE}$previous_action${NC} (will be restored on exec mode exit)"
+      echo -e "Previous action: ${BRIGHT_BLURPLE}$previous_action${NC} (will be restored on exec mode exit)"
     fi
   fi
   
@@ -1300,7 +1312,7 @@ chmod +x ./aicheck
 echo -e "${GREEN}✓ Created AICheck command script${NC}"
 
 # Create Claude integration activation prompt
-echo -e "${BLUE}Creating Claude Code activation text...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating Claude Code activation text...${NC}"
 
 # Create activation text
 cat > .aicheck/claude_aicheck_prompt.md << 'EOL'
@@ -1339,7 +1351,7 @@ Let me check the current action status now with `./aicheck status` and proceed a
 EOL
 
 # Create CLAUDE.md
-echo -e "${BLUE}Creating CLAUDE.md for additional configuration...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating CLAUDE.md for additional configuration...${NC}"
 
 cat > CLAUDE.md << 'EOL'
 # CLAUDE.md
@@ -1397,7 +1409,7 @@ When the user requests work:
 EOL
 
 # Create activation script
-echo -e "${BLUE}Creating activation script...${NC}"
+echo -e "${BRIGHT_BLURPLE}Creating activation script...${NC}"
 
 cat > activate_aicheck_claude.sh << 'EOL'
 #!/bin/bash
@@ -1409,7 +1421,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Activating AICheck in Claude Code...${NC}"
+echo -e "${BRIGHT_BLURPLE}Activating AICheck in Claude Code...${NC}"
 
 # Check if the prompt file exists
 if [ ! -f ".aicheck/claude_aicheck_prompt.md" ]; then
@@ -1486,7 +1498,7 @@ else
 fi
 
 # Instructions
-echo -e "\n${BLUE}To activate AICheck in Claude Code:${NC}"
+echo -e "\n${BRIGHT_BLURPLE}To activate AICheck in Claude Code:${NC}"
 echo -e "1. Start a new Claude Code conversation"
 echo -e "2. Paste the activation text from your clipboard"
 echo -e "3. Claude will automatically recognize AICheck and use the system\n"
@@ -1504,11 +1516,13 @@ cat > migrate_action_names.sh << 'MIGRATE'
 
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
-BLUE="\033[0;34m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
 RED="\033[0;31m"
+CYAN="\033[0;36m"
 NC="\033[0m"
 
-echo -e "${BLUE}AICheck Action Name Migration${NC}"
+echo -e "${BRIGHT_BLURPLE}AICheck Action Name Migration${NC}"
 echo "Converting PascalCase action directories to kebab-case..."
 echo ""
 
@@ -1541,7 +1555,7 @@ for dir in .aicheck/actions/*/; do
         # Update current_action file if it points to the old name
         if [ -f ".aicheck/current_action" ] && [ "$(cat .aicheck/current_action)" = "$action_dir" ]; then
           echo "$kebab_name" > .aicheck/current_action
-          echo -e "${BLUE}Updated current action reference${NC}"
+          echo -e "${BRIGHT_BLURPLE}Updated current action reference${NC}"
         fi
         
         migrated_count=$((migrated_count + 1))
@@ -1557,7 +1571,7 @@ if [ $migrated_count -eq 0 ]; then
 else
   echo ""
   echo -e "${GREEN}✓ Migration complete! Migrated $migrated_count action directories${NC}"
-  echo -e "${BLUE}All action directories now use kebab-case naming convention${NC}"
+  echo -e "${BRIGHT_BLURPLE}All action directories now use kebab-case naming convention${NC}"
 fi
 MIGRATE
 
@@ -1570,12 +1584,12 @@ echo -e "\n${GREEN}${BOLD}✓ AICheck MCP installed successfully!${NC}"
 echo -e "${GREEN}Directory structure and core files created in current directory.${NC}\n"
 
 # Display activation instructions
-echo -e "${BOLD}${BLUE}NEXT STEPS:${NC}"
-echo -e "${BLUE}1. Run the activation script to copy the Claude Code prompt:${NC}"
+echo -e "${BOLD}${BRIGHT_BLURPLE}NEXT STEPS:${NC}"
+echo -e "${BRIGHT_BLURPLE}1. Run the activation script to copy the Claude Code prompt:${NC}"
 echo -e "   ${YELLOW}./activate_aicheck_claude.sh${NC}"
-echo -e "${BLUE}2. Start a new Claude Code conversation${NC}"
-echo -e "${BLUE}3. Paste the activation text to Claude${NC}"
-echo -e "${BLUE}4. Claude will automatically recognize and use AICheck${NC}\n"
+echo -e "${BRIGHT_BLURPLE}2. Start a new Claude Code conversation${NC}"
+echo -e "${BRIGHT_BLURPLE}3. Paste the activation text to Claude${NC}"
+echo -e "${BRIGHT_BLURPLE}4. Claude will automatically recognize and use AICheck${NC}\n"
 
 echo -e "${YELLOW}If you have existing PascalCase action directories:${NC}"
 echo -e "   ${YELLOW}./migrate_action_names.sh${NC} to convert them to kebab-case\n"
