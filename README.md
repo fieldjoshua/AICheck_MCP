@@ -14,6 +14,7 @@ This will:
 1. Create the AICheck directory structure and files
 2. Set up git hooks for AICheck compliance
 3. Create the Claude Code activation script
+4. Install the AICheck MCP server for Claude Code integration
 
 After installation, run:
 
@@ -22,6 +23,16 @@ After installation, run:
 ```
 
 This will copy the AICheck activation prompt to your clipboard. Paste this into a new Claude Code conversation to activate AICheck.
+
+## MCP Server Setup
+
+For enhanced Claude Code integration, set up the AICheck MCP server:
+
+```bash
+./.mcp/setup.sh
+```
+
+This enables Claude Code to directly interact with the AICheck governance system. See [MCP_SETUP_GUIDE.md](MCP_SETUP_GUIDE.md) for detailed instructions.
 
 ## What is AICheck MCP?
 

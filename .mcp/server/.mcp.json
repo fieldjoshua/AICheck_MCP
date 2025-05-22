@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "aicheck": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/joshuafield/Documents/Projects/AICheck_MCP/.mcp/server/index.js"
+      ],
+      "env": {}
+    }
+  }
+}

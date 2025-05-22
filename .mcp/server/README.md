@@ -27,7 +27,13 @@ The AICheck MCP server enables Claude to:
 
 3. Register the MCP server with Claude:
    ```
-   claude mcp add aicheck --type stdio --command node --args ["/path/to/your/project/.mcp/server/index.js"]
+   claude mcp add -s local -t stdio aicheck node "/path/to/your/project/.mcp/server/index.js"
+   ```
+   
+   Or use the automated setup script:
+   ```
+   cd /path/to/your/project
+   ./.mcp/setup.sh
    ```
 
 ## Available Resources
