@@ -96,144 +96,31 @@ This document tracks all dependencies in the PROJECT. All dependencies must be r
 *Last Updated: $(date +"%Y-%m-%d")*
 EOL
 
-# Create rules file
-cat > .aicheck/rules.md << 'EOL'
-# AICheck Rules
-
-This document is the controlling reference for all work managed by the AICheck system in this PROJECT.
-
-## 1. Core Principles
-
-### 1.1 Documentation-First Approach
-- Write clear docstrings for all functions and classes
-- Include explanatory comments for complex code blocks
-- Update README.md with relevant project information
-- Create/update API documentation when adding endpoints
-- All ACTIONS require their own directory with a documented PLAN before implementation
-- PLANs require approval and must detail the ACTION's value to the PROGRAM
-- ACTIONS must be TEST-Driven: tests must be created before implementation
-- Each ACTION directory MUST contain a todo.md file for task tracking and progress management
-
-### 1.2 Language-Specific Best Practices
-- Python: Follow PEP 8 style guidelines with 150 max line length
-- JavaScript/TypeScript: Use ESLint and Prettier standards
-- Follow language idioms and patterns (pythonic, modern JS/TS)
-
-### 1.3 Quality Standards
-- Write unit tests for new functionality
-- Maintain test coverage above 80%
-- Handle errors explicitly with proper logging
-- Use typed interfaces where possible
-
-### 1.4 Security Practices
-- Validate all user inputs
-- Use parameterized queries for database operations
-- Store secrets in environment variables, never in code
-- Apply proper authentication and authorization
-
-## 2. Action Management
-
-### 2.1 AI Editor Scope
-AI editors may implement without approval:
-- Code implementing the ActiveAction plan (after PLAN approval)
-- Documentation updates for ActiveAction
-- Bug fixes and tests within ActiveAction scope
-- Refactoring within ActiveAction scope
-- Managing todo.md files within ActiveAction scope (creating, updating task status, marking complete)
-
-The following ALWAYS require human manager approval:
-- Changing the ActiveAction
-- Creating a new Action
-- Making substantive changes to any Action
-- Modifying any Action Plan
-
-## 3. Project Structure and Organization
-
-### 3.1 Directory Structure
-```text
-/
-├── .aicheck/
-│   ├── actions/                      # All PROJECT ACTIONS
-│   │   └── [action-name]/            # Individual ACTION directory
-│   │       ├── [action-name]-plan.md # ACTION PLAN (requires approval)
-│   │       ├── todo.md               # ACTION TODO tracking (required)
-│   │       └── supporting_docs/      # ACTION-specific documentation
-│   │           ├── claude-interactions/  # Claude Code logs
-│   │           ├── process-tests/        # Temporary tests for ACTION
-│   │           └── research/             # Research and notes
-│   ├── current_action                # Current ActionActivity for EDITOR
-│   ├── actions_index.md              # Master list of all ACTIONS
-│   ├── rules.md                      # This document
-│   └── templates/                    # Templates for prompts and actions
-├── documentation/                    # Permanent PROJECT documentation
-│   ├── api/                          # API documentation
-│   ├── architecture/                 # System architecture docs
-│   ├── configuration/                # Configuration guides
-│   ├── dependencies/                 # Dependency documentation
-│   ├── deployment/                   # Deployment procedures
-│   ├── testing/                      # Testing strategies
-│   └── user/                         # User documentation
-├── tests/                            # Permanent test suite
-│   ├── unit/                         # Unit tests
-│   ├── integration/                  # Integration tests
-│   ├── e2e/                          # End-to-end tests
-│   └── fixtures/                     # Test data and fixtures
-```
-
-## 4. Todo Management
-
-### 4.1 Todo File Requirements
-- Every ACTION directory MUST contain a todo.md file
-- Todo files track task progress, priorities, and completion status
-- Claude Code will automatically manage todo.md files using native todo functions
-- Todo items should align with the ACTION plan and success criteria
-
-### 4.2 Todo File Format
-Todo files use structured markdown with the following format:
-```markdown
-# TODO: [Action Name]
-
-## Active Tasks
-- [ ] Task description (priority: high/medium/low, status: pending/in_progress/completed)
-
-## Completed Tasks
-- [x] Completed task description
-
-## Notes
-Additional context or dependencies for tasks
-```
-
-### 4.3 Todo Management Workflow
-- Claude Code automatically creates todo.md when starting an ACTION
-- Tasks are derived from the ACTION plan phases and requirements
-- Progress is tracked in real-time as tasks are completed
-- Todo status integrates with overall ACTION progress tracking
-
-## 5. Dependency Management
-
-### 5.1 External Dependencies
-- All external dependencies must be documented in /documentation/dependencies/dependency_index.md
-- Include justification for every new dependency added
-- Document specific version requirements
-- Note which ACTIONS depend on each dependency
-
-### 5.2 Internal Dependencies
-- Document dependencies between ACTIONS
-- Track which ACTIONS depend on others' functionality
-- Document the type of dependency (data, function, service)
-- Always verify dependencies before completing an ACTION
-
-## 6. AICheck Commands
-
-Claude Code supports these AICheck slash commands:
-- `./aicheck status` - Show current action status
-- `./aicheck action new ActionName` - Create a new action
-- `./aicheck action set ActionName` - Set current active action
-- `./aicheck action complete [ActionName]` - Complete action
-- `./aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]` - Add external dependency
-- `./aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]` - Add internal dependency
-- `./aicheck exec` - Toggle exec mode for system maintenance
-EOL
+# Create rules file from controlling version
+echo -e "${BRIGHT_BLURPLE}Downloading official RULES.md from repository...${NC}"
+if curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md -o .aicheck/RULES.md; then
+    echo -e "${GREEN}✓ Official RULES.md downloaded${NC}"
+    
+    # Make the rules file read-only to prevent unauthorized changes
+    chmod 444 .aicheck/RULES.md
+    echo -e "${GREEN}✓ RULES.md protected (read-only)${NC}"
+    
+    # Add warning comment to the file
+    {
+        echo "<!-- WARNING: This file is the controlling version downloaded from the AICheck repository. -->"
+        echo "<!-- Do not modify this file locally. Changes must be made to the official repository. -->"
+        echo "<!-- File is marked read-only to prevent accidental changes. -->"
+        echo ""
+        cat .aicheck/RULES.md
+    } > .aicheck/RULES.md.tmp && mv .aicheck/RULES.md.tmp .aicheck/RULES.md
+    chmod 444 .aicheck/RULES.md
+else
+    echo -e "${RED}✗ Failed to download official RULES.md from repository${NC}"
+    echo -e "${RED}Internet connection required to install AICheck${NC}"
+    echo -e "${YELLOW}Please check your network connection and try again${NC}"
+    echo -e "${YELLOW}Official RULES.md is required from: https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md${NC}"
+    exit 1
+fi
 
 # Create Claude prompt templates
 mkdir -p .aicheck/templates/claude
