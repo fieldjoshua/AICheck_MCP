@@ -10,12 +10,15 @@ This comprehensive guide covers all installation methods for AICheck MCP (Multim
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
 ```
 
-This command:
+**✨ This enhanced installer:**
 - Downloads and runs the ultimate installer
+- **Downloads authoritative RULES.md** from GitHub repository
+- **Makes RULES.md read-only** to prevent unauthorized changes
 - Creates complete AICheck directory structure
+- **Auto-configures MCP server** with proper registration
 - Sets up git hooks for compliance
 - Creates templates and documentation
-- Installs MCP server files (optional setup)
+- **Requires internet connection** to ensure complete installation
 
 ## 📋 Manual Installation
 
@@ -121,6 +124,7 @@ claude mcp add -s local -t stdio aicheck node "/absolute/path/to/your/project/.m
 - **Operating System**: macOS, Linux, or Windows with WSL
 - **Shell**: Bash (included on macOS/Linux)
 - **Git**: Version control system
+- **Internet Connection**: Required to download official RULES.md
 
 ### Optional Requirements
 - **Node.js**: Version 14+ (for MCP server)

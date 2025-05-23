@@ -2,13 +2,13 @@
 
 AICheck is a comprehensive development governance system that brings structure, accountability, and AI-enhanced workflows to software projects. It enforces documentation-first, test-driven development while providing seamless integration with Claude Code.
 
-## 🚀 Quick Installation
+## 🚀 Installation
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
 ```
 
-**📖 For detailed installation instructions, troubleshooting, and setup options, see [INSTALLATION.md](INSTALLATION.md)**
+That's it. The installer handles everything automatically.
 
 ## ✨ Features
 
@@ -89,18 +89,13 @@ AICheck follows a documentation-first, test-driven approach:
 
 ## 🔧 Requirements
 
-- **Git** and **Bash** (standard on macOS/Linux)
-- **Claude Code** (optional, for AI workflows)
-- **Node.js** (optional, for MCP server)
+Internet connection. That's it.
 
-*See [INSTALLATION.md](INSTALLATION.md) for detailed requirements and setup instructions.*
+## 📚 After Installation
 
-## 📚 Learn More
-
-- **[Installation Guide](INSTALLATION.md)**: Complete setup instructions and troubleshooting
-- **AICheck Rules**: Review `.aicheck/rules.md` for governance details (created after install)
-- **Templates**: Check `.aicheck/templates/` for prompt templates (created after install)
-- **Full Documentation**: See the `/documentation` directory after installation
+- **Rules**: `.aicheck/RULES.md` (the governance document)
+- **Commands**: `./aicheck status`, `./aicheck action new ActionName`, etc.
+- **Templates**: `.aicheck/templates/` for consistent development
 
 ## 🤝 Contributing
 
