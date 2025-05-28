@@ -9,6 +9,25 @@ CMD=$1
 shift
 ARGS=$@
 
+# Function to update AICheck rules
+function update_rules() {
+  echo -e "${BRIGHT_BLURPLE}Updating AICheck RULES.md...${NC}"
+  
+  # Make RULES.md writable if it exists
+  if [ -f ".aicheck/RULES.md" ]; then
+    chmod +w .aicheck/RULES.md
+  fi
+  
+  # Download latest RULES.md
+  if curl -L https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md -o .aicheck/RULES.md 2>/dev/null; then
+    echo -e "${GREEN}✓ RULES.md updated successfully${NC}"
+    chmod 444 .aicheck/RULES.md  # Make read-only again
+  else
+    echo -e "${RED}✗ Failed to update RULES.md - check internet connection${NC}"
+    exit 1
+  fi
+}
+
 GREEN="\033[0;32m"
 NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
 BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
@@ -580,8 +599,11 @@ case "$CMD" in
   "status")
     show_status
     ;;
+  "update")
+    update_rules
+    ;;
   *)
     echo -e "${RED}Unknown command: $CMD${NC}"
-    echo "Available commands: action, dependency, exec, status"
+    echo "Available commands: action, dependency, exec, status, update"
     ;;
 esac
