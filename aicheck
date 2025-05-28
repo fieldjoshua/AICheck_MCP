@@ -29,7 +29,7 @@ function check_for_updates() {
   echo -e "${BRIGHT_BLURPLE}Checking for updates...${NC}"
   
   # Get remote version
-  local remote_version=$(curl -s "${GITHUB_RAW_BASE}/aicheck" | grep "AICHECK_VERSION=" | cut -d'"' -f2)
+  local remote_version=$(curl -s "${GITHUB_RAW_BASE}/aicheck" | grep "AICHECK_VERSION=" | head -1 | cut -d'"' -f2)
   
   if [ -z "$remote_version" ]; then
     echo -e "${YELLOW}⚠ Could not check remote version${NC}"
