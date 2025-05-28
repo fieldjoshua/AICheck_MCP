@@ -2,6 +2,34 @@
 
 AICheck is a comprehensive development governance system that brings structure, accountability, and AI-enhanced workflows to software projects. It enforces documentation-first, test-driven development while providing seamless integration with Claude Code.
 
+---
+
+# ⚠️ IMPORTANT: PROJECT Context for AI Assistants
+
+## This PROJECT Creates AICheck - It Is NOT Governed By AICheck
+
+**For Claude Code and other AI assistants working on this PROJECT:**
+
+- 🏗️ **YOU ARE BUILDING the AICheck system** 
+- 🚫 **This PROJECT is NOT subject to AICheck governance**
+- 📝 **You are editing the RULES.md that OTHER PROJECTs will use**
+- 🔧 **You are improving the `aicheck` command that OTHER PROJECTs will install**
+- 📦 **Changes here get distributed via installer to OTHER PROJECTs**
+
+### Dangerous Confusion to Avoid:
+❌ Treating this as a PROJECT using AICheck governance  
+❌ Looking for `.aicheck/` directory in this PROJECT  
+❌ Trying to create ACTIONs for this work  
+❌ Following AICheck rules for development here  
+
+### Correct Understanding:
+✅ This builds the AICheck tool itself  
+✅ Edit RULES.md directly (it becomes the distributed template)  
+✅ Improve the installer and aicheck command  
+✅ Test changes by running installer in OTHER PROJECTs  
+
+---
+
 ## 🚀 Installation
 
 ```bash

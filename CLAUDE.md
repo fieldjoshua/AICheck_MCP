@@ -1,8 +1,23 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this PROJECT.
 
-## AICheck Integration
+# ⚠️ CRITICAL PROJECT CONTEXT
+
+**This PROJECT `/Users/joshuafield/Documents/Projects/AICheck_MCP/` creates the AICheck system - it is NOT governed by AICheck.**
+
+**When working here:**
+- ✅ You are building the AICheck tool itself
+- ✅ Edit RULES.md directly (it becomes the distributed template)
+- ✅ Improve installers and aicheck command
+- ✅ This is the source PROJECT that gets distributed
+- ❌ Do NOT look for `.aicheck/` directory here
+- ❌ Do NOT try to create ACTIONs
+- ❌ Do NOT follow AICheck governance rules
+
+**Always check README.md first for PROJECT context orientation.**
+
+## Development Approach (NOT AICheck Integration)
 
 Claude should follow the rules specified in `.aicheck/RULES.md` and use AICheck commands:
 
