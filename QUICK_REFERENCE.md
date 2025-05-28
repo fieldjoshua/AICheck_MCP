@@ -13,6 +13,7 @@ aicheck list                           # List all actions
 aicheck validate                       # Validate AICheck system
 aicheck test                          # Run system tests
 aicheck security-check               # Check security
+aicheck update                       # Update AICheck rules from repository
 ```
 
 ## Action Lifecycle

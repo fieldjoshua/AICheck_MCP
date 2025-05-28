@@ -20,6 +20,8 @@ That's it. The installer handles everything automatically.
 - **Dependency Tracking**: External and internal dependency management
 - **Git Hook Integration**: Automated compliance checking
 - **Template System**: Consistent development patterns
+- **Deployment Verification**: Mandatory production testing before action completion
+- **Auto-Update**: Built-in update system for latest rules and features
 
 ## Claude Code Commands
 
@@ -32,6 +34,7 @@ Claude Code now supports the following AICheck slash commands:
 - `./aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]` - Add external dependency
 - `./aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]` - Add internal dependency
 - `./aicheck exec` - Toggle exec mode for system maintenance
+- `./aicheck update` - Update AICheck rules from official repository
 
 ## Project Structure
 
