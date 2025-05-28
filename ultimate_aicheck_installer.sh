@@ -654,13 +654,19 @@ EOL
   echo -e "${YELLOW}Run it after 'git init' to set up git hooks${NC}"
 fi
 
-# Create aicheck command script
-echo -e "${BRIGHT_BLURPLE}Creating AICheck command script...${NC}"
+# Download aicheck command script from GitHub
+echo -e "${BRIGHT_BLURPLE}Downloading AICheck command script...${NC}"
 
-cat > ./aicheck << 'EOL'
+if curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck -o ./aicheck; then
+    echo -e "${GREEN}✓ AICheck command downloaded${NC}"
+else
+    echo -e "${YELLOW}⚠ Failed to download aicheck command, creating basic version...${NC}"
+    
+    # Fallback: create basic aicheck command
+    cat > ./aicheck << 'EOL'
 #!/bin/bash
 
-# AICheck command script
+# AICheck command script (basic version)
 # Provides the core functionality for AICheck MCP
 
 set -e
@@ -1267,10 +1273,18 @@ case "$CMD" in
     ;;
 esac
 EOL
+fi
 
 chmod +x ./aicheck
 
-echo -e "${GREEN}✓ Created AICheck command script${NC}"
+if curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck -o ./aicheck.tmp 2>/dev/null; then
+    mv ./aicheck.tmp ./aicheck
+    chmod +x ./aicheck
+    echo -e "${GREEN}✓ Enhanced AICheck command installed${NC}"
+else
+    echo -e "${GREEN}✓ Basic AICheck command created${NC}"
+    echo -e "${YELLOW}⚠ Run './aicheck update' later to get the latest version${NC}"
+fi
 
 # Create Claude integration activation prompt
 echo -e "${BRIGHT_BLURPLE}Creating Claude Code activation text...${NC}"
