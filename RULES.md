@@ -409,7 +409,6 @@ Each ACTION must follow this structure:
    - Local-only development tools
    - Documentation-only changes
    - Actions explicitly marked as "local development only"
-   - Emergency fixes pending review (must be noted)
 
 5. **Verification Documentation**:
    - Create `deployment-verification.md` in supporting_docs
@@ -474,31 +473,43 @@ When generating security-sensitive code:
 5. Verify generated code against OWASP guidelines
 6. Add security-specific tests for all generated auth code
 
-### 6.3 Quick Response (Emergency Fix) Protocol
+### 6.3 Exec Mode (System Maintenance)
 
-For urgent production issues requiring immediate resolution:
+AICheck exec mode provides a special context for system maintenance tasks that don't fit within normal ACTION workflows.
 
-1. **Eligibility Criteria**:
-   - Production service is down or severely degraded
-   - Security vulnerability requires immediate patching
-   - Data corruption is actively occurring
-   - Critical business function is blocked
+**Purpose**: Handle system maintenance, tooling updates, and administrative tasks without disrupting active ACTION work.
 
-2. **Quick Response Process**:
-   - Create ACTION with `-emergency` suffix (e.g., `critical-auth-fix-emergency`)
-   - Document issue, root cause, and proposed fix in emergency-plan.md
-   - Write minimal tests covering the critical fix
-   - Implement fix with continuous monitoring
-   - **MANDATORY**: Verify emergency fix works in production
-   - Create full ACTION for proper implementation within 48 hours
-   - Emergency fixes must be replaced by proper implementations within 7 days
+**Usage**:
+```bash
+./aicheck exec  # Enter exec mode
+./aicheck exec  # Exit exec mode (returns to previous action)
+```
 
-3. **Documentation Requirements**:
-   - Incident report in supporting_docs/incident-report.md
-   - Root cause analysis
-   - Emergency fix details
-   - Follow-up ACTION reference
-   - Production verification evidence
+**Exec Mode Behavior**:
+- Saves current active ACTION
+- Sets action context to "AICheckExec" 
+- Provides clear indication you're in maintenance mode
+- Restores previous ACTION when exiting
+
+**Exec Mode Guidelines**:
+- Use ONLY for system maintenance, tooling, and administrative tasks
+- No substantive code changes should be made in exec mode
+- Keep exec mode sessions brief and focused
+- Document any significant system changes made
+- Exit back to ACTION-based work as soon as maintenance is complete
+
+**Appropriate Exec Mode Tasks**:
+- Updating AICheck rules (`./aicheck update`)
+- Repository cleanup and organization
+- Tooling configuration and setup
+- System dependency management
+- Administrative documentation updates
+
+**Not Appropriate for Exec Mode**:
+- Feature development
+- Bug fixes affecting application code
+- User-facing functionality changes
+- Business logic implementation
 
 ### 6.4 Approval Process
 
@@ -813,7 +824,7 @@ Document all dependencies in appropriate manifest. Pin major versions for produc
 
 ### 12.1 Branching Strategy
 
-Main branch is always deployable. Feature branches for new ACTIONS. Hotfix branches for emergency fixes. No direct commits to main. All changes through pull requests.
+Main branch is always deployable. Feature branches for new ACTIONS. Hotfix branches for urgent fixes. No direct commits to main. All changes through pull requests.
 
 ### 12.2 Pull Request Requirements
 
@@ -871,9 +882,9 @@ Code quality metrics. Test coverage requirements. Documentation standards. Perfo
 
 Must be documented. Require approval from Joshua Field. Time-limited when possible. Reviewed regularly. Lessons learned captured.
 
-### 16.2 Emergency Procedures
+### 16.2 Incident Response
 
-Clear escalation path. Documented in runbooks. Tested regularly. Post-incident reviews. Process improvements. **Emergency deployment verification protocols**.
+Clear escalation path. Documented in runbooks. Tested regularly. Post-incident reviews. Process improvements. Production verification protocols for urgent fixes.
 
 ### 16.3 Technical Debt
 
@@ -892,5 +903,5 @@ Tracked as ACTIONS. Prioritized quarterly. Addressed systematically. Documented 
 - Strengthened "Code Complete" vs "Deployed and Working" distinction
 - Added production testing requirements to all relevant sections
 - Integrated deployment verification into standard workflows
-- Added emergency deployment verification protocols
+- Added exec mode documentation for system maintenance
 - Enhanced audit and compliance sections with deployment tracking
