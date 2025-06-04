@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AICheck v4.3.0 Universal Installer
-# One installer to rule them all
+# Works for both new installations and updates
 
 set -e
 
@@ -15,6 +15,26 @@ NC='\033[0m'
 echo -e "${BLUE}AICheck v4.3.0 Installation${NC}"
 echo "============================"
 
+# Check if this is an update or fresh install
+if [ -f "./aicheck" ]; then
+    echo -e "${YELLOW}Existing AICheck installation detected${NC}"
+    
+    # Get current version
+    CURRENT_VERSION=$(./aicheck version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
+    echo -e "Current version: ${YELLOW}$CURRENT_VERSION${NC}"
+    
+    # Backup important files
+    if [ -d ".aicheck" ]; then
+        echo -e "${BLUE}Creating backup...${NC}"
+        cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S)
+    fi
+    
+    MODE="update"
+else
+    echo -e "${GREEN}Fresh installation${NC}"
+    MODE="fresh"
+fi
+
 # Create directory structure
 echo -e "${BLUE}Creating directory structure...${NC}"
 mkdir -p .aicheck/actions
@@ -27,13 +47,14 @@ mkdir -p tests
 echo -e "${BLUE}Downloading AICheck...${NC}"
 
 # Download aicheck command
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck > aicheck || {
+curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck > aicheck.new || {
     echo -e "${RED}Failed to download aicheck${NC}"
     exit 1
 }
-chmod +x aicheck
+chmod +x aicheck.new
+mv aicheck.new aicheck
 
-# Download RULES.md
+# Download RULES.md (always update)
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md > .aicheck/RULES.md || {
     echo -e "${RED}Failed to download RULES.md${NC}"
     exit 1
@@ -51,10 +72,15 @@ for template in auto-surgical-fix research-plan-implement auto-tdd-cycle cost-ef
     curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/templates/claude/${template}.md" > ".aicheck/templates/claude/${template}.md" 2>/dev/null || true
 done
 
-# Create initial files
-echo "None" > .aicheck/current_action
-
-cat > .aicheck/actions_index.md << 'EOF'
+# Only create initial files for fresh installs
+if [ "$MODE" = "fresh" ]; then
+    echo -e "${BLUE}Creating initial files...${NC}"
+    
+    # Create current_action file
+    echo "None" > .aicheck/current_action
+    
+    # Create actions_index.md
+    cat > .aicheck/actions_index.md << 'EOF'
 # Actions Index
 
 *Last Updated: $(date +"%Y-%m-%d")*
@@ -72,7 +98,8 @@ cat > .aicheck/actions_index.md << 'EOF'
 | *None yet* | | | |
 EOF
 
-cat > documentation/dependencies/dependency_index.md << 'EOF'
+    # Create dependency index
+    cat > documentation/dependencies/dependency_index.md << 'EOF'
 # Dependency Index
 
 This document tracks all dependencies in the PROJECT.
@@ -92,6 +119,9 @@ This document tracks all dependencies in the PROJECT.
 ---
 *Last Updated: $(date +"%Y-%m-%d")*
 EOF
+else
+    echo -e "${GREEN}✓ Preserved existing actions and configuration${NC}"
+fi
 
 # Install MCP dependencies if npm is available
 if command -v npm >/dev/null 2>&1; then
@@ -102,7 +132,7 @@ else
     echo -e "${YELLOW}⚠ npm not found - run 'cd .mcp/server && npm install' later${NC}"
 fi
 
-# Create activation script
+# Create or update activation script
 cat > activate_aicheck_claude.sh << 'EOF'
 #!/bin/bash
 PROMPT="I'm working on a project with AICheck governance. Please acknowledge that you understand the AICheck system and are ready to follow the rules in .aicheck/RULES.md. Check the current action with ./aicheck status and help me implement according to the active action plan."
@@ -131,7 +161,17 @@ else
     exit 1
 fi
 
-echo -e "\n${GREEN}Installation complete!${NC}"
+# Show appropriate completion message
+if [ "$MODE" = "update" ]; then
+    echo -e "\n${GREEN}Update complete!${NC}"
+    echo -e "${YELLOW}Your existing actions and configuration have been preserved${NC}"
+    if [ -d ".aicheck.backup."* ]; then
+        echo -e "${BLUE}Backup created in: .aicheck.backup.*${NC}"
+    fi
+else
+    echo -e "\n${GREEN}Installation complete!${NC}"
+fi
+
 echo -e "\n${BLUE}Next steps:${NC}"
 echo "1. Run: ./activate_aicheck_claude.sh"
 echo "2. Paste the prompt into Claude Code"
@@ -141,3 +181,11 @@ echo "• ./aicheck stuck - Check status and get unstuck"
 echo "• ./aicheck focus - Check boundaries before work"
 echo "• ./aicheck cleanup - Clean up after work"
 echo "• ./aicheck usage - Check costs and optimization"
+
+if [ "$MODE" = "update" ]; then
+    echo -e "\n${BLUE}What's new in v4.3.0:${NC}"
+    echo "• MCP Integration - Native Claude Code integration"
+    echo "• Context Management - Auto pollution detection & cleanup"
+    echo "• Session Detection - Auto-runs checks on new sessions"
+    echo "• Cost Analysis - Track and optimize Claude usage"
+fi
