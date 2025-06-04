@@ -28,6 +28,10 @@ function show_version() {
   echo -e "  context compact          - Summarize and archive old interactions"
   echo -e "  context check            - Enforce action boundaries and detect scope creep"
   echo -e "  context pollution        - Analyze context pollution score"
+  echo -e ""
+  echo -e "${BRIGHT_BLURPLE}Cost & Optimization:${NC}"
+  echo -e "  context cost/usage       - Analyze usage patterns and cost efficiency"
+  echo -e "  context optimize         - Auto-optimize context for better performance"
 }
 
 # Function to check for updates
@@ -392,6 +396,158 @@ COMPACT
   
   echo -e "${GREEN}✓ Context compaction completed${NC}"
   echo -e "${BRIGHT_BLURPLE}Summary: $summary_file${NC}"
+}
+
+# Function to track and analyze usage costs
+function analyze_usage_costs() {
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  echo -e "${BRIGHT_BLURPLE}AICheck Usage & Cost Analysis${NC}"
+  echo -e "Current Action: ${GREEN}$current_action${NC}"
+  
+  # Track interaction frequency and estimate costs
+  local total_interactions=0
+  local today_interactions=0
+  local thinking_usage=0
+  local estimated_cost=0
+  
+  if [ "$current_action" != "None" ] && [ "$current_action" != "AICheckExec" ]; then
+    local dir_name=$(echo "$current_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+    local interaction_dir=".aicheck/actions/$dir_name/supporting_docs/claude-interactions"
+    
+    if [ -d "$interaction_dir" ]; then
+      total_interactions=$(find "$interaction_dir" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+      today_interactions=$(find "$interaction_dir" -name "*.md" -mtime -1 2>/dev/null | wc -l | tr -d ' ')
+      
+      # Analyze for "think harder" usage patterns
+      thinking_usage=$(find "$interaction_dir" -name "*.md" -exec grep -l "think\|analyze\|complex" {} \; 2>/dev/null | wc -l | tr -d ' ')
+    fi
+  fi
+  
+  # Estimate costs based on Claude Code subscription model
+  # Rough estimation: Claude Code subscription provides predictable costs
+  local daily_limit=100
+  local usage_percent=$((today_interactions * 100 / daily_limit))
+  
+  echo -e "\n${BRIGHT_BLURPLE}Usage Statistics:${NC}"
+  echo -e "Total interactions: ${GREEN}$total_interactions${NC}"
+  echo -e "Today's interactions: ${GREEN}$today_interactions${NC}"
+  echo -e "Thinking-intensive: ${GREEN}$thinking_usage${NC} ($(($thinking_usage * 100 / ($total_interactions + 1)))%)"
+  echo -e "Daily usage: ${GREEN}$usage_percent%${NC} of typical daily limit"
+  
+  # Context size analysis
+  local context_files=$(find . -name "*.md" -o -name "*.js" -o -name "*.py" -o -name "*.ts" | wc -l | tr -d ' ')
+  local large_files=$(find . -name "*.md" -o -name "*.js" -o -name "*.py" -o -name "*.ts" -size +10k | wc -l | tr -d ' ')
+  
+  echo -e "\n${BRIGHT_BLURPLE}Context Optimization:${NC}"
+  echo -e "Total context files: ${GREEN}$context_files${NC}"
+  echo -e "Large files (>10k): ${YELLOW}$large_files${NC}"
+  
+  if [ "$large_files" -gt 5 ]; then
+    echo -e "${YELLOW}⚠ Consider context optimization for large files${NC}"
+  fi
+  
+  # Usage recommendations
+  echo -e "\n${BRIGHT_BLURPLE}Optimization Recommendations:${NC}"
+  
+  if [ "$usage_percent" -gt 80 ]; then
+    echo -e "${YELLOW}• High daily usage - consider context compaction${NC}"
+    echo -e "${YELLOW}• Run './aicheck context compact' to reduce context size${NC}"
+  fi
+  
+  if [ "$thinking_usage" -gt 5 ]; then
+    echo -e "${YELLOW}• High thinking usage - consider graduated prompts${NC}"
+    echo -e "${YELLOW}• Start with simple prompts, escalate to 'think harder' only when needed${NC}"
+  fi
+  
+  if [ "$large_files" -gt 3 ]; then
+    echo -e "${YELLOW}• Large context detected - consider file splitting${NC}"
+    echo -e "${YELLOW}• Use surgical fix templates for focused changes${NC}"
+  fi
+  
+  echo -e "${GREEN}✓ Usage analysis completed${NC}"
+}
+
+# Function to optimize context for cost efficiency
+function optimize_context() {
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  echo -e "${BRIGHT_BLURPLE}AICheck Context Optimization${NC}"
+  echo -e "Optimizing for cost efficiency and performance..."
+  
+  # Automated optimization (no approval needed)
+  echo -e "\n${BRIGHT_BLURPLE}Performing automated optimizations...${NC}"
+  
+  # Compress old interaction logs
+  if [ -d ".aicheck" ]; then
+    find .aicheck -name "claude-interactions" -type d | while read dir; do
+      if [ $(find "$dir" -name "*.md" 2>/dev/null | wc -l) -gt 10 ]; then
+        mkdir -p "$dir/compressed"
+        # Move old interactions to compressed folder
+        find "$dir" -name "*.md" -mtime +7 | head -n -5 | while read file; do
+          mv "$file" "$dir/compressed/" 2>/dev/null || true
+        done
+      fi
+    done
+    echo -e "${GREEN}✓ Compressed old interaction logs${NC}"
+  fi
+  
+  # Generate context summary for large files
+  local summary_file=".aicheck/context-summary-$(date +%Y%m%d).md"
+  cat > "$summary_file" << SUMMARY
+# Context Summary - $(date)
+
+## Project Overview
+$(head -20 README.md 2>/dev/null || echo "No README found")
+
+## Current Action
+$(cat .aicheck/current_action 2>/dev/null || echo "None")
+
+## Active Files (Modified in last 7 days)
+$(find . -name "*.js" -o -name "*.py" -o -name "*.ts" -o -name "*.md" -mtime -7 2>/dev/null | head -20)
+
+## Key Dependencies
+$(if [ -f "package.json" ]; then jq -r '.dependencies | keys[]' package.json 2>/dev/null | head -10; fi)
+$(if [ -f "requirements.txt" ]; then head -10 requirements.txt 2>/dev/null; fi)
+
+## Recent Changes
+$(git log --oneline -10 2>/dev/null || echo "No git history")
+
+*This summary can be used instead of reading many individual files to understand project context*
+SUMMARY
+  
+  echo -e "${GREEN}✓ Generated context summary: $(basename "$summary_file")${NC}"
+  
+  # Cache frequently accessed patterns
+  local cache_file=".aicheck/pattern-cache-$(date +%Y%m%d).md"
+  cat > "$cache_file" << CACHE
+# Frequently Used Patterns Cache
+
+## Code Patterns
+$(grep -r "function\|class\|const\|def " --include="*.js" --include="*.py" --include="*.ts" . 2>/dev/null | head -20)
+
+## Import Patterns  
+$(grep -r "import\|require\|from " --include="*.js" --include="*.py" --include="*.ts" . 2>/dev/null | head -15)
+
+## Test Patterns
+$(find . -name "*test*" -o -name "*spec*" -name "*.js" -o -name "*.py" -o -name "*.ts" 2>/dev/null | head -10)
+
+*Cache generated: $(date)*
+CACHE
+  
+  echo -e "${GREEN}✓ Cached common patterns for quick reference${NC}"
+  
+  # Analyze context efficiency
+  local total_size=$(du -sh . 2>/dev/null | cut -f1)
+  local aicheck_size=$(du -sh .aicheck 2>/dev/null | cut -f1)
+  
+  echo -e "\n${BRIGHT_BLURPLE}Context Efficiency Report:${NC}"
+  echo -e "Total project size: ${GREEN}$total_size${NC}"
+  echo -e "AICheck overhead: ${GREEN}$aicheck_size${NC}"
+  echo -e "Optimization files created: ${GREEN}2${NC}"
+  
+  echo -e "\n${GREEN}✓ Context optimization completed${NC}"
+  echo -e "${BRIGHT_BLURPLE}Use context summary and pattern cache for efficient prompting${NC}"
 }
 
 # Function to automatically enforce action boundaries
@@ -1064,9 +1220,15 @@ case "$CMD" in
           echo -e "${YELLOW}Consider running './aicheck context clear' or './aicheck context compact'${NC}"
         fi
         ;;
+      "cost"|"usage")
+        analyze_usage_costs
+        ;;
+      "optimize")
+        optimize_context
+        ;;
       *)
         echo -e "${RED}Unknown context command: $1${NC}"
-        echo "Available commands: clear [--force], compact, check, pollution"
+        echo "Available commands: clear [--force], compact, check, pollution, cost, optimize"
         ;;
     esac
     ;;

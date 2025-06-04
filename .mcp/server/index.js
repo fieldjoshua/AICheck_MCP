@@ -210,6 +210,22 @@ class AICheckMCPServer {
               properties: {},
             },
           },
+          {
+            name: 'aicheck.analyzeCosts',
+            description: 'Analyze usage patterns and cost efficiency',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck.optimizeContext',
+            description: 'Auto-optimize context for better performance and cost efficiency',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
         ],
       };
     });
@@ -242,6 +258,12 @@ class AICheckMCPServer {
             
           case 'aicheck.checkBoundaries':
             return await this.checkActionBoundaries();
+            
+          case 'aicheck.analyzeCosts':
+            return await this.analyzeCosts();
+            
+          case 'aicheck.optimizeContext':
+            return await this.optimizeContext();
             
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -448,6 +470,56 @@ ${content}
           {
             type: 'text',
             text: `Error checking boundaries: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async analyzeCosts() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context cost', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error analyzing costs: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async optimizeContext() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context optimize', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Context optimization completed: ${result}`,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error optimizing context: ${error.message}`,
           },
         ],
       };
