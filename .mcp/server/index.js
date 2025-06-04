@@ -18,7 +18,7 @@ class AICheckMCPServer {
     this.server = new Server(
       {
         name: 'aicheck-mcp-server',
-        version: '1.0.0',
+        version: '4.3.0',
       },
       {
         capabilities: {
@@ -42,7 +42,7 @@ class AICheckMCPServer {
         },
         serverInfo: {
           name: 'aicheck-mcp-server',
-          version: '1.0.0',
+          version: '4.3.0',
         },
       };
     });
@@ -125,7 +125,7 @@ class AICheckMCPServer {
       return {
         tools: [
           {
-            name: 'aicheck.getCurrentAction',
+            name: 'aicheck_getCurrentAction',
             description: 'Get the currently active action',
             inputSchema: {
               type: 'object',
@@ -133,7 +133,7 @@ class AICheckMCPServer {
             },
           },
           {
-            name: 'aicheck.listActions',
+            name: 'aicheck_listActions',
             description: 'List all actions in the project',
             inputSchema: {
               type: 'object',
@@ -141,7 +141,7 @@ class AICheckMCPServer {
             },
           },
           {
-            name: 'aicheck.getActionPlan',
+            name: 'aicheck_getActionPlan',
             description: 'Get the plan for a specific action',
             inputSchema: {
               type: 'object',
@@ -155,7 +155,7 @@ class AICheckMCPServer {
             },
           },
           {
-            name: 'aicheck.setCurrentAction',
+            name: 'aicheck_setCurrentAction',
             description: 'Set the currently active action (requires human approval)',
             inputSchema: {
               type: 'object',
@@ -169,7 +169,7 @@ class AICheckMCPServer {
             },
           },
           {
-            name: 'aicheck.logClaudeInteraction',
+            name: 'aicheck_logClaudeInteraction',
             description: 'Log a Claude interaction for the current action',
             inputSchema: {
               type: 'object',
@@ -186,6 +186,46 @@ class AICheckMCPServer {
               required: ['purpose', 'content'],
             },
           },
+          {
+            name: 'aicheck_contextPollution',
+            description: 'Analyze context pollution and suggest cleanup actions',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck_contextCompact',
+            description: 'Automatically compact context and archive old interactions',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck_checkBoundaries',
+            description: 'Check for action boundary violations and scope creep',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck_analyzeCosts',
+            description: 'Analyze usage patterns and cost efficiency',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck_optimizeContext',
+            description: 'Auto-optimize context for better performance and cost efficiency',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
         ],
       };
     });
@@ -195,20 +235,35 @@ class AICheckMCPServer {
       
       try {
         switch (name) {
-          case 'aicheck.getCurrentAction':
+          case 'aicheck_getCurrentAction':
             return await this.getCurrentAction();
             
-          case 'aicheck.listActions':
+          case 'aicheck_listActions':
             return await this.listActions();
             
-          case 'aicheck.getActionPlan':
+          case 'aicheck_getActionPlan':
             return await this.getActionPlan(args.actionName);
             
-          case 'aicheck.setCurrentAction':
+          case 'aicheck_setCurrentAction':
             return await this.setCurrentAction(args.actionName);
             
-          case 'aicheck.logClaudeInteraction':
+          case 'aicheck_logClaudeInteraction':
             return await this.logClaudeInteraction(args.purpose, args.content);
+            
+          case 'aicheck_contextPollution':
+            return await this.analyzeContextPollution();
+            
+          case 'aicheck_contextCompact':
+            return await this.compactContext();
+            
+          case 'aicheck_checkBoundaries':
+            return await this.checkActionBoundaries();
+            
+          case 'aicheck_analyzeCosts':
+            return await this.analyzeCosts();
+            
+          case 'aicheck_optimizeContext':
+            return await this.optimizeContext();
             
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -343,6 +398,131 @@ ${content}
       };
     } catch (error) {
       throw new Error(`Failed to log Claude interaction: ${error.message}`);
+    }
+  }
+
+  async analyzeContextPollution() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context pollution', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error analyzing context pollution: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async compactContext() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context compact', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Context compaction completed: ${result}`,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error compacting context: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async checkActionBoundaries() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context check', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error checking boundaries: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async analyzeCosts() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context cost', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error analyzing costs: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async optimizeContext() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context optimize', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Context optimization completed: ${result}`,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error optimizing context: ${error.message}`,
+          },
+        ],
+      };
     }
   }
 

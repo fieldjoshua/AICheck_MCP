@@ -1,8 +1,16 @@
-# AICheck v4.2.0 - Advanced AI Development Governance
+# AICheck v4.3.0 - Advanced AI Development Governance
 
 **🚀 The most comprehensive AI-assisted development governance system with maximum automation and human oversight.**
 
-## ✨ What's New in v4.2.0
+## ✨ What's New in v4.3.0
+
+### 🔌 **MCP (Model Context Protocol) Integration**
+- **AICheck MCP Server** - Native integration with Claude Code via MCP
+- **Fixed Tool Naming** - All MCP tools use underscore naming (aicheck_getCurrentAction, etc.)
+- **Context Management Tools** - New tools for pollution analysis, compaction, and optimization
+- **Cost Analysis** - Built-in usage tracking and cost efficiency tools
+
+## 📝 Previous Updates (v4.2.0)
 
 ### 🤖 **Comprehensive Automation Suite**
 - **Session Start Detection** - Auto-detects new Claude Code sessions and runs startup checks
