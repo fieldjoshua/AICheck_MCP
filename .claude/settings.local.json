@@ -95,7 +95,8 @@
       "Bash(./aicheck context)",
       "Bash(./activate_aicheck_claude.sh:*)",
       "Bash(./aicheck stuck)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   },
