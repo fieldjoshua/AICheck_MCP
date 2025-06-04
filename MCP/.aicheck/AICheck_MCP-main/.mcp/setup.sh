@@ -19,14 +19,14 @@ chmod +x "$MCP_SERVER_DIR/index.js"
 
 # Check if Claude CLI is installed
 if ! command -v claude &> /dev/null; then
-    echo "Claude CLI not found. Please ensure Claude Code is installed and available in PATH."
-    echo "Visit https://claude.ai/code for installation instructions."
+    echo "Claude CLI not found. Please install it first:"
+    echo "npm install -g @anthropic-ai/claude-cli"
     exit 1
 fi
 
 # Register the MCP server with Claude
 echo "Registering the MCP server with Claude..."
-claude mcp add -s local -t stdio aicheck node "$MCP_SERVER_DIR/index.js"
+claude mcp add aicheck --type stdio --command node --args "[$MCP_SERVER_DIR/index.js]"
 
 echo "AICheck MCP server setup complete!"
 echo

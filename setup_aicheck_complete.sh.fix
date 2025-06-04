@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Fix for the setup script to include hooks
+# This script downloads both required scripts and runs them in sequence
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Setting up AICheck MCP (Fixed Installer)...${NC}"
+
+# Download both setup scripts
+echo -e "${BLUE}Downloading required scripts...${NC}"
+curl -s -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup_aicheck_hooks.sh
+curl -s -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup_aicheck_status.sh
+
+# Make them executable
+chmod +x setup_aicheck_hooks.sh setup_aicheck_status.sh
+
+# Download and run the complete setup
+curl -s -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/setup_aicheck_complete.sh
+chmod +x setup_aicheck_complete.sh
+
+# Modify the setup script to use local hooks script
+sed -i.bak 's|./setup_aicheck_hooks.sh|$(dirname "$0")/setup_aicheck_hooks.sh|g' setup_aicheck_complete.sh
+
+# Run the modified setup
+./setup_aicheck_complete.sh
+
+# Run the status setup separately
+echo -e "\n${BLUE}Setting up AICheck status display...${NC}"
+./setup_aicheck_status.sh
+
+echo -e "\n${GREEN}AICheck MCP setup complete!${NC}"
+echo -e "${GREEN}All components have been installed successfully.${NC}"
+
+# Remind about activation
+echo -e "\n${YELLOW}Don't forget to run:${NC}"
+echo -e "  source ~/.zshrc ${YELLOW}or${NC} source ~/.bashrc"
+echo -e "${YELLOW}To ensure all commands are available in your current terminal session.${NC}"
