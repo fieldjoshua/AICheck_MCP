@@ -1,0 +1,3 @@
+#\!/bin/bash
+AICHECK_VERSION="4.2.0"
+echo "AICheck v$AICHECK_VERSION"

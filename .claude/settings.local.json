@@ -96,7 +96,9 @@
       "Bash(./activate_aicheck_claude.sh:*)",
       "Bash(./aicheck stuck)",
       "Bash(git init:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(./aicheck version)",
+      "mcp__aicheck-server__aicheck_contextPollution"
     ],
     "deny": []
   },

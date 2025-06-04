@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Quick AICheck v4.1.0 Installation
+# Quick AICheck v4.3.0 Installation
 # Simplified installer for immediate deployment
 
 set -e
@@ -12,7 +12,7 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BRIGHT_BLURPLE}Quick AICheck v4.1.0 Installation${NC}"
+echo -e "${BRIGHT_BLURPLE}Quick AICheck v4.3.0 Installation${NC}"
 echo -e "=================================="
 
 # Step 1: Create directory structure
@@ -174,9 +174,10 @@ echo -e "2. Activate AICheck: ${YELLOW}./activate_aicheck_claude.sh${NC}"
 echo -e "3. Start Claude Code and paste the activation prompt"
 echo -e "4. Test with: ${YELLOW}./aicheck status${NC}"
 
-echo -e "\n${BRIGHT_BLURPLE}New v4.1.0 Features Available:${NC}"
-echo -e "${GREEN}✓ Focus Management: ${YELLOW}./aicheck context clear|compact|check|pollution${NC}"
-echo -e "${GREEN}✓ Cost Optimization: ${YELLOW}./aicheck context cost|optimize${NC}"
-echo -e "${GREEN}✓ Structured Templates: ${YELLOW}.aicheck/templates/claude/${NC}"
+echo -e "\n${BRIGHT_BLURPLE}New v4.3.0 Features Available:${NC}"
+echo -e "${GREEN}✓ MCP Integration: ${YELLOW}Native Claude Code integration via MCP${NC}"
+echo -e "${GREEN}✓ Context Management: ${YELLOW}./aicheck stuck|focus|cleanup|usage|reset${NC}"
+echo -e "${GREEN}✓ Auto Session Detection: ${YELLOW}Automatic startup checks${NC}"
+echo -e "${GREEN}✓ Cost Optimization: ${YELLOW}./aicheck usage (shows costs and tips)${NC}"
 
 echo -e "\n${GREEN}Installation complete! 🚀${NC}"
