@@ -2083,6 +2083,13 @@ if [ "$MCP_SETUP_SUCCESS" = true ] && [ "$CLIPBOARD_SUCCESS" = true ]; then
     echo -e "${BRIGHT_BLURPLE}2. Paste the activation text (already in clipboard)${NC}"
     echo -e "${BRIGHT_BLURPLE}3. Start coding with full AICheck + MCP integration!${NC}\n"
     
+    echo -e "${NEON_BLURPLE}NEW: Enhanced Focus Management (v4.1.0)${NC}"
+    echo -e "${GREEN}✓ Automated context pollution detection${NC}"
+    echo -e "${GREEN}✓ Claude Code /clear equivalent: ${YELLOW}./aicheck context clear${NC}"
+    echo -e "${GREEN}✓ Claude Code /compact equivalent: ${YELLOW}./aicheck context compact${NC}"
+    echo -e "${GREEN}✓ Automatic scope creep detection and boundary enforcement${NC}"
+    echo -e "${GREEN}✓ Integrated with MCP for seamless Claude Code workflow${NC}\n"
+    
     echo -e "${CYAN}To verify MCP setup: ${YELLOW}claude mcp list${NC}"
 elif [ "$MCP_SETUP_SUCCESS" = true ]; then
     echo -e "${GREEN}✓ MCP server configured${NC}"

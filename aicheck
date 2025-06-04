@@ -2,13 +2,13 @@
 
 # AICheck command script
 # Provides the core functionality for AICheck MCP
-# Version: 4.0.1
-# Last Updated: 2025-05-28
+# Version: 4.1.0
+# Last Updated: 2025-06-03
 
 set -e
 
 # AICheck version info
-AICHECK_VERSION="4.0.1"
+AICHECK_VERSION="4.1.0"
 GITHUB_REPO="fieldjoshua/AICheck_MCP"
 GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
 
@@ -21,7 +21,13 @@ function show_version() {
   echo -e "${BRIGHT_BLURPLE}AICheck MCP${NC}"
   echo -e "Version: ${GREEN}${AICHECK_VERSION}${NC}"
   echo -e "Repository: ${GITHUB_REPO}"
-  echo -e "Commands: action, dependency, exec, status, update, version"
+  echo -e "Commands: action, context, dependency, exec, status, update, version"
+  echo -e ""
+  echo -e "${BRIGHT_BLURPLE}Focus Management:${NC}"
+  echo -e "  context clear [--force]  - Reset context and clean up pollution"
+  echo -e "  context compact          - Summarize and archive old interactions"
+  echo -e "  context check            - Enforce action boundaries and detect scope creep"
+  echo -e "  context pollution        - Analyze context pollution score"
 }
 
 # Function to check for updates
@@ -176,6 +182,277 @@ YELLOW="\033[0;33m"
 RED="\033[0;31m"
 CYAN="\033[0;36m"
 NC="\033[0m" # No Color
+
+# Function to automatically detect context pollution
+function detect_context_pollution() {
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  local pollution_score=0
+  local warnings=()
+  
+  # Check for multiple active actions
+  if [ -d ".aicheck/actions" ]; then
+    local active_count=$(find .aicheck/actions -name "status.txt" -exec grep -l "ActiveAction" {} \; 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$active_count" -gt 1 ]; then
+      pollution_score=$((pollution_score + 30))
+      warnings+=("Multiple active actions detected ($active_count)")
+    fi
+  fi
+  
+  # Check for excessive Claude interaction logs in the last hour
+  if [ "$current_action" != "None" ] && [ "$current_action" != "AICheckExec" ]; then
+    local dir_name=$(echo "$current_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+    local interaction_dir=".aicheck/actions/$dir_name/supporting_docs/claude-interactions"
+    if [ -d "$interaction_dir" ]; then
+      local recent_interactions=$(find "$interaction_dir" -name "*.md" -mmin -60 2>/dev/null | wc -l | tr -d ' ')
+      if [ "$recent_interactions" -gt 10 ]; then
+        pollution_score=$((pollution_score + 20))
+        warnings+=("High interaction frequency: $recent_interactions in last hour")
+      fi
+    fi
+  fi
+  
+  # Check for uncommitted changes across multiple directories
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local changed_dirs=$(git status --porcelain 2>/dev/null | awk '{print $2}' | xargs dirname | sort -u | wc -l | tr -d ' ')
+    if [ "$changed_dirs" -gt 3 ]; then
+      pollution_score=$((pollution_score + 15))
+      warnings+=("Changes scattered across $changed_dirs directories")
+    fi
+  fi
+  
+  echo "$pollution_score"
+  if [ ${#warnings[@]} -gt 0 ]; then
+    echo "WARNINGS:"
+    printf '%s\n' "${warnings[@]}"
+  fi
+}
+
+# Function to automatically clear context (with approval for destructive actions)
+function clear_context() {
+  local force=$1
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  echo -e "${BRIGHT_BLURPLE}AICheck Context Clear${NC}"
+  echo -e "Analyzing current context state..."
+  
+  local pollution_data=$(detect_context_pollution)
+  local pollution_score=$(echo "$pollution_data" | head -1)
+  local warnings=$(echo "$pollution_data" | tail -n +2)
+  
+  echo -e "Context pollution score: ${GREEN}$pollution_score/100${NC}"
+  if [ -n "$warnings" ]; then
+    echo -e "${YELLOW}$warnings${NC}"
+  fi
+  
+  # Automated safe actions (no approval needed)
+  echo -e "\n${BRIGHT_BLURPLE}Performing automated context cleanup...${NC}"
+  
+  # Clean up temp files
+  find . -name "*.tmp" -o -name "*.temp" -o -name ".DS_Store" 2>/dev/null | xargs rm -f 2>/dev/null || true
+  echo -e "${GREEN}✓ Cleaned temporary files${NC}"
+  
+  # Reset any exec mode state safely
+  if [ "$current_action" = "AICheckExec" ] && [ -f ".aicheck/previous_action" ]; then
+    local previous=$(cat .aicheck/previous_action)
+    echo "$previous" > .aicheck/current_action
+    rm .aicheck/previous_action
+    echo -e "${GREEN}✓ Restored from exec mode to: $previous${NC}"
+  fi
+  
+  # Archive old interaction logs (keep last 5 per action)
+  if [ -d ".aicheck/actions" ]; then
+    find .aicheck/actions -name "claude-interactions" -type d | while read dir; do
+      if [ $(ls "$dir"/*.md 2>/dev/null | wc -l) -gt 5 ]; then
+        mkdir -p "$dir/archive"
+        ls -t "$dir"/*.md 2>/dev/null | tail -n +6 | xargs mv -t "$dir/archive/" 2>/dev/null || true
+      fi
+    done
+    echo -e "${GREEN}✓ Archived old interaction logs${NC}"
+  fi
+  
+  # Actions requiring approval
+  local needs_approval=false
+  local approval_actions=()
+  
+  if [ "$pollution_score" -gt 50 ]; then
+    needs_approval=true
+    approval_actions+=("Reset all active actions to 'Not Started'")
+    approval_actions+=("Clear all uncommitted git changes")
+    approval_actions+=("Reset current action to 'None'")
+  fi
+  
+  if [ "$force" != "--force" ] && [ "$needs_approval" = true ]; then
+    echo -e "\n${YELLOW}The following actions require human approval:${NC}"
+    printf '  - %s\n' "${approval_actions[@]}"
+    echo -e "\n${YELLOW}Run './aicheck context clear --force' to proceed with destructive actions${NC}"
+    echo -e "${YELLOW}Or manually address the issues listed above${NC}"
+    return 0
+  fi
+  
+  if [ "$force" = "--force" ]; then
+    echo -e "\n${RED}Performing destructive context reset...${NC}"
+    
+    # Reset multiple active actions
+    if [ -d ".aicheck/actions" ]; then
+      find .aicheck/actions -name "status.txt" -exec sed -i "" 's/ActiveAction/Not Started/g' {} \; 2>/dev/null
+      echo -e "${GREEN}✓ Reset all actions to 'Not Started'${NC}"
+    fi
+    
+    # Reset current action
+    echo "None" > .aicheck/current_action
+    echo -e "${GREEN}✓ Reset current action to 'None'${NC}"
+    
+    echo -e "${RED}⚠ Destructive context reset completed${NC}"
+    echo -e "${YELLOW}You may need to manually restore your intended active action${NC}"
+  fi
+  
+  echo -e "\n${GREEN}✓ Context cleanup completed${NC}"
+}
+
+# Function to automatically compact context (summarize and preserve essentials)
+function compact_context() {
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  echo -e "${BRIGHT_BLURPLE}AICheck Context Compact${NC}"
+  echo -e "Compacting context for action: ${GREEN}$current_action${NC}"
+  
+  if [ "$current_action" = "None" ] || [ "$current_action" = "AICheckExec" ]; then
+    echo -e "${YELLOW}No active action to compact${NC}"
+    return 0
+  fi
+  
+  local dir_name=$(echo "$current_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  local action_dir=".aicheck/actions/$dir_name"
+  
+  if [ ! -d "$action_dir" ]; then
+    echo -e "${RED}Action directory not found: $action_dir${NC}"
+    return 1
+  fi
+  
+  # Automated compaction (no approval needed)
+  echo -e "\n${BRIGHT_BLURPLE}Performing automated compaction...${NC}"
+  
+  # Create compact summary
+  local timestamp=$(date +"%Y-%m-%d_%H%M%S")
+  local summary_file="$action_dir/context-compact-$timestamp.md"
+  
+  cat > "$summary_file" << COMPACT
+# Context Compact: $current_action
+
+**Generated:** $(date)
+**Action Status:** $(cat "$action_dir/status.txt" 2>/dev/null || echo "Unknown")
+
+## Action Summary
+
+$(head -20 "$action_dir/$dir_name-plan.md" 2>/dev/null || echo "Plan not found")
+
+## Recent Progress
+
+$(tail -10 "$action_dir/progress.md" 2>/dev/null || echo "No progress logged")
+
+## Key Files Modified (Last 24h)
+
+$(if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git log --since="24 hours ago" --name-only --pretty=format: | sort -u | head -10
+else
+  echo "Not in git repository"
+fi)
+
+## Dependencies
+
+$(if [ -f "documentation/dependencies/dependency_index.md" ]; then
+  grep "$current_action" documentation/dependencies/dependency_index.md || echo "No dependencies found"
+else
+  echo "No dependency index found"
+fi)
+
+## Context State
+
+- Interaction logs: $(find "$action_dir/supporting_docs/claude-interactions" -name "*.md" 2>/dev/null | wc -l | tr -d ' ') files
+- Git changes: $(git status --porcelain 2>/dev/null | wc -l | tr -d ' ') files
+- Action progress: $(grep "Progress:" "$action_dir/$dir_name-plan.md" 2>/dev/null | cut -d':' -f2 | tr -d ' ' || echo "Unknown")
+COMPACT
+
+  echo -e "${GREEN}✓ Created compact summary: $(basename "$summary_file")${NC}"
+  
+  # Archive older interaction logs (keep last 3)
+  local interaction_dir="$action_dir/supporting_docs/claude-interactions"
+  if [ -d "$interaction_dir" ]; then
+    local log_count=$(ls "$interaction_dir"/*.md 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$log_count" -gt 3 ]; then
+      mkdir -p "$interaction_dir/archive"
+      ls -t "$interaction_dir"/*.md 2>/dev/null | tail -n +4 | xargs mv -t "$interaction_dir/archive/" 2>/dev/null || true
+      echo -e "${GREEN}✓ Archived $(($log_count - 3)) older interaction logs${NC}"
+    fi
+  fi
+  
+  # Update progress tracking
+  local current_progress=$(grep "Progress:" "$action_dir/$dir_name-plan.md" 2>/dev/null | cut -d':' -f2 | tr -d ' %' || echo "0")
+  echo "$(date +"%Y-%m-%d") - Context compacted (Progress: $current_progress%)" >> "$action_dir/progress.md"
+  
+  echo -e "${GREEN}✓ Context compaction completed${NC}"
+  echo -e "${BRIGHT_BLURPLE}Summary: $summary_file${NC}"
+}
+
+# Function to automatically enforce action boundaries
+function enforce_action_boundaries() {
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  if [ "$current_action" = "None" ] || [ "$current_action" = "AICheckExec" ]; then
+    echo -e "${YELLOW}No active action - boundary enforcement skipped${NC}"
+    return 0
+  fi
+  
+  echo -e "${BRIGHT_BLURPLE}Enforcing boundaries for: ${GREEN}$current_action${NC}"
+  
+  local dir_name=$(echo "$current_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  local action_dir=".aicheck/actions/$dir_name"
+  
+  # Check for scope creep indicators
+  local scope_warnings=()
+  
+  # Check if working outside action directory
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local changed_files=$(git status --porcelain 2>/dev/null | awk '{print $2}')
+    local outside_scope=0
+    
+    for file in $changed_files; do
+      # Skip if file is in action directory or common project files
+      if [[ ! "$file" =~ ^\.aicheck/actions/$dir_name/ ]] && 
+         [[ ! "$file" =~ ^(src/|tests/|documentation/|README|\.md$) ]]; then
+        outside_scope=$((outside_scope + 1))
+      fi
+    done
+    
+    if [ "$outside_scope" -gt 0 ]; then
+      scope_warnings+=("$outside_scope files modified outside expected scope")
+    fi
+  fi
+  
+  # Check for excessive new dependencies
+  if [ -f "documentation/dependencies/dependency_index.md" ]; then
+    local recent_deps=$(grep "$(date +"%Y-%m-%d")" documentation/dependencies/dependency_index.md | grep "$current_action" | wc -l | tr -d ' ')
+    if [ "$recent_deps" -gt 3 ]; then
+      scope_warnings+=("$recent_deps new dependencies added today")
+    fi
+  fi
+  
+  # Check for multiple action modifications
+  local modified_actions=$(find .aicheck/actions -name "*.md" -newer .aicheck/current_action 2>/dev/null | grep -v "$dir_name" | wc -l | tr -d ' ')
+  if [ "$modified_actions" -gt 0 ]; then
+    scope_warnings+=("$modified_actions other actions modified during this session")
+  fi
+  
+  if [ ${#scope_warnings[@]} -gt 0 ]; then
+    echo -e "${YELLOW}⚠ Potential scope creep detected:${NC}"
+    printf '  - %s\n' "${scope_warnings[@]}"
+    echo -e "${YELLOW}Consider using './aicheck context clear' if work has drifted${NC}"
+    return 1
+  else
+    echo -e "${GREEN}✓ Action boundaries maintained${NC}"
+    return 0
+  fi
+}
 
 # Function to create a new action
 function create_action() {
@@ -692,12 +969,41 @@ function show_status() {
     echo "No action index found"
   fi
   
+  # Show context pollution analysis
+  echo -e "\nContext Health:"
+  pollution_data=$(detect_context_pollution)
+  pollution_score=$(echo "$pollution_data" | head -1)
+  warnings=$(echo "$pollution_data" | tail -n +2)
+  
+  if [ "$pollution_score" -le 20 ]; then
+    echo -e "Pollution score: ${GREEN}$pollution_score/100 (Clean)${NC}"
+  elif [ "$pollution_score" -le 50 ]; then
+    echo -e "Pollution score: ${YELLOW}$pollution_score/100 (Moderate)${NC}"
+  else
+    echo -e "Pollution score: ${RED}$pollution_score/100 (High)${NC}"
+    echo -e "${YELLOW}Consider running './aicheck context clear'${NC}"
+  fi
+  
+  if [ -n "$warnings" ] && [ "$warnings" != "WARNINGS:" ]; then
+    echo -e "${YELLOW}$warnings${NC}"
+  fi
+  
   # Show git status if in a git repo
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo -e "\nGit Status:"
     echo -e "Branch: $(git branch --show-current 2>/dev/null)"
     echo -e "Changes: $(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
     echo -e "Last commit: $(git log -1 --oneline 2>/dev/null || echo "No commits yet")"
+  fi
+  
+  # Automatically check boundaries if there's an active action
+  if [ "$current_action" != "None" ] && [ "$current_action" != "AICheckExec" ]; then
+    echo -e "\nBoundary Check:"
+    if enforce_action_boundaries >/dev/null 2>&1; then
+      echo -e "${GREEN}✓ Action boundaries maintained${NC}"
+    else
+      echo -e "${YELLOW}⚠ Potential scope creep detected - run './aicheck context check' for details${NC}"
+    fi
   fi
 }
 
@@ -734,6 +1040,36 @@ case "$CMD" in
         ;;
     esac
     ;;
+  "context")
+    case "$1" in
+      "clear")
+        clear_context "$2"
+        ;;
+      "compact")
+        compact_context
+        ;;
+      "check")
+        enforce_action_boundaries
+        ;;
+      "pollution")
+        echo -e "${BRIGHT_BLURPLE}Context Pollution Analysis${NC}"
+        pollution_data=$(detect_context_pollution)
+        pollution_score=$(echo "$pollution_data" | head -1)
+        warnings=$(echo "$pollution_data" | tail -n +2)
+        echo -e "Pollution score: ${GREEN}$pollution_score/100${NC}"
+        if [ -n "$warnings" ]; then
+          echo -e "${YELLOW}$warnings${NC}"
+        fi
+        if [ "$pollution_score" -gt 30 ]; then
+          echo -e "${YELLOW}Consider running './aicheck context clear' or './aicheck context compact'${NC}"
+        fi
+        ;;
+      *)
+        echo -e "${RED}Unknown context command: $1${NC}"
+        echo "Available commands: clear [--force], compact, check, pollution"
+        ;;
+    esac
+    ;;
   "exec")
     exec_mode
     ;;
@@ -765,6 +1101,7 @@ case "$CMD" in
     ;;
   *)
     echo -e "${RED}Unknown command: $CMD${NC}"
-    echo "Available commands: action, dependency, exec, status, update, version"
+    echo "Available commands: action, context, dependency, exec, status, update, version"
+    echo "Run './aicheck version' for detailed help"
     ;;
 esac

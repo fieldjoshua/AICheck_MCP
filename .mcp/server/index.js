@@ -7,6 +7,7 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  InitializeRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
@@ -17,7 +18,7 @@ class AICheckMCPServer {
     this.server = new Server(
       {
         name: 'aicheck-mcp-server',
-        version: '1.0.0',
+        version: '4.1.0',
       },
       {
         capabilities: {
@@ -31,6 +32,21 @@ class AICheckMCPServer {
   }
 
   setupHandlers() {
+    // Handle MCP initialization
+    this.server.setRequestHandler(InitializeRequestSchema, async () => {
+      return {
+        protocolVersion: '2024-11-05',
+        capabilities: {
+          resources: {},
+          tools: {},
+        },
+        serverInfo: {
+          name: 'aicheck-mcp-server',
+          version: '4.1.0',
+        },
+      };
+    });
+
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
       return {
         resources: [
@@ -170,6 +186,30 @@ class AICheckMCPServer {
               required: ['purpose', 'content'],
             },
           },
+          {
+            name: 'aicheck.contextPollution',
+            description: 'Analyze context pollution and suggest cleanup actions',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck.contextCompact',
+            description: 'Automatically compact context and archive old interactions',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'aicheck.checkBoundaries',
+            description: 'Check for action boundary violations and scope creep',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
         ],
       };
     });
@@ -193,6 +233,15 @@ class AICheckMCPServer {
             
           case 'aicheck.logClaudeInteraction':
             return await this.logClaudeInteraction(args.purpose, args.content);
+            
+          case 'aicheck.contextPollution':
+            return await this.analyzeContextPollution();
+            
+          case 'aicheck.contextCompact':
+            return await this.compactContext();
+            
+          case 'aicheck.checkBoundaries':
+            return await this.checkActionBoundaries();
             
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -327,6 +376,81 @@ ${content}
       };
     } catch (error) {
       throw new Error(`Failed to log Claude interaction: ${error.message}`);
+    }
+  }
+
+  async analyzeContextPollution() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context pollution', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error analyzing context pollution: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async compactContext() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context compact', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Context compaction completed: ${result}`,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error compacting context: ${error.message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  async checkActionBoundaries() {
+    try {
+      const { execSync } = await import('child_process');
+      const result = execSync('./aicheck context check', { encoding: 'utf-8' });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Error checking boundaries: ${error.message}`,
+          },
+        ],
+      };
     }
   }
 
