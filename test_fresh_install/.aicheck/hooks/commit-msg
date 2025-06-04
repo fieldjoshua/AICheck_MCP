@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# AICheck commit-msg hook
+# Validates commit message format
+
+GREEN="\033[0;32m"
+NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
+YELLOW="\033[0;33m"
+RED="\033[0;31m"
+CYAN="\033[0;36m"
+NC="\033[0m" # No Color
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat $COMMIT_MSG_FILE)
+FIRST_LINE=$(head -n 1 $COMMIT_MSG_FILE)
+
+# Get current action
+CURRENT_ACTION="None"
+if [ -f ".aicheck/current_action" ]; then
+  CURRENT_ACTION=$(cat .aicheck/current_action)
+fi
+
+# 1. Check commit message starts with present-tense verb
+if ! echo "$FIRST_LINE" | grep -q -E "^(Add|Update|Fix|Remove|Refactor|Document|Test|Implement|Create|Delete|Merge|Revert|Improve|Optimize|Bump|Release|Hotfix|Security) "; then
+  echo -e "${YELLOW}WARNING: Commit message should start with a present-tense verb${NC}"
+  echo -e "${YELLOW}Examples: Add, Update, Fix, Remove, Refactor, Document, etc.${NC}"
+  echo -e "${YELLOW}Current message: \"$FIRST_LINE\"${NC}"
+  echo ""
+  # Not blocking the commit, just a friendly reminder
+fi
+
+# 2. Check line length
+if [ ${#FIRST_LINE} -gt 72 ]; then
+  echo -e "${YELLOW}WARNING: Commit message first line is too long (${#FIRST_LINE} > 72 characters)${NC}"
+  echo -e "${YELLOW}Consider shortening your message for better readability${NC}"
+  echo ""
+  # Not blocking the commit, just a friendly reminder
+fi
+
+# 3. Check for action reference if there is an active action
+if [ "$CURRENT_ACTION" != "None" ] && [ "$CURRENT_ACTION" != "AICheckExec" ]; then
+  if ! echo "$COMMIT_MSG" | grep -q "\[$CURRENT_ACTION\]" && ! echo "$COMMIT_MSG" | grep -q "$CURRENT_ACTION"; then
+    echo -e "${YELLOW}SUGGESTION: Consider referencing current action in commit message${NC}"
+    echo -e "${YELLOW}Current action: $CURRENT_ACTION${NC}"
+    echo -e "${YELLOW}Example format: \"Add new feature [$CURRENT_ACTION]\"${NC}"
+    echo ""
+    # Not blocking the commit, just a friendly reminder
+  fi
+fi
+
+# Always allow the commit to proceed - these are helpful suggestions, not blockers
+exit 0

@@ -1,0 +1,55 @@
+AICheck MCP Server Error Report
+================================
+Date: 2025-06-04
+Time: 06:33:22 UTC
+
+Error Summary:
+--------------
+The AICheck MCP server is failing to initialize with the following error:
+"MCP error -32601: Method not found: initialize"
+
+This indicates that the AICheck MCP server is not properly implementing the MCP (Model Context Protocol) specification, specifically missing the required "initialize" method.
+
+Full Error Log:
+---------------
+[
+  {
+    "debug": "Connection failed: McpError: MCP error -32601: Method not found: initialize",
+    "timestamp": "2025-06-04T06:33:23.024Z",
+    "sessionId": "be89b289-dc8c-4097-962c-d39ff706b74d",
+    "cwd": "/Users/joshuafield/.claude/local"
+  },
+  {
+    "debug": "Error message: MCP error -32601: Method not found: initialize",
+    "timestamp": "2025-06-04T06:33:23.026Z",
+    "sessionId": "be89b289-dc8c-4097-962c-d39ff706b74d",
+    "cwd": "/Users/joshuafield/.claude/local"
+  },
+  {
+    "debug": "Error stack: McpError: MCP error -32601: Method not found: initialize\n    at Gc1._onresponse (file:///Users/joshuafield/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js:1356:19576)\n    at _transport.onmessage (file:///Users/joshuafield/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js:1356:16782)\n    at Kc1.processReadBuffer (file:///Users/joshuafield/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js:1358:2205)\n    at Socket.<anonymous> (file:///Users/joshuafield/.claude/local/node_modules/@anthropic-ai/claude-code/cli.js:1358:1675)\n    at Socket.emit (node:events:518:28)\n    at Socket.emit (node:domain:489:12)\n    at addChunk (node:internal/streams/readable:561:12)\n    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n    at Readable.push (node:internal/streams/readable:392:5)\n    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)",
+    "timestamp": "2025-06-04T06:33:23.027Z",
+    "sessionId": "be89b289-dc8c-4097-962c-d39ff706b74d",
+    "cwd": "/Users/joshuafield/.claude/local"
+  },
+  {
+    "error": "Connection failed: MCP error -32601: Method not found: initialize",
+    "timestamp": "2025-06-04T06:33:23.028Z",
+    "sessionId": "be89b289-dc8c-4097-962c-d39ff706b74d",
+    "cwd": "/Users/joshuafield/.claude/local"
+  }
+]
+
+Environment Information:
+------------------------
+- Working Directory: /Users/joshuafield/.claude/local
+- Platform: macOS Darwin 24.5.0
+- AICheck Version: 4.0.1 (from script header)
+- Log Location: /Users/joshuafield/Library/Caches/claude-cli-nodejs/-Users-joshuafield--claude-local/mcp-logs-aicheck/
+
+Technical Details:
+------------------
+The error code -32601 is a JSON-RPC standard error indicating "Method not found". The MCP protocol requires servers to implement an "initialize" method as part of the handshake process. The AICheck MCP server appears to be missing this required method.
+
+Recommendation:
+---------------
+The AICheck MCP server implementation needs to be updated to properly implement the MCP protocol specification, including the required "initialize" method for establishing connections with MCP clients.
