@@ -13,7 +13,7 @@ GITHUB_REPO="fieldjoshua/AICheck_MCP"
 GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
 
 CMD=$1
-shift
+shift || true
 ARGS=$@
 
 # Function to show version information
@@ -964,6 +964,9 @@ function auto_session_start_check() {
   local current_time=$(date +%s)
   local session_gap=3600  # 1 hour gap indicates new session
   
+  # Create .aicheck directory if it doesn't exist
+  mkdir -p .aicheck
+  
   # Check if we have a previous session timestamp
   if [ -f "$session_marker" ]; then
     local last_session=$(cat "$session_marker" 2>/dev/null || echo "0")
@@ -976,16 +979,22 @@ function auto_session_start_check() {
       # Update session timestamp
       echo "$current_time" > "$session_marker"
       
-      # Run stuck command logic without the full UI
+      # Run stuck command logic without the full UI (simplified for robustness)
       echo -e "${YELLOW}Session Summary:${NC}"
-      show_status
+      local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+      echo -e "Current Action: ${GREEN}$current_action${NC}"
       
-      # Check for basic issues
-      local pollution_data=$(detect_context_pollution)
-      local pollution_score=$(echo "$pollution_data" | head -1)
+      # Check for basic issues (simplified)
+      local pollution_score=0
+      if [ -d ".aicheck/actions" ]; then
+        local active_count=$(find .aicheck/actions -name "status.txt" -exec grep -l "ActiveAction" {} \; 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$active_count" -gt 1 ]; then
+          pollution_score=30
+        fi
+      fi
       
       if [ "$pollution_score" -gt 30 ]; then
-        echo -e "${YELLOW}⚠ Context pollution detected (score: $pollution_score)${NC}"
+        echo -e "${YELLOW}⚠ Context pollution detected${NC}"
         echo -e "${YELLOW}Consider running './aicheck cleanup' before starting work${NC}"
       fi
       
@@ -1482,8 +1491,8 @@ EODOC2
   fi
   
   # Check if both actions exist
-  local dep_dir_name=$(echo "$dep_action" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
-  local action_dir_name=$(echo "$action" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  local dep_dir_name=$(echo "$dep_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+  local action_dir_name=$(echo "$action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
   
   if [ ! -d ".aicheck/actions/$dep_dir_name" ]; then
     echo -e "${YELLOW}Warning: Dependency action '$dep_action' does not exist.${NC}"
@@ -1526,7 +1535,7 @@ function show_status() {
   
   if [ "$current_action" != "None" ] && [ "$current_action" != "AICheckExec" ]; then
     # Convert PascalCase to kebab-case for directories
-    local dir_name=$(echo "$current_action" | sed -r 's/([a-z0-9])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+    local dir_name=$(echo "$current_action" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
     
     if [ -d ".aicheck/actions/$dir_name" ]; then
       local status=$(cat ".aicheck/actions/$dir_name/status.txt" 2>/dev/null || echo "Unknown")
@@ -1603,7 +1612,7 @@ function show_status() {
 }
 
 # Auto-detect new sessions and run startup checks
-auto_session_start_check
+# auto_session_start_check  # Temporarily disabled for testing
 
 # Main command handling
 case "$CMD" in
