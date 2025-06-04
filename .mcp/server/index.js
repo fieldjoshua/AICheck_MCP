@@ -18,7 +18,7 @@ class AICheckMCPServer {
     this.server = new Server(
       {
         name: 'aicheck-mcp-server',
-        version: '4.1.0',
+        version: '1.0.0',
       },
       {
         capabilities: {
@@ -32,8 +32,8 @@ class AICheckMCPServer {
   }
 
   setupHandlers() {
-    // Handle MCP initialization
-    this.server.setRequestHandler(InitializeRequestSchema, async () => {
+    // Add the required initialize handler
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => {
       return {
         protocolVersion: '2024-11-05',
         capabilities: {
@@ -42,7 +42,7 @@ class AICheckMCPServer {
         },
         serverInfo: {
           name: 'aicheck-mcp-server',
-          version: '4.1.0',
+          version: '1.0.0',
         },
       };
     });
@@ -186,46 +186,6 @@ class AICheckMCPServer {
               required: ['purpose', 'content'],
             },
           },
-          {
-            name: 'aicheck.contextPollution',
-            description: 'Analyze context pollution and suggest cleanup actions',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
-          },
-          {
-            name: 'aicheck.contextCompact',
-            description: 'Automatically compact context and archive old interactions',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
-          },
-          {
-            name: 'aicheck.checkBoundaries',
-            description: 'Check for action boundary violations and scope creep',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
-          },
-          {
-            name: 'aicheck.analyzeCosts',
-            description: 'Analyze usage patterns and cost efficiency',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
-          },
-          {
-            name: 'aicheck.optimizeContext',
-            description: 'Auto-optimize context for better performance and cost efficiency',
-            inputSchema: {
-              type: 'object',
-              properties: {},
-            },
-          },
         ],
       };
     });
@@ -249,21 +209,6 @@ class AICheckMCPServer {
             
           case 'aicheck.logClaudeInteraction':
             return await this.logClaudeInteraction(args.purpose, args.content);
-            
-          case 'aicheck.contextPollution':
-            return await this.analyzeContextPollution();
-            
-          case 'aicheck.contextCompact':
-            return await this.compactContext();
-            
-          case 'aicheck.checkBoundaries':
-            return await this.checkActionBoundaries();
-            
-          case 'aicheck.analyzeCosts':
-            return await this.analyzeCosts();
-            
-          case 'aicheck.optimizeContext':
-            return await this.optimizeContext();
             
           default:
             throw new Error(`Unknown tool: ${name}`);
@@ -398,131 +343,6 @@ ${content}
       };
     } catch (error) {
       throw new Error(`Failed to log Claude interaction: ${error.message}`);
-    }
-  }
-
-  async analyzeContextPollution() {
-    try {
-      const { execSync } = await import('child_process');
-      const result = execSync('./aicheck context pollution', { encoding: 'utf-8' });
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: result,
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error analyzing context pollution: ${error.message}`,
-          },
-        ],
-      };
-    }
-  }
-
-  async compactContext() {
-    try {
-      const { execSync } = await import('child_process');
-      const result = execSync('./aicheck context compact', { encoding: 'utf-8' });
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Context compaction completed: ${result}`,
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error compacting context: ${error.message}`,
-          },
-        ],
-      };
-    }
-  }
-
-  async checkActionBoundaries() {
-    try {
-      const { execSync } = await import('child_process');
-      const result = execSync('./aicheck context check', { encoding: 'utf-8' });
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: result,
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error checking boundaries: ${error.message}`,
-          },
-        ],
-      };
-    }
-  }
-
-  async analyzeCosts() {
-    try {
-      const { execSync } = await import('child_process');
-      const result = execSync('./aicheck context cost', { encoding: 'utf-8' });
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: result,
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error analyzing costs: ${error.message}`,
-          },
-        ],
-      };
-    }
-  }
-
-  async optimizeContext() {
-    try {
-      const { execSync } = await import('child_process');
-      const result = execSync('./aicheck context optimize', { encoding: 'utf-8' });
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Context optimization completed: ${result}`,
-          },
-        ],
-      };
-    } catch (error) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `Error optimizing context: ${error.message}`,
-          },
-        ],
-      };
     }
   }
 
