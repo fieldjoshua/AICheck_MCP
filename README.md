@@ -34,33 +34,18 @@
 - Validates and updates documentation locations
 - Ensures all RULES requirements are met
 
-## 🚀 Quick Installation
+## 🚀 Installation
 
-### **One-Line Install (Recommended)**
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/quick_install_aicheck.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 ```
 
-### **Alternative Methods**
-
-**Full Featured Install:**
-```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh)
-```
-
-**Manual Install:**
-```bash
-# Download core files
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck > aicheck
-chmod +x aicheck
-
-# Download RULES
-mkdir -p .aicheck
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.aicheck/RULES.md > .aicheck/RULES.md
-
-# Set up basic structure
-./aicheck action new MyFirstAction
-```
+That's it! The installer will:
+- Download and set up AICheck v4.3.0
+- Configure MCP server for Claude Code integration
+- Install templates and documentation
+- Set up activation script
+- Test the installation
 
 ## 🎯 **Simple Commands for Daily Use**
 
@@ -171,15 +156,14 @@ AICheck v4.2.0 automatically validates and enforces:
 ## 🚀 **Get Started Now**
 
 ```bash
-# Quick install and activate
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/quick_install_aicheck.sh)
+# Install AICheck
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 
-# Check installation
-./aicheck version
+# Activate in Claude Code
+./activate_aicheck_claude.sh
 
-# Start first action  
-./aicheck action new MyProject
-./aicheck action set MyProject
+# Start working
+./aicheck stuck
 
 # You're ready to build with maximum automation and governance! 🎉
 ```
