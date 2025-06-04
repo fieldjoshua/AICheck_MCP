@@ -23,6 +23,11 @@ if [ -f "./aicheck" ]; then
     CURRENT_VERSION=$(./aicheck version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
     echo -e "Current version: ${YELLOW}$CURRENT_VERSION${NC}"
     
+    # Fix permissions on read-only files before backup
+    echo -e "${BLUE}Fixing file permissions...${NC}"
+    find .aicheck -type f -name "*.md" -exec chmod +w {} \; 2>/dev/null || true
+    find .mcp -type f -exec chmod +w {} \; 2>/dev/null || true
+    
     # Backup important files
     if [ -d ".aicheck" ]; then
         echo -e "${BLUE}Creating backup...${NC}"
@@ -55,6 +60,10 @@ chmod +x aicheck.new
 mv aicheck.new aicheck
 
 # Download RULES.md (always update)
+# Remove read-only if it exists
+if [ -f ".aicheck/RULES.md" ]; then
+    chmod +w .aicheck/RULES.md 2>/dev/null || true
+fi
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md > .aicheck/RULES.md || {
     echo -e "${RED}Failed to download RULES.md${NC}"
     exit 1
@@ -62,6 +71,13 @@ curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.m
 
 # Download MCP server
 echo -e "${BLUE}Setting up MCP server...${NC}"
+# Fix permissions if files exist
+if [ -f ".mcp/server/index.js" ]; then
+    chmod +w .mcp/server/index.js 2>/dev/null || true
+fi
+if [ -f ".mcp/server/package.json" ]; then
+    chmod +w .mcp/server/package.json 2>/dev/null || true
+fi
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/index.js > .mcp/server/index.js
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/package.json > .mcp/server/package.json
 chmod +x .mcp/server/index.js
