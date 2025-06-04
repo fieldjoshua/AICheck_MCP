@@ -10,7 +10,7 @@ This guide explains how to set up the AICheck Model Context Protocol (MCP) serve
 
 ## Automatic Setup (Recommended)
 
-**The MCP server is now automatically included in the AICheck installer!** When you run the ultimate AICheck installer, it creates all necessary MCP files.
+**The MCP server is now automatically included in the AICheck installer!** When you run the AICheck installer, it creates all necessary MCP files and installs dependencies.
 
 After running the installer, simply execute:
 

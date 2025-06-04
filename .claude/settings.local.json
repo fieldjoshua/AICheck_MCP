@@ -98,7 +98,8 @@
       "Bash(git init:*)",
       "Bash(git rm:*)",
       "Bash(./aicheck version)",
-      "mcp__aicheck-server__aicheck_contextPollution"
+      "mcp__aicheck-server__aicheck_contextPollution",
+      "Bash(./aicheck action new TestAction)"
     ],
     "deny": []
   },

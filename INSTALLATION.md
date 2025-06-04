@@ -7,32 +7,31 @@ This comprehensive guide covers all installation methods for AICheck MCP (Multim
 ### One-Line Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 ```
 
-**✨ This enhanced installer:**
-- Downloads and runs the ultimate installer
-- **Downloads authoritative RULES.md** from GitHub repository
-- **Makes RULES.md read-only** to prevent unauthorized changes
-- Creates complete AICheck directory structure
-- **Auto-configures MCP server** with proper registration
-- Sets up git hooks for compliance
-- Creates templates and documentation
-- **Requires internet connection** to ensure complete installation
+**✨ This universal installer:**
+- Detects if updating existing installation or doing fresh install
+- Creates timestamped backups before updating
+- Preserves existing actions and configuration
+- Downloads latest AICheck v4.3.0 with MCP support
+- Sets up MCP server for Claude Code integration
+- Installs templates and documentation
+- Tests installation before completing
 
 ## 📋 Manual Installation
 
 ### Step 1: Download the Installer
 
 ```bash
-curl -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh
-chmod +x ultimate_aicheck_installer.sh
+curl -O https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh
+chmod +x install.sh
 ```
 
 ### Step 2: Run the Installer
 
 ```bash
-./ultimate_aicheck_installer.sh
+./install.sh
 ```
 
 ### Step 3: Follow Post-Installation Steps
@@ -210,10 +209,20 @@ If you encounter issues:
 To update to the latest version:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/ultimate_aicheck_installer.sh | bash
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 ```
 
-The installer will detect existing installations and update components as needed.
+The installer will:
+- Detect your existing installation
+- Create a timestamped backup of your .aicheck directory
+- Update core files (aicheck, RULES.md, MCP server)
+- Preserve all your existing actions and configuration
+- Show what's new in the latest version
+
+**Alternative update method:**
+```bash
+curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/update_aicheck_v43.sh | bash
+```
 
 ## 🗑 Uninstalling
 
