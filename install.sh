@@ -31,7 +31,13 @@ if [ -f "./aicheck" ]; then
     # Backup important files
     if [ -d ".aicheck" ]; then
         echo -e "${BLUE}Creating backup...${NC}"
-        cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S)
+        # Use rsync if available for better handling of missing files
+        if command -v rsync >/dev/null 2>&1; then
+            rsync -a --ignore-missing-args .aicheck/ .aicheck.backup.$(date +%Y%m%d_%H%M%S)/ 2>/dev/null || cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null
+        else
+            # Fallback to cp but ignore errors
+            cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
+        fi
     fi
     
     MODE="update"
