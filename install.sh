@@ -188,6 +188,15 @@ fi
 EOF
 chmod +x activate_aicheck_claude.sh
 
+# Set up MCP server if needed
+if [ -d ".mcp/server" ]; then
+    echo -e "\n${BLUE}Setting up MCP server...${NC}"
+    cd .mcp/server
+    npm install >/dev/null 2>&1
+    cd ../..
+    echo -e "${GREEN}✓ MCP server configured${NC}"
+fi
+
 # Test installation
 echo -e "\n${BLUE}Testing installation...${NC}"
 if ./aicheck version >/dev/null 2>&1; then
