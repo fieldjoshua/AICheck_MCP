@@ -17,16 +17,17 @@ ORANGE='\033[1;33m'  # Bold orange (bright yellow)
 NEON_GREEN='\033[1;92m'  # Bright green
 
 echo ""
-echo -e "${BOLD}${PURPLE}     _    ___ ____ _   _ _____ ____ _  __${NC}"
-echo -e "${BOLD}${PURPLE}    / \  |_ _/ ___| | | | ____/ ___| |/ /${NC}"
-echo -e "${BOLD}${ORANGE}   / _ \  | | |   | |_| |  _|| |   | ' / ${NC}"
-echo -e "${BOLD}${ORANGE}  / ___ \ | | |___|  _  | |__| |___| . \ ${NC}"
-echo -e "${BOLD}${NEON_GREEN} /_/   \_\___\____|_| |_|_____\____|_|\_\\${NC}"
+echo -e "${BOLD}${PURPLE}█████╗ ██╗ ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗${NC}"
+echo -e "${BOLD}${PURPLE}██╔══██╗██║██╔════╝██║  ██║██╔════╝██╔════╝██║ ██╔╝${NC}"
+echo -e "${BOLD}${ORANGE}███████║██║██║     ███████║█████╗  ██║     █████╔╝ ${NC}"
+echo -e "${BOLD}${ORANGE}██╔══██║██║██║     ██╔══██║██╔══╝  ██║     ██╔═██╗ ${NC}"
+echo -e "${BOLD}${NEON_GREEN}██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗${NC}"
+echo -e "${BOLD}${NEON_GREEN}╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝${NC}"
 echo ""
-echo -e "${BOLD}${NEON_GREEN}                  v5.0.0${NC}"
+echo -e "${BOLD}${NEON_GREEN}                        v5.0.0${NC}"
 echo -e "${BOLD}${PURPLE}  Curated human oversight ${ORANGE}+${NEON_GREEN} effective automation${NC}"
 echo ""
-echo -e "${BOLD}${PURPLE}==================================================${NC}"
+echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
 
 # Check if this is an update or fresh install
 if [ -f "./aicheck" ]; then
@@ -198,14 +199,15 @@ fi
 
 # Show appropriate completion message
 echo ""
-echo -e "${BOLD}${PURPLE}==================================================${NC}"
-echo -e "${BOLD}${NEON_GREEN}     _    ___ ____ _   _ _____ ____ _  __${NC}"
-echo -e "${BOLD}${NEON_GREEN}    / \  |_ _/ ___| | | | ____/ ___| |/ /${NC}"
-echo -e "${BOLD}${ORANGE}   / _ \  | | |   | |_| |  _|| |   | ' / ${NC}"
-echo -e "${BOLD}${ORANGE}  / ___ \ | | |___|  _  | |__| |___| . \ ${NC}"
-echo -e "${BOLD}${PURPLE} /_/   \_\___\____|_| |_|_____\____|_|\_\\${NC}"
-echo -e "${BOLD}${NEON_GREEN}              Installation Complete!${NC}"
-echo -e "${BOLD}${PURPLE}==================================================${NC}"
+echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
+echo -e "${BOLD}${NEON_GREEN}█████╗ ██╗ ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗${NC}"
+echo -e "${BOLD}${NEON_GREEN}██╔══██╗██║██╔════╝██║  ██║██╔════╝██╔════╝██║ ██╔╝${NC}"
+echo -e "${BOLD}${ORANGE}███████║██║██║     ███████║█████╗  ██║     █████╔╝ ${NC}"
+echo -e "${BOLD}${ORANGE}██╔══██║██║██║     ██╔══██║██╔══╝  ██║     ██╔═██╗ ${NC}"
+echo -e "${BOLD}${PURPLE}██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗${NC}"
+echo -e "${BOLD}${PURPLE}╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝${NC}"
+echo -e "${BOLD}${NEON_GREEN}              ✨ Installation Complete! ✨${NC}"
+echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
 echo ""
 
 if [ "$MODE" = "update" ]; then
