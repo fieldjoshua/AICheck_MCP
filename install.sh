@@ -214,20 +214,43 @@ if [ -d ".mcp/server" ]; then
     
     # Check if config already exists
     if [ -f "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" ]; then
-        echo -e "${YELLOW}⚠️  Existing Claude config found. Please add this manually:${NC}"
-        echo ""
-        echo '  "aicheck": {'
-        echo '    "command": "node",'
-        echo "    \"args\": [\"$AICHECK_PATH/.mcp/server/index.js\"],"
-        echo "    \"cwd\": \"$AICHECK_PATH\""
-        echo '  }'
-        echo ""
+        echo -e "${YELLOW}⚠️  Existing Claude config found${NC}"
+        
+        # Check if this project is already configured
+        PROJECT_NAME="aicheck-$(basename "$AICHECK_PATH")"
+        if grep -q "\"$PROJECT_NAME\"" "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" 2>/dev/null; then
+            echo -e "${GREEN}✓ This project already configured in Claude${NC}"
+        elif grep -q "\"$AICHECK_PATH/.mcp/server/index.js\"" "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" 2>/dev/null; then
+            echo -e "${GREEN}✓ This project path already configured${NC}"
+        else
+            echo -e "${BLUE}Adding project to existing Claude config...${NC}"
+            
+            # Create a backup
+            cp "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" "$CLAUDE_CONFIG_DIR/claude_desktop_config.json.backup"
+            
+            # Add this project to existing config
+            # Remove closing braces and add new server
+            sed -i.tmp '$ s/}//' "$CLAUDE_CONFIG_DIR/claude_desktop_config.json"
+            sed -i.tmp '$ s/}//' "$CLAUDE_CONFIG_DIR/claude_desktop_config.json"
+            
+            cat >> "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" << EOF
+    "$PROJECT_NAME": {
+      "command": "node",
+      "args": ["$AICHECK_PATH/.mcp/server/index.js"],
+      "cwd": "$AICHECK_PATH"
+    }
+  }
+}
+EOF
+            rm -f "$CLAUDE_CONFIG_DIR/claude_desktop_config.json.tmp"
+            echo -e "${GREEN}✓ Added project to Claude configuration${NC}"
+        fi
     else
         # Create claude_desktop_config.json
         cat > "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" << EOF
 {
   "mcpServers": {
-    "aicheck": {
+    "aicheck-$(basename "$AICHECK_PATH")": {
       "command": "node",
       "args": ["$AICHECK_PATH/.mcp/server/index.js"],
       "cwd": "$AICHECK_PATH"
@@ -249,6 +272,36 @@ if ./aicheck version >/dev/null 2>&1; then
 else
     echo -e "${RED}✗ Installation test failed${NC}"
     exit 1
+fi
+
+# Test MCP server if available
+if [ -f ".mcp/server/index.js" ] && command -v node >/dev/null 2>&1; then
+    echo -e "${BLUE}Testing MCP server...${NC}"
+    if timeout 3s node .mcp/server/index.js --version >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ MCP server can start${NC}"
+    else
+        echo -e "${YELLOW}⚠️  MCP server test inconclusive${NC}"
+    fi
+    
+    # Verify required files exist
+    echo -e "${BLUE}Checking MCP requirements...${NC}"
+    if [ -f ".aicheck/RULES.md" ]; then
+        echo -e "${GREEN}✓ RULES.md exists${NC}"
+    else
+        echo -e "${RED}✗ RULES.md missing${NC}"
+    fi
+    
+    if [ -f ".aicheck/current_action" ]; then
+        echo -e "${GREEN}✓ current_action exists${NC}"
+    else
+        echo -e "${RED}✗ current_action missing${NC}"
+    fi
+    
+    if [ -f ".aicheck/actions_index.md" ]; then
+        echo -e "${GREEN}✓ actions_index.md exists${NC}"
+    else
+        echo -e "${RED}✗ actions_index.md missing${NC}"
+    fi
 fi
 
 # Show appropriate completion message
@@ -278,8 +331,14 @@ fi
 echo ""
 echo -e "${BOLD}${NEON_GREEN}🎯 NEXT STEPS:${NC}"
 echo ""
-echo -e "${BOLD}${PURPLE}1.${NC} Run: ${BOLD}${ORANGE}./activate_aicheck_claude.sh${NC}"
-echo -e "${BOLD}${PURPLE}2.${NC} ${BOLD}${NEON_GREEN}Paste the prompt into Claude Code${NC} ${YELLOW}(copied to clipboard)${NC}"
-echo -e "${BOLD}${PURPLE}3.${NC} Start with: ${BOLD}${ORANGE}./aicheck stuck${NC}"
+echo -e "${BOLD}${PURPLE}1.${NC} ${BOLD}${ORANGE}Restart Claude Code completely${NC} ${YELLOW}(required for MCP changes)${NC}"
+echo -e "${BOLD}${PURPLE}2.${NC} Run: ${BOLD}${ORANGE}./activate_aicheck_claude.sh${NC}"
+echo -e "${BOLD}${PURPLE}3.${NC} ${BOLD}${NEON_GREEN}Paste the prompt into Claude Code${NC} ${YELLOW}(copied to clipboard)${NC}"
+echo -e "${BOLD}${PURPLE}4.${NC} Start with: ${BOLD}${ORANGE}./aicheck stuck${NC}"
+echo ""
+echo -e "${BOLD}${BLUE}🔧 MCP TROUBLESHOOTING:${NC}"
+echo -e "• Check Claude's MCP panel for 'aicheck-$(basename "$(pwd)")' server"
+echo -e "• If MCP shows 'failed', restart Claude and check server status"
+echo -e "• For multiple projects, each needs its own AICheck installation"
 echo ""
 
