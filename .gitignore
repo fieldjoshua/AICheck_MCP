@@ -57,3 +57,7 @@ wheels/
 
 # Claude internal files
 .claude/
+
+# AICheck installation (should not be in development repo)
+.aicheck/
+aicheck.backup.*

@@ -194,7 +194,53 @@ if [ -d ".mcp/server" ]; then
     cd .mcp/server
     npm install >/dev/null 2>&1
     cd ../..
+    
+    # Configure Claude to use the MCP server
+    echo -e "${BLUE}Configuring Claude integration...${NC}"
+    
+    # Detect Claude config directory
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        CLAUDE_CONFIG_DIR="$HOME/Library/Application Support/Claude"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+        CLAUDE_CONFIG_DIR="$APPDATA/Claude"
+    else
+        CLAUDE_CONFIG_DIR="$HOME/.config/claude"
+    fi
+    
+    # Create config directory if it doesn't exist
+    mkdir -p "$CLAUDE_CONFIG_DIR" 2>/dev/null || true
+    
+    # Get absolute path to AICheck
+    AICHECK_PATH="$(pwd)"
+    
+    # Check if config already exists
+    if [ -f "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" ]; then
+        echo -e "${YELLOW}⚠️  Existing Claude config found. Please add this manually:${NC}"
+        echo ""
+        echo '  "aicheck": {'
+        echo '    "command": "node",'
+        echo "    \"args\": [\"$AICHECK_PATH/.mcp/server/index.js\"],"
+        echo "    \"cwd\": \"$AICHECK_PATH\""
+        echo '  }'
+        echo ""
+    else
+        # Create claude_desktop_config.json
+        cat > "$CLAUDE_CONFIG_DIR/claude_desktop_config.json" << EOF
+{
+  "mcpServers": {
+    "aicheck": {
+      "command": "node",
+      "args": ["$AICHECK_PATH/.mcp/server/index.js"],
+      "cwd": "$AICHECK_PATH"
+    }
+  }
+}
+EOF
+        echo -e "${GREEN}✓ Claude MCP configuration created${NC}"
+    fi
+    
     echo -e "${GREEN}✓ MCP server configured${NC}"
+    echo -e "${YELLOW}⚠️  Please restart Claude for changes to take effect${NC}"
 fi
 
 # Test installation
