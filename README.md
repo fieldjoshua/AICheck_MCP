@@ -1,12 +1,12 @@
 # AICheck v5.0.0 - Simplified AI Development Governance
 
-**🚀 Curated human oversight meets effective automation.**
+**🚀 Curated human oversight ⟷ effective automation.**
 
 ## ✨ What's New in v5.0.0
 
 ### 🎯 **Radical Simplification**
-- **Only 5 Essential Commands** - Down from 20+ commands to just what you need
-- **deploy-check Command** - One command to verify everything before deployment
+- **Just 9 Essential Commands** - Simplified from 20+ to what you actually use
+- **deploy Command** - One-stop pre-deployment validation
 - **Unified Dependency Management** - Works seamlessly with Poetry/npm
 - **Enhanced Automation** - Pre-push hooks, dependency guardian, auto-cleanup
 - **Clear ACTION vs ActiveAction** - No more confusion about context switching
@@ -17,29 +17,10 @@
 - **Import Validation** - Verifies all imports are in dependencies
 - **Auto-fix Command** - `./aicheck deps fix` resolves common issues
 
-## 📝 Previous Updates
-
-### 🤖 **Comprehensive Automation Suite**
-- **Session Start Detection** - Auto-detects new Claude Code sessions and runs startup checks
-- **Focus Management** - Pre-action boundary validation with scope creep detection  
-- **Post-Commit Cleanup** - Automatic RULES compliance verification after commits
-- **Intuitive Commands** - Simple aliases (`stuck`, `focus`, `cleanup`, `usage`, `reset`)
-
-### 📋 **Full RULES Compliance Validation**
-- ✅ Action status/matrix updates
-- ✅ Action timeline and progress tracking  
-- ✅ Dependency documentation verification
-- ✅ Action plan compliance (all required sections)
-- ✅ Claude interaction logging validation
-- ✅ Documentation migration for completed actions
-- ✅ Test-driven development compliance checking
-
-### 🔧 **Smart Auto-Fixes**
-- Creates missing status files, progress tracking, action plans
-- Updates actions index matrix automatically
-- Sets up Claude interactions structure
-- Validates and updates documentation locations
-- Ensures all RULES requirements are met
+### 🔌 **MCP Integration**
+- **Automatic Configuration** - Installer sets up Claude integration
+- **Native Tool Access** - All AICheck features available in Claude
+- **No Manual Setup** - Just restart Claude after installation
 
 ## 🚀 Installation
 
@@ -122,11 +103,11 @@ If something fails, it tells you exactly what to fix.
 
 ## 📊 **RULES Compliance Features**
 
-AICheck v4.2.0 automatically validates and enforces:
+AICheck v5.0.0 automatically validates and enforces:
 
 - **Action Management:** Status tracking, progress updates, timeline management
 - **Dependency Tracking:** External and internal dependency documentation  
-- **Documentation Standards:** Required plan sections, Claude interaction logging
+- **Documentation Standards:** Required plan sections, AI interaction logging
 - **Test Coverage:** TDD compliance validation and test file verification
 - **File Organization:** Proper documentation migration, action isolation
 - **Git Integration:** Commit message format, dependency change detection
@@ -139,7 +120,7 @@ AICheck v4.2.0 automatically validates and enforces:
 - **Cost Optimization:** Usage analysis and context efficiency optimization
 
 ### **MCP Integration**  
-- **Native Claude Code Integration:** Seamless tool access via MCP protocol
+- **Native AI Assistant Integration:** Seamless tool access via MCP protocol
 - **Resource Exposure:** Direct access to rules, actions, and status
 - **Tool Automation:** All automation features available programmatically
 
@@ -150,10 +131,10 @@ AICheck v4.2.0 automatically validates and enforces:
 
 ## 📚 **Documentation & Support**
 
-- **`.aicheck/QUICK_GUIDE.md`** - When to use what command  
-- **`.aicheck/AUTOMATION_FEATURES.md`** - Complete automation documentation
-- **`.aicheck/RULES.md`** - Full governance rules and requirements
-- **`.aicheck/templates/claude/`** - Structured prompt templates
+- **RULES.md** - Full governance rules (v5.0)
+- **QUICK_START.md** - Quick command reference
+- **CHANGELOG_v5.md** - What's new in v5.0.0
+- **GitHub Issues** - Report bugs or request features
 
 ## 🎯 **Perfect For**
 
@@ -166,18 +147,17 @@ AICheck v4.2.0 automatically validates and enforces:
 ## 🚀 **Get Started Now**
 
 ```bash
-# Install AICheck
+# Install AICheck in your project directory
 bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 
-# Activate in Claude Code
-./activate_aicheck_claude.sh
+# Restart Claude to load MCP integration
 
 # Start working
 ./aicheck stuck
 
-# You're ready to build with maximum automation and governance! 🎉
+# You're ready to go! 🎉
 ```
 
 ---
 
-**Built with Claude Code | Maximum Automation | Human-in-the-Loop | Production Ready**
+**Built for AI-Assisted Development | Curated Oversight | Effective Automation | Production Ready**

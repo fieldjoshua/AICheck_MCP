@@ -64,6 +64,8 @@ fi
 echo -e "${BLUE}Creating directory structure...${NC}"
 mkdir -p .aicheck/actions
 mkdir -p .aicheck/templates/claude
+mkdir -p .aicheck/hooks
+mkdir -p .aicheck/scripts
 mkdir -p .mcp/server
 mkdir -p documentation/dependencies
 mkdir -p tests
@@ -80,10 +82,7 @@ chmod +x aicheck.new
 mv aicheck.new aicheck
 
 # Download RULES.md (always update)
-# Remove read-only if it exists
-if [ -f ".aicheck/RULES.md" ]; then
-    chmod +w .aicheck/RULES.md 2>/dev/null || true
-fi
+echo -e "${BLUE}Downloading RULES.md...${NC}"
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.md > .aicheck/RULES.md || {
     echo -e "${RED}Failed to download RULES.md${NC}"
     exit 1

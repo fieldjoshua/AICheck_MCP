@@ -990,10 +990,17 @@ Tracked as ACTIONS. Prioritized quarterly. Addressed systematically. Documented 
 
 ---
 
-**Document Version**: 4.0
-**Last Updated**: 2025-05-28
+**Document Version**: 5.0
+**Last Updated**: 2025-06-07
 **Owner**: Joshua Field
 **Next Review**: Quarterly
+
+**Version 5.0 Changes**:
+- Enhanced ActiveAction definition to clarify only ONE per EDITOR
+- Added Section 3.1 "Understanding Actions vs ActiveAction" 
+- Renumbered subsequent sections (3.1→3.2, 3.2→3.3, etc.)
+- Added deployment verification requirements in multiple sections
+- Made language AI-assistant agnostic (not Claude-specific)
 
 **Version 4.0 Changes**:
 - Added prominent DEPLOYMENT REQUIREMENTS section at top
