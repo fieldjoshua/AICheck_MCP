@@ -8,7 +8,7 @@
 set -e
 
 # AICheck version info
-AICHECK_VERSION="5.0.0"
+AICHECK_VERSION="5.1.0"
 GITHUB_REPO="fieldjoshua/AICheck_MCP"
 GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
 

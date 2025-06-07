@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AICheck v5.0.0 Universal Installer
+# AICheck v5.1.0 Universal Installer
 # Works for both new installations and updates
 
 set -e
@@ -24,7 +24,7 @@ echo -e "${BOLD}${ORANGE}██╔══██║██║██║     ██�
 echo -e "${BOLD}${NEON_GREEN}██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗${NC}"
 echo -e "${BOLD}${NEON_GREEN}╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝${NC}"
 echo ""
-echo -e "${BOLD}${NEON_GREEN}                        v5.0.0${NC}"
+echo -e "${BOLD}${NEON_GREEN}                        v5.1.0${NC}"
 echo -e "${BOLD}${PURPLE}  Curated human oversight ${ORANGE}+${NEON_GREEN} effective automation${NC}"
 echo ""
 echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
@@ -71,7 +71,7 @@ mkdir -p documentation/dependencies
 mkdir -p tests
 
 # Download core files
-echo -e "${BLUE}Downloading AICheck...${NC}"
+echo -e "${BLUE}Downloading AICheck v5.1.0...${NC}"
 
 # Download aicheck command
 curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck > aicheck.new || {

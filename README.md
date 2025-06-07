@@ -1,10 +1,16 @@
-# AICheck v5.0.0 - Simplified AI Development Governance
+# AICheck v5.1.0 - Simplified AI Development Governance
 
 **🚀 Curated human oversight ⟷ effective automation.**
 
-## ✨ What's New in v5.0.0
+## ✨ What's New in v5.1.0
 
-### 🎯 **Radical Simplification**
+### 🔧 **Enhanced MCP Integration**
+- **Smart Configuration** - Automatically handles multiple AICheck projects in Claude
+- **Conflict Resolution** - Unique server names prevent MCP tool conflicts
+- **Diagnostic Testing** - Built-in MCP server validation during installation
+- **Better Troubleshooting** - Clear error messages and fix instructions
+
+### 🎯 **v5.0.0 Features** 
 - **Just 9 Essential Commands** - Simplified from 20+ to what you actually use
 - **deploy Command** - One-stop pre-deployment validation
 - **Unified Dependency Management** - Works seamlessly with Poetry/npm
@@ -29,11 +35,12 @@ bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/
 ```
 
 That's it! The installer will:
-- Download and set up AICheck v5.0.0
+- Download and set up AICheck v5.1.0
 - Configure MCP server for Claude Code integration
+- Handle multiple projects in Claude automatically
 - Install templates and documentation
 - Set up activation script
-- Test the installation
+- Test the installation and MCP server
 
 ## 🎯 **Your Commands**
 
