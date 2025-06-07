@@ -99,7 +99,13 @@
       "Bash(git rm:*)",
       "Bash(./aicheck version)",
       "mcp__aicheck-server__aicheck_contextPollution",
-      "Bash(./aicheck action new TestAction)"
+      "Bash(./aicheck action new TestAction)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(./aicheck:*)",
+      "Bash(git checkout:*)",
+      "Bash(python:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test)"
     ],
     "deny": []
   },
