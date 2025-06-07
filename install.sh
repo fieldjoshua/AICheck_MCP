@@ -11,10 +11,22 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m'
+BOLD='\033[1m'
+PURPLE='\033[1;35m'  # Bold purple
+ORANGE='\033[1;33m'  # Bold orange (bright yellow)
+NEON_GREEN='\033[1;92m'  # Bright green
 
-echo -e "${BLUE}AICheck v5.0.0 Installation${NC}"
-echo -e "${YELLOW}Curated human oversight + effective automation${NC}"
-echo "============================"
+echo ""
+echo -e "${BOLD}${PURPLE}     _    ___ ____ _   _ _____ ____ _  __${NC}"
+echo -e "${BOLD}${PURPLE}    / \  |_ _/ ___| | | | ____/ ___| |/ /${NC}"
+echo -e "${BOLD}${ORANGE}   / _ \  | | |   | |_| |  _|| |   | ' / ${NC}"
+echo -e "${BOLD}${ORANGE}  / ___ \ | | |___|  _  | |__| |___| . \ ${NC}"
+echo -e "${BOLD}${NEON_GREEN} /_/   \_\___\____|_| |_|_____\____|_|\_\\${NC}"
+echo ""
+echo -e "${BOLD}${NEON_GREEN}                  v5.0.0${NC}"
+echo -e "${BOLD}${PURPLE}  Curated human oversight ${ORANGE}+${NEON_GREEN} effective automation${NC}"
+echo ""
+echo -e "${BOLD}${PURPLE}==================================================${NC}"
 
 # Check if this is an update or fresh install
 if [ -f "./aicheck" ]; then
@@ -186,10 +198,14 @@ fi
 
 # Show appropriate completion message
 echo ""
-echo -e "${BLUE}╔═══════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║                    ${GREEN}AICHECK v5.0.0${BLUE}                     ║${NC}"
-echo -e "${BLUE}║   ${YELLOW}Curated human oversight + effective automation${BLUE}    ║${NC}"
-echo -e "${BLUE}╚═══════════════════════════════════════════════════════╝${NC}"
+echo -e "${BOLD}${PURPLE}==================================================${NC}"
+echo -e "${BOLD}${NEON_GREEN}     _    ___ ____ _   _ _____ ____ _  __${NC}"
+echo -e "${BOLD}${NEON_GREEN}    / \  |_ _/ ___| | | | ____/ ___| |/ /${NC}"
+echo -e "${BOLD}${ORANGE}   / _ \  | | |   | |_| |  _|| |   | ' / ${NC}"
+echo -e "${BOLD}${ORANGE}  / ___ \ | | |___|  _  | |__| |___| . \ ${NC}"
+echo -e "${BOLD}${PURPLE} /_/   \_\___\____|_| |_|_____\____|_|\_\\${NC}"
+echo -e "${BOLD}${NEON_GREEN}              Installation Complete!${NC}"
+echo -e "${BOLD}${PURPLE}==================================================${NC}"
 echo ""
 
 if [ "$MODE" = "update" ]; then
@@ -207,12 +223,12 @@ echo -e "\n${BLUE}Next steps:${NC}"
 echo "1. Run: ./activate_aicheck_claude.sh"
 echo "2. Paste the prompt into Claude Code"
 echo "3. Start with: ./aicheck stuck"
-echo -e "\n${BLUE}Your commands:${NC}"
-echo "• ./aicheck stuck    - Get unstuck when confused"
-echo "• ./aicheck deploy   - Pre-deployment validation"
-echo "• ./aicheck new      - Create a new action"
-echo "• ./aicheck ACTIVE   - Set the ACTIVE action"
-echo "• ./aicheck complete - Complete the ACTIVE action"
+echo -e "\n${BOLD}${PURPLE}Your commands:${NC}"
+echo -e "${NEON_GREEN}• ./aicheck stuck${NC}    - Get unstuck when confused"
+echo -e "${ORANGE}• ./aicheck deploy${NC}   - Pre-deployment validation"
+echo -e "${PURPLE}• ./aicheck new${NC}      - Create a new action"
+echo -e "${NEON_GREEN}• ./aicheck ACTIVE${NC}   - Set the ACTIVE action"
+echo -e "${ORANGE}• ./aicheck complete${NC} - Complete the ACTIVE action"
 echo "• ./aicheck cleanup - Clean up after work"
 echo "• ./aicheck usage - Check costs and optimization"
 
