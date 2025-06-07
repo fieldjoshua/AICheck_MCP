@@ -73,11 +73,19 @@ mkdir -p tests
 # Download core files
 echo -e "${BLUE}Downloading AICheck v5.1.0...${NC}"
 
-# Download aicheck command
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck > aicheck.new || {
+# Download aicheck command with cache-busting
+curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck?$(date +%s)" > aicheck.new || {
     echo -e "${RED}Failed to download aicheck${NC}"
     exit 1
 }
+
+# Verify version
+if grep -q "5.1.0" aicheck.new; then
+    echo -e "${GREEN}✓ Downloaded AICheck v5.1.0${NC}"
+else
+    echo -e "${YELLOW}⚠️  Version verification inconclusive${NC}"
+fi
+
 chmod +x aicheck.new
 mv aicheck.new aicheck
 
@@ -90,16 +98,30 @@ curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/RULES.m
 
 # Download MCP server
 echo -e "${BLUE}Setting up MCP server...${NC}"
-# Fix permissions if files exist
+# Fix permissions if files exist and remove any cached versions
 if [ -f ".mcp/server/index.js" ]; then
     chmod +w .mcp/server/index.js 2>/dev/null || true
+    rm -f .mcp/server/index.js
 fi
 if [ -f ".mcp/server/package.json" ]; then
     chmod +w .mcp/server/package.json 2>/dev/null || true
+    rm -f .mcp/server/package.json
 fi
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/index.js > .mcp/server/index.js
-curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/package.json > .mcp/server/package.json
+
+# Force fresh download with cache-busting
+echo -e "  Downloading latest MCP server (force refresh)..."
+curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/index.js?$(date +%s)" > .mcp/server/index.js
+curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/.mcp/server/package.json?$(date +%s)" > .mcp/server/package.json
 chmod +x .mcp/server/index.js
+
+# Verify the MCP server has correct tool naming
+echo -e "${BLUE}Verifying MCP server tool names...${NC}"
+if grep -q "aicheck_getCurrentAction" .mcp/server/index.js; then
+    echo -e "${GREEN}✓ MCP server uses correct underscore naming${NC}"
+else
+    echo -e "${RED}❌ MCP server download failed - missing underscore tool names${NC}"
+    echo -e "${YELLOW}This may cause MCP connection failures${NC}"
+fi
 
 # Download templates
 echo -e "${BLUE}Downloading templates...${NC}"
