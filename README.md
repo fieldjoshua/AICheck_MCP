@@ -1,16 +1,23 @@
-# AICheck v4.3.0 - Advanced AI Development Governance
+# AICheck v5.0.0 - Simplified AI Development Governance
 
-**🚀 The most comprehensive AI-assisted development governance system with maximum automation and human oversight.**
+**🚀 Curated human oversight meets effective automation.**
 
-## ✨ What's New in v4.3.0
+## ✨ What's New in v5.0.0
 
-### 🔌 **MCP (Model Context Protocol) Integration**
-- **AICheck MCP Server** - Native integration with Claude Code via MCP
-- **Fixed Tool Naming** - All MCP tools use underscore naming (aicheck_getCurrentAction, etc.)
-- **Context Management Tools** - New tools for pollution analysis, compaction, and optimization
-- **Cost Analysis** - Built-in usage tracking and cost efficiency tools
+### 🎯 **Radical Simplification**
+- **Only 5 Essential Commands** - Down from 20+ commands to just what you need
+- **deploy-check Command** - One command to verify everything before deployment
+- **Unified Dependency Management** - Works seamlessly with Poetry/npm
+- **Enhanced Automation** - Pre-push hooks, dependency guardian, auto-cleanup
+- **Clear ACTION vs ActiveAction** - No more confusion about context switching
 
-## 📝 Previous Updates (v4.2.0)
+### 🛡️ **Dependency Guardian**
+- **Pre-push Verification** - Never push broken dependencies again
+- **Lock File Checking** - Ensures poetry.lock/package-lock.json are synced
+- **Import Validation** - Verifies all imports are in dependencies
+- **Auto-fix Command** - `./aicheck deps fix` resolves common issues
+
+## 📝 Previous Updates
 
 ### 🤖 **Comprehensive Automation Suite**
 - **Session Start Detection** - Auto-detects new Claude Code sessions and runs startup checks
@@ -41,55 +48,58 @@ bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/
 ```
 
 That's it! The installer will:
-- Download and set up AICheck v4.3.0
+- Download and set up AICheck v5.0.0
 - Configure MCP server for Claude Code integration
 - Install templates and documentation
 - Set up activation script
 - Test the installation
 
-## 🎯 **Simple Commands for Daily Use**
+## 🎯 **Your Commands**
 
-### **When You Feel Lost or Confused**
 ```bash
-./aicheck stuck
+./aicheck status    # Show detailed status
+./aicheck focus     # Check for scope creep  
+./aicheck stuck     # Get unstuck when confused
+./aicheck deploy    # Pre-deployment validation
+./aicheck new       # Create a new action
+./aicheck ACTIVE    # Set the ACTIVE action
+./aicheck complete  # Complete the ACTIVE action
+./aicheck cleanup   # Optimize and fix compliance
+./aicheck usage     # See AI usage and costs
 ```
-*Shows status summary + gives you quick fixes to try*
 
-### **Before Starting New Work**  
-```bash
-./aicheck focus
-```
-*Checks boundaries and scope creep*
+**Note:** The longer forms still work (e.g., `./aicheck action new`), but these shortcuts are faster!
 
-### **When Files Get Messy**
-```bash
-./aicheck cleanup  
-```
-*Full RULES compliance + optimization*
+## 🚀 **What is deploy?**
 
-### **Check Claude Code Usage**
-```bash
-./aicheck usage
-```
-*Shows cost analysis and optimization tips*
+`./aicheck deploy` runs a comprehensive pre-deployment validation:
 
-### **When Everything Feels Broken**
-```bash
-./aicheck reset
-```
-*Clean context pollution (asks permission for destructive actions)*
+1. **Dependency Check**
+   - ✅ Lock files committed (poetry.lock, package-lock.json)
+   - ✅ All imports have corresponding dependencies
+   - ✅ No missing packages
+
+2. **Test Suite**
+   - ✅ Runs all tests (pytest for Python, npm test for Node.js)
+   - ✅ Ensures zero test failures
+
+3. **Git Status**
+   - ✅ Shows uncommitted changes
+   - ✅ Warns about untracked files
+
+If everything passes, you'll see: **"✅ Ready to deploy!"**  
+If something fails, it tells you exactly what to fix.
 
 ## 🔄 **Typical Development Flow**
 
-1. **Start Session:** `./aicheck stuck` (auto-runs on new sessions)
-2. **Plan Work:** `./aicheck action new FixLoginBug` 
-3. **Set Active:** `./aicheck action set FixLoginBug`
-4. **Check Focus:** `./aicheck focus` (auto-runs before creating actions)
-5. **Work on code...**
-6. **Clean Up:** `./aicheck cleanup` (auto-runs after commits)
-7. **Finish:** `./aicheck action complete`
+1. **Create:** `./aicheck new FixLoginBug`
+2. **Activate:** `./aicheck ACTIVE FixLoginBug`
+3. **Work on code...**
+4. **Check:** `./aicheck deploy`
+5. **Push:** `git push`
+6. **Done:** `./aicheck complete`
 
-## 🤖 **Maximum Automation with Human Oversight**
+## 👤 **Curated Human Oversight ⟷ Effective Automation** 🤖
 
 ### **Automated (No Approval Needed)**
 - Session startup checks and status summaries

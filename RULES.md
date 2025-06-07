@@ -142,7 +142,7 @@ Before proceeding, it is essential to understand the following key terms as used
 
 **PLAN**: A documented specification for an ACTION; includes requirements, approach, expected outcomes, and testing strategy.
 
-**ActiveAction**: An ACTION that is currently being worked on by one or more EDITORs; tracked in .aicheck/current_action for individual EDITORs.
+**ActiveAction**: An ACTION that is currently being worked on by one or more EDITORs; tracked in .aicheck/current_action for individual EDITORs. Only ONE ACTION can be active per EDITOR at any time. All work performed by an EDITOR is automatically associated with their ActiveAction.
 
 **Process Documentation**: Temporary documentation relevant only during an ACTION's lifecycle; stored in the ACTION's supporting_docs directory.
 
@@ -182,7 +182,19 @@ Before proceeding, it is essential to understand the following key terms as used
 - Any issues encountered and resolutions
 - Screenshots or logs as evidence
 
-### 3.1 AI Editor Scope
+### 3.1 Understanding Actions vs ActiveAction
+
+**Critical Distinction**:
+- **ACTION**: A defined unit of work (task, feature, bugfix) that exists in the project
+- **ActiveAction**: The ONE ACTION currently selected for work by an EDITOR
+
+**Key Rules**:
+1. An EDITOR can only have ONE ActiveAction at a time
+2. All code changes, commits, and documentation are attributed to the ActiveAction
+3. To work on a different ACTION, you must first change your ActiveAction using `./aicheck action set`
+4. Completing an ACTION (`./aicheck action complete`) automatically clears your ActiveAction
+
+### 3.2 AI Editor Scope
 
 AI editors may implement without approval:
 - Code implementing the ActiveAction plan (after PLAN approval)
@@ -198,7 +210,7 @@ The following ALWAYS require human manager approval:
 - Modifying any Action Plan
 - Creating or modifying Templates
 
-#### 3.1.1 AI Assistant Boundary Examples
+#### 3.2.1 AI Assistant Boundary Examples
 
 **ALLOWED without approval:**
 - Implementing error handler based on approved PLAN
@@ -216,13 +228,13 @@ The following ALWAYS require human manager approval:
 - Changing public interfaces
 - Adding new dependencies
 
-### 3.2 Documentation Requirements
+### 3.3 Documentation Requirements
 
 Action plan (PLAN.md)
 Supporting documentation
 Status updates (Not Started, ActiveAction, Completed, Blocked, On Hold)
 
-#### 3.2.1 Managing ACTION Dependencies
+#### 3.3.1 Managing ACTION Dependencies
 
 When an ACTION depends on another:
 
@@ -242,7 +254,7 @@ Example dependency declaration:
 - Database: Needs user table migration (migration_003)
 ```
 
-### 3.3 AI Assistant Documentation
+### 3.4 AI Assistant Documentation
 
 All AI assistant interactions MUST:
 - Be stored in .aicheck/actions/[action-name]/supporting_docs/claude-interactions/
@@ -252,7 +264,7 @@ All AI assistant interactions MUST:
 - Include verification steps performed on AI-generated outputs
 - Note iterations or refinements to prompts
 
-#### 3.3.1 AI Interaction Documentation Format
+#### 3.4.1 AI Interaction Documentation Format
 
 Each interaction must include:
 

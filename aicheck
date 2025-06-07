@@ -2,13 +2,13 @@
 
 # AICheck command script
 # Provides the core functionality for AICheck MCP
-# Version: 4.1.0
-# Last Updated: 2025-06-03
+# Version: 5.0.0
+# Last Updated: 2025-01-06
 
 set -e
 
 # AICheck version info
-AICHECK_VERSION="4.3.0"
+AICHECK_VERSION="5.0.0"
 GITHUB_REPO="fieldjoshua/AICheck_MCP"
 GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
 
@@ -22,27 +22,18 @@ function show_version() {
   echo -e "Version: ${GREEN}${AICHECK_VERSION}${NC}"
   echo -e "Repository: ${GITHUB_REPO}"
   echo -e ""
-  echo -e "${BRIGHT_BLURPLE}🚀 Quick Commands (Use These!):${NC}"
-  echo -e "  ${GREEN}./aicheck reset${NC}          - Clean up when things get messy"
-  echo -e "  ${GREEN}./aicheck focus${NC}          - Check if you're staying on track" 
-  echo -e "  ${GREEN}./aicheck cleanup${NC}        - Tidy up old files and logs"
-  echo -e "  ${GREEN}./aicheck usage${NC}          - See how much Claude Code you're using"
+  echo -e "${BRIGHT_BLURPLE}📋 Your Commands:${NC}"
+  echo -e "  ${GREEN}./aicheck status${NC}         - Show detailed status"
+  echo -e "  ${GREEN}./aicheck focus${NC}          - Check for scope creep"
   echo -e "  ${GREEN}./aicheck stuck${NC}          - Get unstuck when confused"
+  echo -e "  ${GREEN}./aicheck deploy${NC}         - Pre-deployment validation"
+  echo -e "  ${GREEN}./aicheck new${NC}            - Create a new action"
+  echo -e "  ${GREEN}./aicheck ACTIVE${NC}         - Set the ACTIVE action"
+  echo -e "  ${GREEN}./aicheck complete${NC}       - Complete the ACTIVE action"
+  echo -e "  ${GREEN}./aicheck cleanup${NC}        - Optimize and fix compliance"
+  echo -e "  ${GREEN}./aicheck usage${NC}          - See AI usage and costs"
   echo -e ""
-  echo -e "${BRIGHT_BLURPLE}🛡️  Guardian Commands:${NC}"
-  echo -e "  ${GREEN}./aicheck guardian init${NC}     - Initialize code protection"
-  echo -e "  ${GREEN}./aicheck guardian protect${NC}  - Protect critical files"
-  echo -e "  ${GREEN}./aicheck guardian check${NC}    - Check file integrity"
-  echo -e "  ${GREEN}./aicheck guardian monitor${NC}  - Real-time monitoring"
-  echo -e ""
-  echo -e "${BRIGHT_BLURPLE}📋 Core Commands:${NC}"
-  echo -e "  action, dependency, exec, guardian, status, update, version"
-  echo -e ""
-  echo -e "${YELLOW}💡 When to use:${NC}"
-  echo -e "  ${YELLOW}• Feeling lost?${NC} Run: ${GREEN}./aicheck stuck${NC}"
-  echo -e "  ${YELLOW}• Too many files?${NC} Run: ${GREEN}./aicheck cleanup${NC}"
-  echo -e "  ${YELLOW}• Scope creep?${NC} Run: ${GREEN}./aicheck focus${NC}"
-  echo -e "  ${YELLOW}• High usage?${NC} Run: ${GREEN}./aicheck usage${NC}"
+  echo -e "${YELLOW}💡 Only one action can be ACTIVE at a time.${NC}"
 }
 
 # Function to check for updates
@@ -1840,6 +1831,22 @@ function handle_guardian() {
 
 # Main command handling
 case "$CMD" in
+  "new")
+    # Shortcut for action new
+    create_action "$1"
+    ;;
+  "active"|"ACTIVE")
+    # Shortcut for action set
+    set_active_action "$1"
+    ;;
+  "complete"|"Complete"|"COMPLETE")
+    # Shortcut for action complete
+    complete_action "$1"
+    ;;
+  "deploy")
+    # Shortcut for deploy-check
+    $0 deploy-check
+    ;;
   "action")
     case "$1" in
       "new")
@@ -1857,17 +1864,43 @@ case "$CMD" in
         ;;
     esac
     ;;
-  "dependency")
+  "dependency"|"deps")
     case "$1" in
       "add")
-        add_dependency "$2" "$3" "$4" "$5"
+        # Check if we're in a Poetry project
+        if [ -f "pyproject.toml" ] && [ -f ".aicheck/scripts/aicheck_deps.py" ]; then
+          python3 .aicheck/scripts/aicheck_deps.py add "$2" "$3" "$4"
+        else
+          add_dependency "$2" "$3" "$4" "$5"
+        fi
+        ;;
+      "check")
+        # Quick deployment readiness check
+        if [ -f ".aicheck/scripts/aicheck_deps.py" ]; then
+          python3 .aicheck/scripts/aicheck_deps.py check
+        else
+          echo -e "${YELLOW}Dependency guardian not available. Install AICheck in your project.${NC}"
+        fi
+        ;;
+      "fix")
+        # Auto-fix common dependency issues
+        if [ -f ".aicheck/scripts/aicheck_deps.py" ]; then
+          python3 .aicheck/scripts/aicheck_deps.py fix
+        else
+          echo -e "${YELLOW}Dependency guardian not available. Install AICheck in your project.${NC}"
+        fi
         ;;
       "internal")
         add_internal_dependency "$2" "$3" "$4" "$5"
         ;;
       *)
         echo -e "${RED}Unknown dependency command: $1${NC}"
-        echo "Available commands: add, internal"
+        echo "Available commands: add, check, fix, internal"
+        echo ""
+        echo "Quick commands:"
+        echo "  ${GREEN}./aicheck deps check${NC} - Check if ready to deploy"
+        echo "  ${GREEN}./aicheck deps fix${NC}   - Auto-fix dependency issues"
+        echo "  ${GREEN}./aicheck deps add <pkg> <reason>${NC} - Add with metadata"
         ;;
     esac
     ;;
@@ -1973,6 +2006,69 @@ case "$CMD" in
     echo -e "${YELLOW}• Run ${GREEN}./aicheck cleanup${YELLOW} to reduce context size${NC}"
     echo -e "${YELLOW}• Run ${GREEN}./aicheck reset${YELLOW} if really confused${NC}"
     echo -e "${YELLOW}• Use templates in ${GREEN}.aicheck/templates/claude/${YELLOW} for common patterns${NC}"
+    ;;
+  "deploy-check"|"deploy")
+    echo -e "${BRIGHT_BLURPLE}🚀 Deployment Readiness Check${NC}"
+    echo -e ""
+    
+    # Run all deployment checks
+    all_good=true
+    
+    # Check dependencies
+    echo -e "${YELLOW}Checking dependencies...${NC}"
+    if [ -f ".aicheck/scripts/simple_dependency_check.py" ]; then
+      if python3 .aicheck/scripts/simple_dependency_check.py; then
+        echo -e "${GREEN}✅ Dependencies OK${NC}"
+      else
+        echo -e "${RED}❌ Dependency issues found${NC}"
+        all_good=false
+      fi
+    elif [ -f ".aicheck/scripts/dependency_guardian.py" ] && [ -f "pyproject.toml" ]; then
+      if python3 .aicheck/scripts/dependency_guardian.py 2>/dev/null; then
+        echo -e "${GREEN}✅ Dependencies OK${NC}"
+      else
+        echo -e "${RED}❌ Dependency issues found${NC}"
+        all_good=false
+      fi
+    fi
+    
+    # Check tests
+    echo -e "\n${YELLOW}Running tests...${NC}"
+    if [ -f "pyproject.toml" ] && command -v poetry >/dev/null 2>&1; then
+      if poetry run pytest -q; then
+        echo -e "${GREEN}✅ Tests passed${NC}"
+      else
+        echo -e "${RED}❌ Tests failed${NC}"
+        all_good=false
+      fi
+    elif [ -f "package.json" ]; then
+      if npm test; then
+        echo -e "${GREEN}✅ Tests passed${NC}"
+      else
+        echo -e "${RED}❌ Tests failed${NC}"
+        all_good=false
+      fi
+    fi
+    
+    # Check git status
+    echo -e "\n${YELLOW}Checking git status...${NC}"
+    if [ -z "$(git status --porcelain)" ]; then
+      echo -e "${GREEN}✅ Working directory clean${NC}"
+    else
+      echo -e "${YELLOW}⚠️  Uncommitted changes${NC}"
+      git status --short
+    fi
+    
+    # Final verdict
+    echo -e ""
+    if [ "$all_good" = true ]; then
+      echo -e "${GREEN}✅ Ready to deploy!${NC}"
+      echo -e "${YELLOW}Run 'git push' to deploy your changes${NC}"
+    else
+      echo -e "${RED}❌ Not ready to deploy. Fix the issues above.${NC}"
+      echo -e "${YELLOW}Run './aicheck deps fix' to auto-fix some issues${NC}"
+      exit 1
+    fi
     ;;
   *)
     echo -e "${RED}❌ Unknown command: $CMD${NC}"

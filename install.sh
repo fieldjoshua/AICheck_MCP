@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AICheck v4.3.0 Universal Installer
+# AICheck v5.0.0 Universal Installer
 # Works for both new installations and updates
 
 set -e
@@ -12,7 +12,8 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}AICheck v4.3.0 Installation${NC}"
+echo -e "${BLUE}AICheck v5.0.0 Installation${NC}"
+echo -e "${YELLOW}Curated human oversight meets effective automation${NC}"
 echo "============================"
 
 # Check if this is an update or fresh install
@@ -184,23 +185,33 @@ else
 fi
 
 # Show appropriate completion message
+echo ""
+echo -e "${BLUE}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║                    ${GREEN}AICHECK v5.0.0${BLUE}                     ║${NC}"
+echo -e "${BLUE}║  ${YELLOW}Curated human oversight meets effective automation${BLUE}   ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+
 if [ "$MODE" = "update" ]; then
-    echo -e "\n${GREEN}Update complete!${NC}"
+    echo -e "${GREEN}Update complete!${NC}"
     echo -e "${YELLOW}Your existing actions and configuration have been preserved${NC}"
     if [ -d ".aicheck.backup."* ]; then
         echo -e "${BLUE}Backup created in: .aicheck.backup.*${NC}"
     fi
 else
-    echo -e "\n${GREEN}Installation complete!${NC}"
+    echo -e "${GREEN}Installation complete!${NC}"
 fi
 
 echo -e "\n${BLUE}Next steps:${NC}"
 echo "1. Run: ./activate_aicheck_claude.sh"
 echo "2. Paste the prompt into Claude Code"
 echo "3. Start with: ./aicheck stuck"
-echo -e "\n${BLUE}Key commands:${NC}"
-echo "• ./aicheck stuck - Check status and get unstuck"
-echo "• ./aicheck focus - Check boundaries before work"
+echo -e "\n${BLUE}Your commands:${NC}"
+echo "• ./aicheck stuck    - Get unstuck when confused"
+echo "• ./aicheck deploy   - Pre-deployment validation"
+echo "• ./aicheck new      - Create a new action"
+echo "• ./aicheck ACTIVE   - Set the ACTIVE action"
+echo "• ./aicheck complete - Complete the ACTIVE action"
 echo "• ./aicheck cleanup - Clean up after work"
 echo "• ./aicheck usage - Check costs and optimization"
 

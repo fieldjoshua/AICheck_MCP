@@ -1,0 +1,75 @@
+[tool.poetry]
+name = "example-project"
+version = "0.1.0"
+description = "Example project with AICheck metadata"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.104.0"
+uvicorn = "^0.24.0"
+pydantic = "^2.4.0"
+pytest = "^7.4.0"
+
+# AICheck: Enhanced dependency metadata
+[tool.aicheck.dependencies]
+fastapi = {
+    justification = "Core web framework for API endpoints",
+    action = "CreateAPIFramework",
+    added_date = "2025-01-06",
+    added_by = "john.doe",
+    review_status = "approved"
+}
+uvicorn = {
+    justification = "ASGI server for FastAPI, required for production deployment",
+    action = "CreateAPIFramework",
+    added_date = "2025-01-06",
+    added_by = "john.doe",
+    review_status = "approved"
+}
+pydantic = {
+    justification = "Data validation and settings management, core FastAPI dependency",
+    action = "CreateAPIFramework",
+    added_date = "2025-01-06",
+    added_by = "john.doe",
+    review_status = "approved"
+}
+pytest = {
+    justification = "Testing framework for TDD compliance with RULES.md section 8.1",
+    action = "SetupTestingFramework", 
+    added_date = "2025-01-05",
+    added_by = "jane.smith",
+    review_status = "approved",
+    dev_only = true
+}
+
+# AICheck: Action dependencies (internal)
+[tool.aicheck.action_dependencies]
+CreateUserAuth = {
+    depends_on = ["CreateAPIFramework", "SetupDatabase"],
+    type = "functional",
+    description = "Requires API framework and database models to implement authentication"
+}
+CreateAPIEndpoints = {
+    depends_on = ["CreateAPIFramework"],
+    type = "functional", 
+    description = "All API endpoints require the base framework"
+}
+
+# AICheck: Project metadata
+[tool.aicheck.project]
+rules_version = "4.3.0"
+deployment_type = "containerized"
+ci_pipeline = "github-actions"
+test_coverage_threshold = 80
+
+# AICheck: Compliance tracking
+[tool.aicheck.compliance]
+tdd_enforced = true
+documentation_first = true
+deployment_verification_required = true
+pre_push_hooks_enabled = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

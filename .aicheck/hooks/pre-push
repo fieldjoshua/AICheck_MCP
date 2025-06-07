@@ -23,6 +23,15 @@ detect_project_type() {
     fi
 }
 
+# Function to run dependency guardian
+run_dependency_guardian() {
+    if [ -f ".aicheck/scripts/dependency_guardian.py" ] && [ -f "pyproject.toml" ]; then
+        echo "Running AICheck Dependency Guardian..."
+        python3 .aicheck/scripts/dependency_guardian.py || return 1
+    fi
+    return 0
+}
+
 # Function to run tests based on project type
 run_tests() {
     local project_type=$1
@@ -104,6 +113,13 @@ main() {
     # Check for uncommitted dependency changes
     if ! check_dependencies "$project_type"; then
         echo -e "${RED}Pre-push hook failed: Uncommitted dependency changes${NC}"
+        exit 1
+    fi
+    
+    # Run dependency guardian for Python projects
+    if ! run_dependency_guardian; then
+        echo -e "${RED}Pre-push hook failed: Dependency issues detected${NC}"
+        echo -e "${YELLOW}Run '.aicheck/scripts/dependency_guardian.py' for details${NC}"
         exit 1
     fi
     
