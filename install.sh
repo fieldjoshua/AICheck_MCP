@@ -221,23 +221,11 @@ else
     echo -e "${GREEN}Installation complete!${NC}"
 fi
 
-echo -e "\n${BLUE}Next steps:${NC}"
-echo "1. Run: ./activate_aicheck_claude.sh"
-echo "2. Paste the prompt into Claude Code"
-echo "3. Start with: ./aicheck stuck"
-echo -e "\n${BOLD}${PURPLE}Your commands:${NC}"
-echo -e "${NEON_GREEN}• ./aicheck stuck${NC}    - Get unstuck when confused"
-echo -e "${ORANGE}• ./aicheck deploy${NC}   - Pre-deployment validation"
-echo -e "${PURPLE}• ./aicheck new${NC}      - Create a new action"
-echo -e "${NEON_GREEN}• ./aicheck ACTIVE${NC}   - Set the ACTIVE action"
-echo -e "${ORANGE}• ./aicheck complete${NC} - Complete the ACTIVE action"
-echo "• ./aicheck cleanup - Clean up after work"
-echo "• ./aicheck usage - Check costs and optimization"
+echo ""
+echo -e "${BOLD}${NEON_GREEN}🎯 NEXT STEPS:${NC}"
+echo ""
+echo -e "${BOLD}${PURPLE}1.${NC} Run: ${BOLD}${ORANGE}./activate_aicheck_claude.sh${NC}"
+echo -e "${BOLD}${PURPLE}2.${NC} ${BOLD}${NEON_GREEN}Paste the prompt into Claude Code${NC} ${YELLOW}(copied to clipboard)${NC}"
+echo -e "${BOLD}${PURPLE}3.${NC} Start with: ${BOLD}${ORANGE}./aicheck stuck${NC}"
+echo ""
 
-if [ "$MODE" = "update" ]; then
-    echo -e "\n${BLUE}What's new in v4.3.0:${NC}"
-    echo "• MCP Integration - Native Claude Code integration"
-    echo "• Context Management - Auto pollution detection & cleanup"
-    echo "• Session Detection - Auto-runs checks on new sessions"
-    echo "• Cost Analysis - Track and optimize Claude usage"
-fi
