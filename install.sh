@@ -13,7 +13,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}AICheck v5.0.0 Installation${NC}"
-echo -e "${YELLOW}Curated human oversight meets effective automation${NC}"
+echo -e "${YELLOW}Curated human oversight + effective automation${NC}"
 echo "============================"
 
 # Check if this is an update or fresh install
@@ -188,15 +188,16 @@ fi
 echo ""
 echo -e "${BLUE}╔═══════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║                    ${GREEN}AICHECK v5.0.0${BLUE}                     ║${NC}"
-echo -e "${BLUE}║  ${YELLOW}Curated human oversight meets effective automation${BLUE}   ║${NC}"
+echo -e "${BLUE}║   ${YELLOW}Curated human oversight + effective automation${BLUE}    ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════════════════════════════╝${NC}"
 echo ""
 
 if [ "$MODE" = "update" ]; then
     echo -e "${GREEN}Update complete!${NC}"
     echo -e "${YELLOW}Your existing actions and configuration have been preserved${NC}"
-    if [ -d ".aicheck.backup."* ]; then
-        echo -e "${BLUE}Backup created in: .aicheck.backup.*${NC}"
+    # Check if any backup directories exist
+    if ls .aicheck.backup.* >/dev/null 2>&1; then
+        echo -e "${BLUE}Backup created in: $(ls -d .aicheck.backup.* | tail -1)${NC}"
     fi
 else
     echo -e "${GREEN}Installation complete!${NC}"
