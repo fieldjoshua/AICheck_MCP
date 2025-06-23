@@ -2,51 +2,141 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## AICheck Integration
+## Project Overview
 
-Claude should follow the rules specified in `.aicheck/RULES.md` and use AICheck commands:
+This is the **AICheck MCP development repository** - the project that creates the AICheck governance system itself. When working on this codebase, we are developing the tools and systems that other projects will use, not following AICheck governance (which would create circular dependencies).
 
-- `./aicheck action new ActionName` - Create a new action 
-- `./aicheck action set ActionName` - Set the current active action
-- `./aicheck action complete [ActionName]` - Complete an action with dependency verification
-- `./aicheck exec` - Toggle exec mode for system maintenance
-- `./aicheck status` - Show the current action status
-- `./aicheck dependency add NAME VERSION JUSTIFICATION [ACTION]` - Add external dependency
-- `./aicheck dependency internal DEP_ACTION ACTION TYPE [DESCRIPTION]` - Add internal dependency
+## Architecture
 
-## Project Rules
+### Core Components
+- **`./aicheck`** - Main bash script providing all AICheck functionality
+- **Installation System** - Multiple installer scripts for different deployment scenarios
+- **MCP Integration** - Server implementations in `MCP/` directories  
+- **Rules Engine** - `RULES.md` defines the governance framework
+- **Templates** - AI prompt templates in `templates/claude/`
 
-Claude should follow the rules specified in `.aicheck/RULES.md` with focus on documentation-first approach and adherence to language-specific best practices.
+### Key Scripts
+```bash
+./aicheck                    # Main command script (5000+ lines of bash)
+./install.sh                # Primary installer with MCP configuration
+./activate_aicheck_claude.sh # Claude MCP integration activation
+./fix_permissions.sh         # Permission repair utility
+./migrate_action_names.sh    # Migration utilities
 
-## AICheck Procedures
+# New Auto-Iterate Mode (v6.0.0)
+./aicheck auto-iterate      # Goal-driven test-fix-test cycles
+```
 
-1. Always check the current action with `./aicheck status` at the start of a session
-2. Follow the active action's plan when implementing
-3. Create tests before implementation code
-4. Document all Claude interactions in supporting_docs/claude-interactions/
-5. Only work within the scope of the active action
-6. Document all dependencies before completing an action
-7. Immediately respond to git hook suggestions before continuing work
+## Development Commands
 
-## Dependency Management
+### Testing
+```bash
+npm test                     # Node.js components test
+echo 'Tests passed!' && exit 0  # Current test stub
+```
 
-When adding external libraries or frameworks:
-1. Document with `./aicheck dependency add NAME VERSION JUSTIFICATION`
-2. Include specific version requirements
-3. Provide clear justification for adding the dependency
+### Installation Testing
+```bash
+./install.sh                # Test main installer
+./install_local.sh          # Test local installation
+```
 
-When creating dependencies between actions:
-1. Document with `./aicheck dependency internal DEP_ACTION ACTION TYPE DESCRIPTION`
-2. Specify the type of dependency (data, function, service, etc.)
-3. Add detailed description of the dependency relationship
+### Validation
+```bash
+./aicheck-mcp-check         # MCP integration validation
+bash install.sh            # Full installation test
+```
 
-## Claude Workflow
+## Development Guidelines
 
-When the user requests work:
-1. Check if it fits within the current action (if not, suggest creating a new action)
-2. Consult the action plan for guidance
-3. Follow test-driven development practices
-4. Document your thought process
-5. Document all dependencies
-6. Implement according to the plan
-7. Verify your implementation against the success criteria
+### Bash Development (Primary Language)
+- Main `./aicheck` script is complex bash with 5000+ lines
+- Use `set -e` for error handling
+- Color-coded output using terminal escape codes
+- Function-based architecture with clear separation
+- Version management and update checking built-in
+
+### Installation Script Patterns
+- Support multiple installation modes (fresh, update, repair)
+- MCP server configuration with conflict resolution
+- Comprehensive error handling and rollback
+- User-friendly progress indicators and success messages
+- Automatic backup of existing configurations
+
+### MCP Integration Architecture
+- Separate MCP server implementations for different contexts
+- Unique server naming to prevent conflicts across projects
+- Resource exposure for rules, actions, and status
+- Tool integration for all AICheck commands
+
+## Testing Strategy
+
+Since this creates tools for other projects:
+- **Integration Testing**: Install in test directories and verify functionality
+- **Cross-Platform Testing**: Ensure scripts work across different environments  
+- **MCP Testing**: Verify Claude integration works correctly
+- **User Experience Testing**: Ensure installation is smooth and error messages are helpful
+
+## File Organization
+
+### Core Files (Root Level)
+- `RULES.md` - The governance framework (1000+ lines)
+- `README.md` - Public-facing documentation
+- `CHANGELOG.md` / `CHANGELOG_v5.md` - Version history
+- Installation guides and quick references
+
+### Development Directories
+- `MCP/` - MCP server implementations
+- `templates/` - AI prompt templates  
+- `documentation/` - Project documentation
+- `tests/` - Test suites and fixtures
+- Various test directories for installation validation
+
+### Generated/Working Directories
+- `.aicheck/` - Created when AICheck is used (not for development)
+- `node_modules/` - npm dependencies
+- Various backup and temporary files
+
+## Special Considerations
+
+### Circular Dependency Avoidance
+- This project creates AICheck but should NOT be subject to AICheck governance during development
+- Use standard git workflow, not AICheck action workflow
+- Focus on creating robust tools rather than following the rules those tools enforce
+
+### Installation Complexity
+- Multiple installer variants handle different scenarios
+- MCP configuration must work across different Claude setups
+- Error recovery and rollback capabilities essential
+- User experience is critical for adoption
+
+### Backward Compatibility
+- Support migration from older AICheck versions
+- Handle existing MCP configurations gracefully
+- Provide clear upgrade paths and documentation
+
+## Auto-Iterate Mode Development Notes
+
+### New Feature (v6.0.0)
+Auto-iterate mode enables goal-driven development cycles:
+- **Goal Definition**: AI must propose specific, measurable objectives
+- **Human Approval**: Required before any iteration begins
+- **Action Integration**: Templates automatically added to active action directories
+- **Git Safety**: Human approval required for all commits
+
+### Implementation Details
+- **Function**: `auto_iterate()` in main aicheck script
+- **Template**: `templates/claude/auto-iterate-action.md`
+- **Workflow**: Goal definition → Approval → Execution → Git approval
+- **Files Generated**: 
+  - `.aicheck/auto-iterate-goals.md` (goals and approval)
+  - `.aicheck/auto-iterate-session-[ID].log` (detailed log)
+  - `.aicheck/auto-iterate-changes-[ID].md` (change tracking)
+  - `.aicheck/auto-iterate-summary-[ID].md` (final report)
+
+### Usage for AI Development
+When working on AICheck itself, auto-iterate can be used for:
+- Complex test failure scenarios  
+- Multi-step debugging processes
+- Refactoring with test validation
+- Integration testing cycles

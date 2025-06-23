@@ -1,10 +1,17 @@
-# AICheck v5.1.0 - Simplified AI Development Governance
+# AICheck v6.0.0 - Goal-Driven AI Development Governance
 
 **🚀 Curated human oversight ⟷ effective automation.**
 
-## ✨ What's New in v5.1.0
+## ✨ What's New in v6.0.0
 
-### 🔧 **Enhanced MCP Integration**
+### 🔄 **NEW: Auto-Iterate Mode**
+- **Goal-Driven Development** - AI editor proposes specific, measurable goals
+- **Human Approval Gates** - No iteration or commits without explicit approval  
+- **Test-Fix-Test Cycles** - Automated iteration until goals are achieved
+- **Action Integration** - Templates automatically added to active actions
+- **Comprehensive Tracking** - Detailed logs, summaries, and git approval workflow
+
+### 🔧 **Enhanced MCP Integration** 
 - **Smart Configuration** - Automatically handles multiple AICheck projects in Claude
 - **Conflict Resolution** - Unique server names prevent MCP tool conflicts
 - **Diagnostic Testing** - Built-in MCP server validation during installation
@@ -31,11 +38,11 @@
 ## 🚀 Installation
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install_v6.sh)
 ```
 
 That's it! The installer will:
-- Download and set up AICheck v5.1.0
+- Download and set up AICheck v6.0.0
 - Configure MCP server for Claude Code integration
 - Handle multiple projects in Claude automatically
 - Install templates and documentation
@@ -45,15 +52,16 @@ That's it! The installer will:
 ## 🎯 **Your Commands**
 
 ```bash
-./aicheck status    # Show detailed status
-./aicheck focus     # Check for scope creep  
-./aicheck stuck     # Get unstuck when confused
-./aicheck deploy    # Pre-deployment validation
-./aicheck new       # Create a new action
-./aicheck ACTIVE    # Set the ACTIVE action
-./aicheck complete  # Complete the ACTIVE action
-./aicheck cleanup   # Optimize and fix compliance
-./aicheck usage     # See AI usage and costs
+./aicheck status       # Show detailed status
+./aicheck focus        # Check for scope creep  
+./aicheck stuck        # Get unstuck when confused
+./aicheck deploy       # Pre-deployment validation
+./aicheck auto-iterate # NEW: Goal-driven test-fix-test cycles
+./aicheck new          # Create a new action
+./aicheck ACTIVE       # Set the ACTIVE action
+./aicheck complete     # Complete the ACTIVE action
+./aicheck cleanup      # Optimize and fix compliance
+./aicheck usage        # See AI usage and costs
 ```
 
 **Note:** The longer forms still work (e.g., `./aicheck action new`), but these shortcuts are faster!
@@ -78,11 +86,56 @@ That's it! The installer will:
 If everything passes, you'll see: **"✅ Ready to deploy!"**  
 If something fails, it tells you exactly what to fix.
 
+## 🔄 **NEW: Auto-Iterate Mode**
+
+Auto-iterate mode enables goal-driven test-fix-test cycles with human oversight:
+
+### **How It Works**
+1. **Goal Definition** - AI editor analyzes test failures and proposes specific goals
+2. **Human Approval** - You review and approve goals before any iteration begins  
+3. **Automated Cycles** - System iterates toward approved goals with periodic checkpoints
+4. **Git Approval** - Human approval required before committing any changes
+
+### **Auto-Iterate Workflow**
+```bash
+# Prerequisites: Have an active action
+./aicheck status                    # Verify you have an active action
+
+# Auto-iterate process (integrates with active action)
+./aicheck auto-iterate             # Step 1: AI proposes goals + adds template
+./aicheck auto-iterate --approve   # Step 2: Human approves goals
+./aicheck auto-iterate --execute   # Step 3: Goal-driven iteration cycles
+# Step 4: Git commit approval happens automatically at session end
+```
+
+### **Key Features**
+- **No New Actions Required** - Integrates seamlessly with your active action
+- **Template Auto-Added** - Session template automatically added to action directory
+- **Goal-Driven** - AI must propose specific, measurable objectives before starting
+- **Human Control** - Approval gates for goals and git commits
+- **Complete Tracking** - Comprehensive logs, summaries, and change documentation
+- **Rollback Safety** - Discard option available at any stage
+
+### **Example Auto-Iterate Goals**
+- Fix all ImportError issues by updating dependencies  
+- Resolve syntax errors in test files
+- Make failing assertion tests pass by correcting logic
+- Achieve 100% test pass rate with no regressions
+
 ## 🔄 **Typical Development Flow**
 
+### **Standard Flow**
 1. **Create:** `./aicheck new FixLoginBug`
 2. **Activate:** `./aicheck ACTIVE FixLoginBug`
 3. **Work on code...**
+4. **Check:** `./aicheck deploy`
+5. **Push:** `git push`
+6. **Done:** `./aicheck complete`
+
+### **With Auto-Iterate** (for complex test failures)
+1. **Create:** `./aicheck new FixComplexBug`
+2. **Activate:** `./aicheck ACTIVE FixComplexBug`
+3. **Auto-Iterate:** `./aicheck auto-iterate` → approve goals → execute
 4. **Check:** `./aicheck deploy`
 5. **Push:** `git push`
 6. **Done:** `./aicheck complete`
