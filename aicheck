@@ -2701,9 +2701,41 @@ case "$CMD" in
     # Shortcut for action complete
     complete_action "$1"
     ;;
+  "status")
+    # Show current status
+    show_status
+    ;;
+  "stuck")
+    # Get unstuck help
+    show_status
+    echo -e ""
+    echo -e "${BRIGHT_BLURPLE}🆘 Getting Unstuck${NC}"
+    echo -e ""
+    echo -e "${YELLOW}If you're feeling lost, here's what to check:${NC}"
+    echo -e "1. ${GREEN}./aicheck status${NC} - See current action status"
+    echo -e "2. ${GREEN}./aicheck focus${NC} - Check for scope creep"
+    echo -e "3. ${GREEN}./aicheck cleanup${NC} - Clean up and optimize"
+    echo -e "4. ${GREEN}./aicheck deploy${NC} - Pre-deployment check"
+    echo -e ""
+    echo -e "${PURPLE}Need to start fresh?${NC}"
+    echo -e "• ${GREEN}./aicheck new ActionName${NC} - Create new action"
+    echo -e "• ${GREEN}./aicheck ACTIVE ActionName${NC} - Switch to action"
+    ;;
+  "focus")
+    # Check for scope creep and compliance issues
+    check_compliance
+    ;;
+  "cleanup")
+    # Clean up and optimize
+    cleanup_compliance
+    ;;
   "deploy")
     # Shortcut for deploy-check
     $0 deploy-check
+    ;;
+  "usage")
+    # Show AI usage and costs
+    mcp__aicheck__aicheck_analyzeCosts 2>/dev/null || echo -e "${YELLOW}Usage tracking not available - MCP server not connected${NC}"
     ;;
   "auto-iterate"|"iterate"|"auto")
     # Auto-iterate mode: test, analyze, fix, repeat
