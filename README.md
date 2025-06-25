@@ -1,21 +1,40 @@
-# AICheck v6.0.0 - Goal-Driven AI Development Governance
+<!-- MCP: AICheck_Tracker -->
+<!-- Action: AICheck-Documentation-v7 -->
+<!-- DateTime: 2025-06-25 16:45:00 PDT -->
+<!-- Task: Update documentation for v7.0.0 Universal AI Editor Integration -->
+<!-- File: README.md -->
+<!-- Track progress and document decisions as you work. -->
+<!-- Update task status and log any blockers or dependencies. -->
+
+# AICheck v7.0.0 - Universal AI Editor Governance
 
 **🚀 Curated human oversight ⟷ effective automation.**
 
-## ✨ What's New in v6.0.0
+## ✨ What's New in v7.0.0
 
-### 🔄 **NEW: Auto-Iterate Mode**
+### 🤖 **NEW: Universal AI Editor Integration**
+- **Multi-Editor Support** - Claude, Cursor, Copilot, Cody, Gemini, and generic editors
+- **Smart MCP Auto-Assignment** - Context-aware governance based on file type
+- **File-Based Governance** - MCP headers embedded in files - no copy-paste needed
+- **Action-Level Traceability** - Every edit linked to specific AICheck actions with timestamps
+- **Bulletproof Enforcement** - Pre-commit hooks prevent ungoverned code from entering repository
+
+### 🎯 **AICheck MCP Types**
+- **AICheck_Planner** - Planning and design files with strategic guidance
+- **AICheck_Tracker** - Progress tracking with decision documentation requirements
+- **AICheck_Scoper** - Code files with strict scope limiting to prevent creep
+- **AICheck_Validator** - Test files with validation and verification requirements
+
+### 🔧 **New Commands**
+- `./aicheck mcp edit` - Guided MCP header setup for any file
+- `./aicheck edit <editor> <file>` - Launch any AI editor with governance context
+- `./aicheck mcp validate <files>` - Validate MCP governance headers
+- `./aicheck mcp install-hook` - Install pre-commit enforcement
+
+### 🔄 **v6.0.0: Auto-Iterate Mode**
 - **Goal-Driven Development** - AI editor proposes specific, measurable goals
 - **Human Approval Gates** - No iteration or commits without explicit approval  
 - **Test-Fix-Test Cycles** - Automated iteration until goals are achieved
-- **Action Integration** - Templates automatically added to active actions
-- **Comprehensive Tracking** - Detailed logs, summaries, and git approval workflow
-
-### 🔧 **Enhanced MCP Integration** 
-- **Smart Configuration** - Automatically handles multiple AICheck projects in Claude
-- **Conflict Resolution** - Unique server names prevent MCP tool conflicts
-- **Diagnostic Testing** - Built-in MCP server validation during installation
-- **Better Troubleshooting** - Clear error messages and fix instructions
 
 ### 🎯 **v5.0.0 Features** 
 - **Just 9 Essential Commands** - Simplified from 20+ to what you actually use
@@ -38,16 +57,16 @@
 ## 🚀 Installation
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install_v6.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/install.sh)
 ```
 
 That's it! The installer will:
-- Download and set up AICheck v6.0.0
+- Download and set up AICheck v7.0.0
 - Configure MCP server for Claude Code integration
-- Handle multiple projects in Claude automatically
+- Install pre-commit hooks for governance enforcement
+- Set up universal AI editor integration
 - Install templates and documentation
-- Set up activation script
-- Test the installation and MCP server
+- Test the complete MCP integration system
 
 ## 🎯 **Your Commands**
 
@@ -196,13 +215,40 @@ AICheck v5.0.0 automatically validates and enforces:
 - **CHANGELOG_v5.md** - What's new in v5.0.0
 - **GitHub Issues** - Report bugs or request features
 
+## 🤖 **Universal AI Editor Workflow**
+
+### **For Claude Code (Zero Setup)**
+```bash
+# Files automatically get MCP headers when you edit them
+# Just open files in Claude Code - governance is automatic!
+./aicheck edit claude src/auth.py
+```
+
+### **For Other AI Editors**
+```bash
+# Cursor - Headers embedded in files + prompt display
+./aicheck edit cursor src/auth.py
+
+# Any editor - Universal governance
+./aicheck edit copilot src/auth.py
+./aicheck edit cody tests/test_auth.py
+```
+
+### **Manual MCP Setup**
+```bash
+# Add governance to existing files
+./aicheck mcp edit
+> Which file are you editing? src/auth.py
+> Describe the task: Add user authentication
+```
+
 ## 🎯 **Perfect For**
 
-- **AI-Assisted Development** with Claude Code, Cursor, or similar tools
-- **Team Projects** requiring consistent development practices  
-- **Complex Codebases** where scope management is critical
-- **Cost-Conscious Development** with usage tracking and optimization
-- **Compliance-Heavy Projects** requiring documentation and audit trails
+- **Universal AI Development** - Works with Claude, Cursor, Copilot, Cody, Gemini, and future tools
+- **Team Projects** requiring consistent AI coding practices across different editors
+- **Complex Codebases** where scope management and traceability are critical
+- **Compliance-Heavy Projects** requiring complete audit trails of all AI interactions
+- **Production Systems** where ungoverned AI code is unacceptable
 
 ## 🚀 **Get Started Now**
 
@@ -212,8 +258,10 @@ bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/
 
 # Restart Claude to load MCP integration
 
-# Start working
-./aicheck stuck
+# Start working with any AI editor
+./aicheck edit claude myfile.py     # Claude Code
+./aicheck edit cursor myfile.py     # Cursor  
+./aicheck mcp edit                  # Manual setup
 
 # You're ready to go! 🎉
 ```
