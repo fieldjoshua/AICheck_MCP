@@ -6,7 +6,7 @@
 <!-- Track progress and document decisions as you work. -->
 <!-- Update task status and log any blockers or dependencies. -->
 
-# AICheck v7.0.0 - Universal AI Editor Governance
+# AICheck v7.1.0 - Universal AI Editor Governance with Smart Checks
 
 **🚀 Curated human oversight ⟷ effective automation.**
 
@@ -30,6 +30,12 @@
 - `./aicheck edit <editor> <file>` - Launch any AI editor with governance context
 - `./aicheck mcp validate <files>` - Validate MCP governance headers
 - `./aicheck mcp install-hook` - Install pre-commit enforcement
+
+### 🧠 **v7.1.0: Smart Completion Checks**
+- **Intelligent Project Detection** - Automatically detects Python/Node/build tools
+- **Context-Aware Validation** - Only runs checks for tools you actually use
+- **No More Bureaucracy** - Focuses on real deployment blockers, not process
+- **Smart Pre-commit Hooks** - Runs appropriate checks based on staged files
 
 ### 🔄 **v6.0.0: Auto-Iterate Mode**
 - **Goal-Driven Development** - AI editor proposes specific, measurable goals
@@ -104,6 +110,33 @@ That's it! The installer will:
 
 If everything passes, you'll see: **"✅ Ready to deploy!"**  
 If something fails, it tells you exactly what to fix.
+
+## 🧠 **Smart Completion Checks**
+
+When completing an action with `./aicheck complete`, AICheck now intelligently detects your project environment and runs appropriate checks:
+
+### **Automatic Detection**
+- **Project Type**: Python (Poetry/pip), Node.js (npm/yarn/pnpm), or hybrid
+- **Build Systems**: Make, Gradle, Maven, etc.
+- **Testing Frameworks**: pytest, Jest, Vitest, etc.
+- **Linting Tools**: Black, Ruff, ESLint, Prettier, etc.
+- **Type Checkers**: mypy, TypeScript, Flow, etc.
+
+### **Completion Checks**
+1. **Dependency Integrity** - Lock files in sync, no missing packages
+2. **Test Suite** - All tests pass (only runs if tests exist)
+3. **Code Quality** - Linting and formatting checks (if configured)
+4. **Git Status** - All changes committed and pushed
+5. **Build Success** - Project builds without errors
+
+### **Smart Pre-commit Hooks**
+The new pre-commit hook also uses smart detection:
+- Only runs Black on Python files if Black is configured
+- Only runs ESLint on JS/TS files if ESLint is configured
+- Runs quick tests only on modified test files
+- Skips checks for tools that aren't installed
+
+**No more "dependency not documented" warnings for standard packages!** AICheck now focuses on what actually matters for deployment readiness.
 
 ## 🔄 **NEW: Auto-Iterate Mode**
 

@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ IMPORTANT: Development Context
+
+**DO NOT USE AICheck MCP tools when working on this repository.** This is the AICheck development repository itself - we are creating the governance system, not using it. Using AICheck governance on its own development would create circular dependencies.
+
+When you see MCP tools like `mcp__aicheck__*` available, ignore them for this project. Use standard git workflows and development practices instead.
+
 ## Project Overview
 
 This is the **AICheck MCP development repository** - the project that creates the AICheck governance system itself. When working on this codebase, we are developing the tools and systems that other projects will use, not following AICheck governance (which would create circular dependencies).
