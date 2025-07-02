@@ -21,8 +21,8 @@ function validate_single_active_action() {
     esac
     
     # Count active actions
-    local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
-    local current=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+    local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null | tr -d '\n' || echo "0")
+    local current=$(cat .aicheck/current_action 2>/dev/null | tr -d '\n' || echo "None")
     
     if [ "$index_active" -gt 1 ]; then
         print_error "ERROR: Multiple active actions detected!"

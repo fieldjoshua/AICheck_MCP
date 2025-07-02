@@ -215,6 +215,15 @@ if [ -d "$AICHECK_LIB" ]; then
     
     # Detection modules
     source "$AICHECK_LIB/detection/environment.sh"
+    
+    # Action management
+    source "$AICHECK_LIB/actions/management.sh"
+    
+    # MCP integration
+    source "$AICHECK_LIB/mcp/integration.sh"
+    
+    # Git operations
+    source "$AICHECK_LIB/git/operations.sh"
 else
     # Fallback to inline definitions if modules not found
     GREEN="\033[0;32m"
