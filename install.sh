@@ -50,16 +50,26 @@ if [ -f "./aicheck" ]; then
     find .aicheck -type f -name "*.md" -exec chmod +w {} \; 2>/dev/null || true
     find .mcp -type f -exec chmod +w {} \; 2>/dev/null || true
     
-    # Backup important files
+    # Clean up old backups (keep only 3 most recent)
+    echo -e "${BLUE}Managing backups...${NC}"
+    BACKUP_COUNT=$(ls -d .aicheck.backup.* 2>/dev/null | wc -l)
+    if [ "$BACKUP_COUNT" -gt 3 ]; then
+        echo -e "${BLUE}Removing old backups (keeping 3 most recent)...${NC}"
+        ls -dt .aicheck.backup.* | tail -n +4 | xargs rm -rf
+    fi
+    
+    # Backup important files (with timeout to prevent hanging)
     if [ -d ".aicheck" ]; then
         echo -e "${BLUE}Creating backup...${NC}"
-        # Use rsync if available for better handling of missing files
-        if command -v rsync >/dev/null 2>&1; then
-            rsync -a --ignore-missing-args .aicheck/ .aicheck.backup.$(date +%Y%m%d_%H%M%S)/ 2>/dev/null || cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null
-        else
-            # Fallback to cp but ignore errors
-            cp -r .aicheck .aicheck.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-        fi
+        BACKUP_DIR=".aicheck.backup.$(date +%Y%m%d_%H%M%S)"
+        
+        # Use a simple tar-based backup with timeout
+        timeout 30s tar -czf "${BACKUP_DIR}.tar.gz" .aicheck 2>/dev/null && {
+            echo -e "${GREEN}✓ Backup created: ${BACKUP_DIR}.tar.gz${NC}"
+        } || {
+            echo -e "${YELLOW}⚠ Backup skipped (timeout or error)${NC}"
+            echo -e "${YELLOW}  Continuing with installation...${NC}"
+        }
     fi
     
     MODE="update"
