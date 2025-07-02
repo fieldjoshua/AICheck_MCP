@@ -195,49 +195,42 @@ function update_all() {
   fi
 }
 
-GREEN="\033[0;32m"
-NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
-BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
-YELLOW="\033[0;33m"
-RED="\033[0;31m"
-CYAN="\033[0;36m"
-NC="\033[0m" # No Color
-BLUE="\033[0;34m"
-PURPLE="\033[0;35m"
+# Get the directory where aicheck is located
+AICHECK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AICHECK_LIB="$AICHECK_DIR/aicheck-lib"
 
-# Function to validate single active action principle
-function validate_single_active_action() {
-  # Only run for commands that need validation
-  local cmd=${1:-}
-  case "$cmd" in
-    "status"|"focus"|"deploy"|"complete"|"auto-iterate"|"ACTIVE"|"new")
-      # These commands need validation
-      ;;
-    *)
-      # Skip validation for other commands
-      return 0
-      ;;
-  esac
-  
-  # Count active actions
-  local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
-  local current=$(cat .aicheck/current_action 2>/dev/null || echo "None")
-  
-  if [ "$index_active" -gt 1 ]; then
-    echo -e "${RED}⚠ ERROR: Multiple active actions detected!${NC}"
-    echo -e "${YELLOW}AICheck requires exactly ONE active action at a time.${NC}"
-    echo -e "${CYAN}Run './aicheck cleanup' to fix this issue.${NC}"
-    echo ""
-    return 1
-  elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ "$current" != "" ]; then
-    echo -e "${YELLOW}⚠ WARNING: Inconsistent state detected${NC}"
-    echo -e "${CYAN}Current action is '$current' but not marked active in index.${NC}"
-    echo -e "${CYAN}Run './aicheck cleanup' to fix this issue.${NC}"
-    echo ""
-    return 1
-  fi
-  return 0
-}
+# Source library modules
+if [ -d "$AICHECK_LIB" ]; then
+    # UI modules
+    source "$AICHECK_LIB/ui/colors.sh"
+    source "$AICHECK_LIB/ui/output.sh"
+    
+    # Core modules
+    source "$AICHECK_LIB/core/errors.sh"
+    source "$AICHECK_LIB/core/state.sh"
+    
+    # Validation modules
+    source "$AICHECK_LIB/validation/input.sh"
+    source "$AICHECK_LIB/validation/actions.sh"
+    
+    # Detection modules
+    source "$AICHECK_LIB/detection/environment.sh"
+else
+    # Fallback to inline definitions if modules not found
+    GREEN="\033[0;32m"
+    NEON_BLURPLE="\033[38;5;99m"      # Neon blurple highlight color
+    BRIGHT_BLURPLE="\033[38;5;135m"   # Bright blurple for text
+    YELLOW="\033[0;33m"
+    RED="\033[0;31m"
+    CYAN="\033[0;36m"
+    NC="\033[0m" # No Color
+    BLUE="\033[0;34m"
+    PURPLE="\033[0;35m"
+    
+    echo -e "${YELLOW}Warning: aicheck-lib modules not found. Using inline definitions.${NC}" >&2
+fi
+
+# validate_single_active_action is now provided by validation/actions.sh module
 
 # Function to automatically detect context pollution
 function detect_context_pollution() {
@@ -1348,60 +1341,7 @@ function set_active_action() {
   echo -e "${CYAN}  All other actions marked as 'In Progress' or 'Not Started'${NC}"
 }
 
-# Function to detect project type and available tools
-function detect_project_environment() {
-  local project_info=()
-  
-  # Python detection
-  if [ -f "pyproject.toml" ]; then
-    project_info+=("python-poetry")
-    [ -f "poetry.lock" ] && project_info+=("poetry-lock")
-  elif [ -f "requirements.txt" ] || [ -f "requirements-dev.txt" ]; then
-    project_info+=("python-pip")
-  elif [ -f "setup.py" ] || [ -f "setup.cfg" ]; then
-    project_info+=("python-setuptools")
-  fi
-  
-  # Node.js detection
-  if [ -f "package.json" ]; then
-    project_info+=("node")
-    [ -f "package-lock.json" ] && project_info+=("npm-lock")
-    [ -f "yarn.lock" ] && project_info+=("yarn-lock")
-    [ -f "pnpm-lock.yaml" ] && project_info+=("pnpm-lock")
-  fi
-  
-  # Build system detection
-  [ -f "Makefile" ] && project_info+=("make")
-  [ -f "Rakefile" ] && project_info+=("rake")
-  [ -f "build.gradle" ] || [ -f "build.gradle.kts" ] && project_info+=("gradle")
-  [ -f "pom.xml" ] && project_info+=("maven")
-  
-  # Testing framework detection
-  [ -f "pytest.ini" ] || [ -f ".pytest.ini" ] || [ -f "setup.cfg" ] && grep -q "pytest" setup.cfg 2>/dev/null && project_info+=("pytest")
-  [ -f "jest.config.js" ] || [ -f "jest.config.ts" ] && project_info+=("jest")
-  [ -d "tests" ] || [ -d "test" ] || [ -d "__tests__" ] && project_info+=("tests-dir")
-  
-  # Linting/formatting detection
-  [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.yml" ] && project_info+=("eslint")
-  [ -f ".prettierrc" ] || [ -f ".prettierrc.js" ] || [ -f ".prettierrc.json" ] && project_info+=("prettier")
-  [ -f ".flake8" ] || [ -f "setup.cfg" ] && grep -q "flake8" setup.cfg 2>/dev/null && project_info+=("flake8")
-  [ -f "pyproject.toml" ] && grep -q "black" pyproject.toml 2>/dev/null && project_info+=("black")
-  [ -f "pyproject.toml" ] && grep -q "ruff" pyproject.toml 2>/dev/null && project_info+=("ruff")
-  
-  # Type checking detection
-  [ -f "mypy.ini" ] || [ -f ".mypy.ini" ] || ([ -f "pyproject.toml" ] && grep -q "mypy" pyproject.toml 2>/dev/null) && project_info+=("mypy")
-  [ -f "tsconfig.json" ] && project_info+=("typescript")
-  
-  # CI/CD detection
-  [ -f ".github/workflows/"*.yml ] || [ -f ".github/workflows/"*.yaml ] && project_info+=("github-actions")
-  [ -f ".gitlab-ci.yml" ] && project_info+=("gitlab-ci")
-  [ -f ".circleci/config.yml" ] && project_info+=("circleci")
-  
-  # Container detection
-  [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ] && project_info+=("docker")
-  
-  echo "${project_info[@]}"
-}
+# detect_project_environment is now provided by detection/environment.sh module
 
 # Function to read AICheck configuration
 function read_aicheck_config() {
