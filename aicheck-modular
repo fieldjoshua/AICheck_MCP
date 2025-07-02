@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# AICheck Modular Version
+# This is a demonstration of the fully modularized architecture
+
+set -e
+
+# AICheck version info
+AICHECK_VERSION="7.3.0-modular"
+GITHUB_REPO="fieldjoshua/AICheck_MCP"
+GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
+
+# Get command and arguments
+CMD=${1:-help}
+shift || true
+ARGS=("$@")
+
+# Get the directory where aicheck is located
+AICHECK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AICHECK_LIB="$AICHECK_DIR/aicheck-lib"
+
+# Check if modules exist
+if [ ! -d "$AICHECK_LIB" ]; then
+    echo "Error: aicheck-lib directory not found at $AICHECK_LIB"
+    echo "The modular version requires the aicheck-lib directory"
+    exit 1
+fi
+
+# Load the dispatcher
+source "$AICHECK_LIB/core/dispatcher.sh"
+
+# Load all modules
+load_all_modules
+
+# Export version for modules to use
+export AICHECK_VERSION
+
+# Dispatch the command
+dispatch_command "$CMD" "${ARGS[@]}"
