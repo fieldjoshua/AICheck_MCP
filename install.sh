@@ -3,12 +3,12 @@
 # MCP: AICheck_Scoper
 # Action: AICheck-Installer-v7
 # DateTime: 2025-06-25 16:50:00 PDT
-# Task: Update installer for v7.0.0 release
+# Task: Update installer for v7.2.0 release
 # File: install.sh
 # You may only modify this file. Stay within the current action scope.
 # Follow the approved plan and avoid scope creep.
 
-# AICheck v7.0.0 Universal Installer
+# AICheck v7.2.0 Universal Installer
 # Works for both new installations and updates
 
 set -e
@@ -32,7 +32,7 @@ echo -e "${BOLD}${ORANGE}██╔══██║██║██║     ██�
 echo -e "${BOLD}${NEON_GREEN}██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗${NC}"
 echo -e "${BOLD}${NEON_GREEN}╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝${NC}"
 echo ""
-echo -e "${BOLD}${NEON_GREEN}                        v7.0.0${NC}"
+echo -e "${BOLD}${NEON_GREEN}                        v7.2.0${NC}"
 echo -e "${BOLD}${PURPLE}  Curated human oversight ${ORANGE}+${NEON_GREEN} effective automation${NC}"
 echo ""
 echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
@@ -89,7 +89,7 @@ mkdir -p documentation/dependencies
 mkdir -p tests
 
 # Download core files
-echo -e "${BLUE}Downloading AICheck v7.0.0...${NC}"
+echo -e "${BLUE}Downloading AICheck v7.2.0...${NC}"
 
 # Download aicheck command with cache-busting
 curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck?$(date +%s)" > aicheck.new || {
@@ -99,7 +99,7 @@ curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aichec
 
 # Verify version
 if grep -q "7.0.0" aicheck.new; then
-    echo -e "${GREEN}✓ Downloaded AICheck v7.0.0${NC}"
+    echo -e "${GREEN}✓ Downloaded AICheck v7.2.0${NC}"
 else
     echo -e "${YELLOW}⚠️  Version verification inconclusive${NC}"
 fi

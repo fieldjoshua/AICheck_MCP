@@ -16,7 +16,7 @@
 set -e
 
 # AICheck version info
-AICHECK_VERSION="7.0.0"
+AICHECK_VERSION="7.2.0"
 GITHUB_REPO="fieldjoshua/AICheck_MCP"
 GITHUB_RAW_BASE="https://raw.githubusercontent.com/${GITHUB_REPO}/main"
 
@@ -202,6 +202,42 @@ YELLOW="\033[0;33m"
 RED="\033[0;31m"
 CYAN="\033[0;36m"
 NC="\033[0m" # No Color
+BLUE="\033[0;34m"
+PURPLE="\033[0;35m"
+
+# Function to validate single active action principle
+function validate_single_active_action() {
+  # Only run for commands that need validation
+  local cmd=${1:-}
+  case "$cmd" in
+    "status"|"focus"|"deploy"|"complete"|"auto-iterate"|"ACTIVE"|"new")
+      # These commands need validation
+      ;;
+    *)
+      # Skip validation for other commands
+      return 0
+      ;;
+  esac
+  
+  # Count active actions
+  local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
+  local current=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  if [ "$index_active" -gt 1 ]; then
+    echo -e "${RED}⚠ ERROR: Multiple active actions detected!${NC}"
+    echo -e "${YELLOW}AICheck requires exactly ONE active action at a time.${NC}"
+    echo -e "${CYAN}Run './aicheck cleanup' to fix this issue.${NC}"
+    echo ""
+    return 1
+  elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ "$current" != "" ]; then
+    echo -e "${YELLOW}⚠ WARNING: Inconsistent state detected${NC}"
+    echo -e "${CYAN}Current action is '$current' but not marked active in index.${NC}"
+    echo -e "${CYAN}Run './aicheck cleanup' to fix this issue.${NC}"
+    echo ""
+    return 1
+  fi
+  return 0
+}
 
 # Function to automatically detect context pollution
 function detect_context_pollution() {
@@ -256,8 +292,13 @@ function clear_context() {
   echo -e "Analyzing current context state..."
   
   local pollution_data=$(detect_context_pollution)
-  local pollution_score=$(echo "$pollution_data" | head -1)
+  local pollution_score=$(echo "$pollution_data" | head -1 | grep -o '[0-9]*' || echo "0")
   local warnings=$(echo "$pollution_data" | tail -n +2)
+  
+  # Ensure pollution_score is a valid number
+  if ! [[ "$pollution_score" =~ ^[0-9]+$ ]]; then
+    pollution_score=0
+  fi
   
   echo -e "Context pollution score: ${GREEN}$pollution_score/100${NC}"
   if [ -n "$warnings" ]; then
@@ -294,7 +335,7 @@ function clear_context() {
   local needs_approval=false
   local approval_actions=()
   
-  if [ "$pollution_score" -gt 50 ]; then
+  if [ "${pollution_score:-0}" -gt 50 ]; then
     needs_approval=true
     approval_actions+=("Reset all active actions to 'Not Started'")
     approval_actions+=("Clear all uncommitted git changes")
@@ -1266,21 +1307,45 @@ function set_active_action() {
     exit 1
   fi
   
+  # ENFORCE: First deactivate ALL other actions to ensure only one active
+  echo -e "${BLUE}Enforcing single active action rule...${NC}"
+  
+  # Find all ActiveAction entries and change them to their previous status
+  for action_dir in .aicheck/actions/*/; do
+    if [ -d "$action_dir" ]; then
+      local status_file="$action_dir/status.txt"
+      if [ -f "$status_file" ] && [ "$(cat "$status_file")" = "ActiveAction" ]; then
+        # Set to "In Progress" as default previous state
+        echo "In Progress" > "$status_file"
+      fi
+    fi
+  done
+  
+  # Update actions_index.md - change all ActiveAction/Active to In Progress
+  sed -i "" 's/| \(.*\) | \(.*\) | ActiveAction | \(.*\) | \(.*\) |/| \1 | \2 | In Progress | \3 | \4 |/g' .aicheck/actions_index.md
+  sed -i "" 's/| \(.*\) | \(.*\) | Active | \(.*\) | \(.*\) |/| \1 | \2 | In Progress | \3 | \4 |/g' .aicheck/actions_index.md
+  
   # Set as current action
   echo "$action_name" > .aicheck/current_action
   
-  # Update status to ActiveAction if not already
-  if [ "$(cat ".aicheck/actions/$dir_name/status.txt")" != "ActiveAction" ]; then
-    echo "ActiveAction" > ".aicheck/actions/$dir_name/status.txt"
-    
-    # Update actions_index.md
-    sed -i "" "s/| $action_name | .* | [^|]* | [^|]* | /| $action_name | | ActiveAction | 0% | /" .aicheck/actions_index.md
-    
-    # Update last updated date
-    sed -i "" "s/\*Last Updated: .*\*/\*Last Updated: $(date +"%Y-%m-%d")\*/" .aicheck/actions_index.md
+  # Update this action's status to ActiveAction
+  echo "ActiveAction" > ".aicheck/actions/$dir_name/status.txt"
+  
+  # Update actions_index.md for this specific action
+  sed -i "" "s/| $action_name | \(.*\) | [^|]* | \(.*\) | \(.*\) |/| $action_name | \1 | ActiveAction | \2 | \3 |/" .aicheck/actions_index.md
+  
+  # Update last updated date
+  sed -i "" "s/\*Last Updated: .*\*/\*Last Updated: $(date +"%Y-%m-%d")\*/" .aicheck/actions_index.md
+  
+  # Verify enforcement worked
+  local active_count=$(grep -c "| .* | .* | Active\(Action\)\? | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
+  if [ "$active_count" -ne 1 ]; then
+    echo -e "${RED}WARNING: Multiple active actions detected!${NC}"
+    echo -e "${YELLOW}This violates AICheck single-action principle${NC}"
   fi
   
   echo -e "${GREEN}✓ Set current action to: $action_name${NC}"
+  echo -e "${CYAN}  All other actions marked as 'In Progress' or 'Not Started'${NC}"
 }
 
 # Function to detect project type and available tools
@@ -1587,6 +1652,167 @@ function run_smart_completion_checks() {
     echo -e "\n${YELLOW}These failures indicate potential deployment issues.${NC}"
     echo -e "${YELLOW}Fix them or use 'y' to override if you have alternative verification.${NC}"
     return 1
+  fi
+}
+
+# Function to clean up and optimize AICheck state
+function cleanup_and_optimize() {
+    echo -e "${BRIGHT_BLURPLE}🧹 AICheck Cleanup & Optimization${NC}"
+    echo ""
+    
+    # Run validation to identify issues
+    echo -e "${BRIGHT_BLURPLE}Analyzing current state...${NC}"
+    validate_action_completeness
+    
+    # Clean up multiple active actions
+    local active_count=$(grep -c "| .* | .* | Active\(Action\)\? | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
+    if [ "$active_count" -gt 1 ]; then
+      echo -e "\n${YELLOW}⚠ Multiple active actions detected ($active_count)${NC}"
+      echo -e "${RED}This violates AICheck's single-action principle!${NC}"
+      echo "Active actions:"
+      grep -E "\\| .* \\| .* \\| (Active|ActiveAction) \\| .* \\| .* \\|" .aicheck/actions_index.md | awk -F'|' '{print "  - " $2 " (Status: " $4 ")"}'
+      
+      echo -e "\n${CYAN}Would you like to:${NC}"
+      echo -e "  1) Keep only the current action ($(cat .aicheck/current_action 2>/dev/null || echo 'None'))"
+      echo -e "  2) Choose a different action"
+      echo -e "  3) Mark all as 'Not Started'"
+      echo -n "Choice (1-3): "
+      read choice
+      
+      case "$choice" in
+        1)
+          fix_multiple_active_actions "current"
+          ;;
+        2)
+          echo "Enter action name to keep active: "
+          read action_name
+          fix_multiple_active_actions "$action_name"
+          ;;
+        3)
+          fix_multiple_active_actions "none"
+          ;;
+        *)
+          echo -e "${YELLOW}Skipping active action cleanup${NC}"
+          ;;
+      esac
+    fi
+    
+    # Suggest git cleanup
+    local uncommitted=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$uncommitted" -gt 0 ]; then
+      echo -e "\n${YELLOW}⚠ $uncommitted uncommitted changes${NC}"
+      echo -e "${CYAN}→ Commit or stash changes to reduce context pollution${NC}"
+    fi
+    
+    # Suggest action completion
+    local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+    if [ "$current_action" != "None" ]; then
+      echo -e "\n${BRIGHT_BLURPLE}Current action: $current_action${NC}"
+      echo -e "${CYAN}→ Complete with: ./aicheck complete${NC}"
+      echo -e "${CYAN}→ Or switch with: ./aicheck ACTIVE <other-action>${NC}"
+    fi
+    
+    # Check for orphaned action directories
+    echo -e "\n${BRIGHT_BLURPLE}Checking for orphaned actions...${NC}"
+    local orphaned_count=0
+    for dir in .aicheck/actions/*/; do
+      if [ -d "$dir" ]; then
+        local action_name=$(basename "$dir")
+        # Convert directory name back to PascalCase
+        local pascal_name=$(echo "$action_name" | sed 's/-\([a-z]\)/\U\1/g' | sed 's/^./\U&/')
+        
+        if ! grep -q "| $pascal_name |" .aicheck/actions_index.md 2>/dev/null; then
+          ((orphaned_count++))
+          echo -e "${YELLOW}  - $action_name (not in index)${NC}"
+        fi
+      fi
+    done
+    
+    if [ $orphaned_count -gt 0 ]; then
+      echo -e "${CYAN}→ Found $orphaned_count orphaned action directories${NC}"
+      echo -e "${CYAN}→ These can be safely removed if no longer needed${NC}"
+    else
+      echo -e "${GREEN}✓ No orphaned actions found${NC}"
+    fi
+    
+    echo -e "\n${GREEN}✓ Cleanup analysis complete${NC}"
+}
+
+# Function to fix multiple active actions and sync state
+function fix_multiple_active_actions() {
+  local mode=$1
+  
+  echo -e "${BLUE}Synchronizing action state...${NC}"
+  
+  # First, clear ALL active statuses to ensure clean state
+  # Update actions_index.md - change all Active/ActiveAction to Not Started
+  sed -i "" 's/| \(.*\) | \(.*\) | Active | \(.*\) | \(.*\) |/| \1 | \2 | Not Started | \3 | \4 |/g' .aicheck/actions_index.md
+  sed -i "" 's/| \(.*\) | \(.*\) | ActiveAction | \(.*\) | \(.*\) |/| \1 | \2 | Not Started | \3 | \4 |/g' .aicheck/actions_index.md
+  
+  # Update all status.txt files to remove ActiveAction
+  find .aicheck/actions -name "status.txt" -exec grep -l "ActiveAction" {} \; 2>/dev/null | while read status_file; do
+    echo "Not Started" > "$status_file"
+  done
+  
+  case "$mode" in
+    "current")
+      local current=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+      if [ "$current" != "None" ] && [ "$current" != "" ]; then
+        # Set this action as the ONLY active one
+        local dir_name=$(echo "$current" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+        if [ -d ".aicheck/actions/$dir_name" ]; then
+          echo "ActiveAction" > ".aicheck/actions/$dir_name/status.txt"
+          sed -i "" "s/| $current | \(.*\) | Not Started | \(.*\) | \(.*\) |/| $current | \1 | ActiveAction | \2 | \3 |/" .aicheck/actions_index.md
+          echo -e "${GREEN}✓ Set $current as the ONLY active action${NC}"
+        else
+          echo -e "${RED}Current action directory not found, clearing...${NC}"
+          fix_multiple_active_actions "none"
+        fi
+      else
+        fix_multiple_active_actions "none"
+      fi
+      ;;
+    "none")
+      # Clear current action
+      echo "None" > .aicheck/current_action
+      echo -e "${GREEN}✓ All actions marked as 'Not Started'${NC}"
+      echo -e "${GREEN}✓ No active action set${NC}"
+      ;;
+    *)
+      # Set specific action as active
+      local dir_name=$(echo "$mode" | sed 's/\([a-z0-9]\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
+      if [ -d ".aicheck/actions/$dir_name" ]; then
+        # Update current_action file
+        echo "$mode" > .aicheck/current_action
+        # Update status file
+        echo "ActiveAction" > ".aicheck/actions/$dir_name/status.txt"
+        # Update index
+        sed -i "" "s/| $mode | \(.*\) | Not Started | \(.*\) | \(.*\) |/| $mode | \1 | ActiveAction | \2 | \3 |/" .aicheck/actions_index.md
+        echo -e "${GREEN}✓ Set $mode as the ONLY active action${NC}"
+      else
+        echo -e "${RED}Error: Action '$mode' not found${NC}"
+      fi
+      ;;
+  esac
+  
+  # Update last modified date
+  sed -i "" "s/\*Last Updated: .*\*/\*Last Updated: $(date +"%Y-%m-%d")\*/" .aicheck/actions_index.md
+  
+  # Final verification
+  local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
+  local status_active=$(find .aicheck/actions -name "status.txt" -exec grep -l "ActiveAction" {} \; 2>/dev/null | wc -l | tr -d ' ')
+  local current_action=$(cat .aicheck/current_action 2>/dev/null || echo "None")
+  
+  echo -e "\n${BRIGHT_BLURPLE}State verification:${NC}"
+  echo -e "  Current action file: ${CYAN}$current_action${NC}"
+  echo -e "  Active in index: ${CYAN}$index_active${NC}"
+  echo -e "  Active status files: ${CYAN}$status_active${NC}"
+  
+  if [ "$index_active" -gt 1 ] || [ "$status_active" -gt 1 ]; then
+    echo -e "${RED}⚠ WARNING: Multiple active actions still detected!${NC}"
+    echo -e "${YELLOW}Manual intervention may be required${NC}"
+  elif [ "$index_active" -eq 0 ] && [ "$current_action" != "None" ]; then
+    echo -e "${YELLOW}⚠ WARNING: current_action is set but no action is active in index${NC}"
   fi
 }
 
@@ -3578,6 +3804,10 @@ function launch_ai_editor() {
 }
 
 # Main command handling
+
+# Validate single active action principle before executing commands
+validate_single_active_action "$CMD"
+
 case "$CMD" in
   "new")
     # Shortcut for action new
@@ -3617,7 +3847,7 @@ case "$CMD" in
     ;;
   "cleanup")
     # Clean up and optimize
-    cleanup_compliance
+    cleanup_and_optimize
     ;;
   "deploy")
     # Shortcut for deploy-check

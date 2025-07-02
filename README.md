@@ -6,11 +6,11 @@
 <!-- Track progress and document decisions as you work. -->
 <!-- Update task status and log any blockers or dependencies. -->
 
-# AICheck v7.1.0 - Universal AI Editor Governance with Smart Checks
+# AICheck v7.2.0 - Universal AI Editor Governance with Smart Checks
 
 **🚀 Curated human oversight ⟷ effective automation.**
 
-## ✨ What's New in v7.0.0
+## ✨ What's New in v7.2.0
 
 ### 🤖 **NEW: Universal AI Editor Integration**
 - **Multi-Editor Support** - Claude, Cursor, Copilot, Cody, Gemini, and generic editors
@@ -30,6 +30,13 @@
 - `./aicheck edit <editor> <file>` - Launch any AI editor with governance context
 - `./aicheck mcp validate <files>` - Validate MCP governance headers
 - `./aicheck mcp install-hook` - Install pre-commit enforcement
+
+### 🎯 **v7.2.0: Single Active Action Enforcement**
+- **Enforced Single Action Principle** - Only ONE action can be active at a time
+- **State Synchronization** - Automatic sync between current_action file and actions_index.md
+- **Interactive Cleanup** - Fix multiple active actions with guided resolution
+- **Validation on Commands** - Detects and warns about state violations before execution
+- **Clearer Terminology** - ActiveAction is the ONLY active status (no more confusion)
 
 ### 🧠 **v7.1.0: Smart Completion Checks**
 - **Intelligent Project Detection** - Automatically detects Python/Node/build tools
