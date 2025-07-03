@@ -21,8 +21,19 @@ function validate_single_active_action() {
     esac
     
     # Count active actions
-    local index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null | tr -d '\n' || echo "0")
-    local current=$(cat .aicheck/current_action 2>/dev/null | tr -d '\n' || echo "None")
+    local index_active=0
+    if [ -f ".aicheck/actions_index.md" ]; then
+        index_active=$(grep -c "| .* | .* | ActiveAction | .* | .* |" .aicheck/actions_index.md 2>/dev/null || echo "0")
+        # Ensure it's a valid number
+        index_active=$(echo "$index_active" | grep -o '[0-9]*' | head -1)
+        [ -z "$index_active" ] && index_active=0
+    fi
+    
+    local current="None"
+    if [ -f ".aicheck/current_action" ]; then
+        current=$(cat .aicheck/current_action 2>/dev/null | tr -d '[:space:]')
+        [ -z "$current" ] && current="None"
+    fi
     
     if [ "$index_active" -gt 1 ]; then
         print_error "ERROR: Multiple active actions detected!"
@@ -30,7 +41,7 @@ function validate_single_active_action() {
         print_info "Run './aicheck cleanup' to fix this issue."
         echo ""
         return 1
-    elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ "$current" != "" ]; then
+    elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ -n "$current" ]; then
         print_warning "WARNING: Inconsistent state detected"
         print_info "Current action is '$current' but not marked active in index."
         print_info "Run './aicheck cleanup' to fix this issue."
