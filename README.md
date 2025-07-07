@@ -6,9 +6,33 @@
 <!-- Track progress and document decisions as you work. -->
 <!-- Update task status and log any blockers or dependencies. -->
 
-# AICheck v7.2.0 - Universal AI Editor Governance with Smart Checks
+# AICheck v7.4.0 - Simplified Commands & Enhanced AI Compliance
 
 **🚀 Curated human oversight ⟷ effective automation.**
+
+## ✨ What's New in v7.4.0
+
+### 🎯 **NEW: Simplified Command Structure**
+- **Removed Redundant Aliases** - No more ACTIVE/active, Complete/complete confusion
+- **Consolidated Action Commands** - All action management under `./aicheck action`
+- **Cleaner MCP Commands** - Renamed for clarity: `setup`, `hook`, `validate`
+- **Just 5 Essential Commands** - `status`, `new`, `complete`, `stuck`, `cleanup`
+- **Better Organization** - Commands grouped logically in help text
+
+### 🛡️ **NEW: Enhanced AI Editor Compliance**
+- **Active Action Reminder** - Every MCP header shows current active action
+- **Compliance Enforcement** - Clear warning if work doesn't match action
+- **Action Options** - Edit current action, create new one, or use exec mode
+- **MCP Tool Integration** - Reminder to use tools for compliance checking
+
+## ✨ What's New in v7.3.0
+
+### 🏗️ **Modular Architecture**
+- **Organized Codebase** - 15+ specialized modules for better maintainability
+- **Faster Loading** - Load only what you need, when you need it
+- **Easier Development** - Clear separation of concerns across modules
+- **Better Testing** - Individual modules can be tested in isolation
+- **Future-Proof** - Easy to add new features without touching core code
 
 ## ✨ What's New in v7.2.0
 
@@ -74,7 +98,8 @@ bash <(curl -sSL https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/
 ```
 
 That's it! The installer will:
-- Download and set up AICheck v7.0.0
+- Download and set up AICheck v7.4.0 with simplified commands
+- Install all 15+ specialized modules for optimal performance
 - Configure MCP server for Claude Code integration
 - Install pre-commit hooks for governance enforcement
 - Set up universal AI editor integration
@@ -84,10 +109,11 @@ That's it! The installer will:
 ## 🎯 **Your Commands**
 
 ```bash
-./aicheck status       # Show detailed status
-./aicheck focus        # Check for scope creep  
-./aicheck stuck        # Get unstuck when confused
-./aicheck deploy       # Pre-deployment validation
+./aicheck status         # Where am I?
+./aicheck new <name>     # Start new task
+./aicheck complete       # Finish current task
+./aicheck stuck          # Get help
+./aicheck cleanup        # Fix issues
 ./aicheck auto-iterate # NEW: Goal-driven test-fix-test cycles
 ./aicheck new          # Create a new action
 ./aicheck ACTIVE       # Set the ACTIVE action

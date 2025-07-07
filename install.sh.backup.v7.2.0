@@ -8,7 +8,7 @@
 # You may only modify this file. Stay within the current action scope.
 # Follow the approved plan and avoid scope creep.
 
-# AICheck v7.3.0 Universal Installer - Modular Architecture
+# AICheck v7.2.0 Universal Installer
 # Works for both new installations and updates
 
 set -e
@@ -32,7 +32,7 @@ echo -e "${BOLD}${ORANGE}██╔══██║██║██║     ██�
 echo -e "${BOLD}${NEON_GREEN}██║  ██║██║╚██████╗██║  ██║███████╗╚██████╗██║  ██╗${NC}"
 echo -e "${BOLD}${NEON_GREEN}╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝${NC}"
 echo ""
-echo -e "${BOLD}${NEON_GREEN}                        v7.3.0${NC}"
+echo -e "${BOLD}${NEON_GREEN}                        v7.2.0${NC}"
 echo -e "${BOLD}${PURPLE}  Curated human oversight ${ORANGE}+${NEON_GREEN} effective automation${NC}"
 echo ""
 echo -e "${BOLD}${PURPLE}══════════════════════════════════════════════════════${NC}"
@@ -89,7 +89,7 @@ mkdir -p documentation/dependencies
 mkdir -p tests
 
 # Download core files
-echo -e "${BLUE}Downloading AICheck v7.3.0...${NC}"
+echo -e "${BLUE}Downloading AICheck v7.2.0...${NC}"
 
 # Download aicheck command with cache-busting
 curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aicheck?$(date +%s)" > aicheck.new || {
@@ -98,59 +98,14 @@ curl -sSL "https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main/aichec
 }
 
 # Verify version
-if grep -q "7.3.0" aicheck.new; then
-    echo -e "${GREEN}✓ Downloaded AICheck v7.3.0${NC}"
+if grep -q "7.0.0" aicheck.new; then
+    echo -e "${GREEN}✓ Downloaded AICheck v7.2.0${NC}"
 else
     echo -e "${YELLOW}⚠️  Version verification inconclusive${NC}"
 fi
 
 chmod +x aicheck.new
 mv aicheck.new aicheck
-
-# Install modular architecture
-echo -e "${BLUE}Installing modular components...${NC}"
-mkdir -p aicheck-lib/{ui,core,validation,detection,actions,mcp,git,automation,maintenance,deployment,tools}
-
-# Base URL for module downloads
-BASE_URL="https://raw.githubusercontent.com/fieldjoshua/AICheck_MCP/main"
-
-# Module list
-modules=(
-    "ui/colors.sh"
-    "ui/output.sh"
-    "core/errors.sh"
-    "core/state.sh"
-    "core/dispatcher.sh"
-    "core/utilities.sh"
-    "validation/input.sh"
-    "validation/actions.sh"
-    "detection/environment.sh"
-    "actions/management.sh"
-    "mcp/integration.sh"
-    "git/operations.sh"
-    "automation/auto_iterate.sh"
-    "maintenance/cleanup.sh"
-    "deployment/validation.sh"
-)
-
-# Download each module
-INSTALLED=0
-FAILED=0
-for module in "${modules[@]}"; do
-    curl -sSL "$BASE_URL/aicheck-lib/$module?$(date +%s)" -o "aicheck-lib/$module" 2>/dev/null && {
-        echo -e "  ${GREEN}✓${NC} $module"
-        ((INSTALLED++))
-    } || {
-        echo -e "  ${RED}✗${NC} $module"
-        ((FAILED++))
-    }
-done
-
-echo -e "${GREEN}Modules: $INSTALLED installed, $FAILED failed${NC}"
-
-if [ $FAILED -gt 0 ]; then
-    echo -e "${YELLOW}⚠️  Some modules failed to download, but AICheck will still work${NC}"
-fi
 
 # Download RULES.md (always update)
 echo -e "${BLUE}Downloading RULES.md...${NC}"

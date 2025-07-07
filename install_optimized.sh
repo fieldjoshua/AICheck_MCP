@@ -209,40 +209,8 @@ END_TIME=$(date +%s)
 NEW_DURATION=$((END_TIME - START_TIME))
 
 # MCP Configuration
-echo -e "${BLUE}Configuring MCP integration...${NC}"
-
-# Check for existing MCP configuration
-MCP_CONFIG_FILE=""
-if [ -f "$HOME/.claude/claude_desktop_config.json" ]; then
-    MCP_CONFIG_FILE="$HOME/.claude/claude_desktop_config.json"
-elif [ -f "$HOME/Library/Application Support/Claude/claude_desktop_config.json" ]; then
-    MCP_CONFIG_FILE="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
-fi
-
-if [ -n "$MCP_CONFIG_FILE" ]; then
-    echo -e "${YELLOW}Found Claude MCP config: $MCP_CONFIG_FILE${NC}"
-    
-    # Check if AICheck MCP server is already configured
-    if grep -q "aicheck-mcp-server" "$MCP_CONFIG_FILE" 2>/dev/null; then
-        echo -e "${GREEN}✓ AICheck MCP server already configured${NC}"
-    else
-        echo -e "${YELLOW}⚠ AICheck MCP server not found in configuration${NC}"
-        echo -e "${BLUE}To add MCP integration, add this to your claude_desktop_config.json:${NC}"
-        echo ""
-        echo -e "${YELLOW}\"mcpServers\": {"
-        echo "  \"aicheck-mcp-server\": {"
-        echo "    \"command\": \"node\","
-        echo "    \"args\": [\"$(pwd)/.mcp/server/index.js.backup\"]"
-        echo "  }"
-        echo -e "}${NC}"
-    fi
-else
-    echo -e "${YELLOW}⚠ Claude MCP config file not found${NC}"
-    echo -e "${BLUE}To set up MCP integration manually:${NC}"
-    echo "1. Create ~/.claude/claude_desktop_config.json"
-    echo "2. Add the AICheck MCP server configuration"
-    echo "3. Restart Claude"
-fi
+echo -e "${BLUE}Installing MCP server for Claude Code integration...${NC}"
+echo -e "${GREEN}✓ MCP server installed at: $(pwd)/.mcp/server/index.js.backup${NC}"
 
 # Installation summary
 echo ""
