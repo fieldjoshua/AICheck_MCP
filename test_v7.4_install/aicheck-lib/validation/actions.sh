@@ -35,29 +35,16 @@ function validate_single_active_action() {
         [ -z "$current" ] && current="None"
     fi
     
-    # If autofix is requested, try to fix common issues automatically
-    if [ "$AICHECK_STATE_AUTOFIX" = "1" ]; then
-        if [ "$index_active" -gt 1 ]; then
-            print_warning "Multiple active actions detected. Auto-fixing by running './aicheck cleanup'..."
-            ./aicheck cleanup
-            return 0
-        elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ -n "$current" ]; then
-            print_warning "Current action is set but not marked active in index. Auto-fixing by running './aicheck cleanup'..."
-            ./aicheck cleanup
-            return 0
-        fi
-    fi
-    
     if [ "$index_active" -gt 1 ]; then
         print_error "ERROR: Multiple active actions detected!"
         print_warning "AICheck requires exactly ONE active action at a time."
-        print_info "Run './aicheck cleanup' to fix this issue, or set AICHECK_STATE_AUTOFIX=1 to auto-fix."
+        print_info "Run './aicheck cleanup' to fix this issue."
         echo ""
         return 1
     elif [ "$index_active" -eq 0 ] && [ "$current" != "None" ] && [ -n "$current" ]; then
         print_warning "WARNING: Inconsistent state detected"
         print_info "Current action is '$current' but not marked active in index."
-        print_info "Run './aicheck cleanup' to fix this issue, or set AICHECK_STATE_AUTOFIX=1 to auto-fix."
+        print_info "Run './aicheck cleanup' to fix this issue."
         echo ""
         return 1
     fi

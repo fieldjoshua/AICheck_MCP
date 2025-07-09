@@ -1,19 +1,3 @@
-<!-- MCP: AICheck_Tracker -->
-<!-- Action: integration-test -->
-<!-- DateTime: 2025-07-07 11:10:00 PDT -->
-<!-- Task: Document all AICheck commands -->
-<!-- File: AICHECK_COMMANDS.md -->
-<!-- Track progress and document decisions as you work. -->
-<!-- Update task status and log any blockers or dependencies. -->
-<!--
-<!-- IMPORTANT: Current active action is 'integration-test'
-<!-- If your work is not reflective of this active action, you must either:
-<!--   1. Edit the current action plan (requires approval)
-<!--   2. Create a new action (requires approval)
-<!--   3. Enter exec mode for temporary work (requires approval)
-<!-- Use MCP tools to check current action and ensure compliance.
--->
-
 # AICheck Commands Reference
 
 ## Core Commands
@@ -160,4 +144,4 @@ Runs comprehensive validation:
 Protects critical files from modification:
 - Adds files to protected list
 - Prevents accidental changes
-- Maintains production safety
+- Maintains production safetyan1

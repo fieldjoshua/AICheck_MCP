@@ -15,163 +15,153 @@ AICheck is a bash-based governance system for AI-assisted development that enfor
 ## Core Architecture
 
 ### Main Script (`./aicheck`)
-- **5000+ line bash script** with 55+ functions
-- **Command Router**: Main case statement at line ~3811 handles all subcommands
-- **Color System**: Uses ANSI escape codes (defined ~line 198)
-- **Version**: `AICHECK_VERSION` variable (currently 7.2.0)
-- **State Files**:
-  - `.aicheck/current_action` - Stores the single active action name
-  - `.aicheck/actions_index.md` - Markdown table tracking all actions
-  - `.aicheck/actions/*/status.txt` - Individual action status files
+- **5000+ line bash script** organized with modular library system
+- **Modular Architecture**: 15+ specialized modules in `aicheck-lib/` directory
+- **Command Router**: Main case statement at line ~3847 handles all subcommands
+- **Version**: `AICHECK_VERSION` variable (currently 7.4.0)
+- **Module Loading**: Sources from `aicheck-lib/` or falls back to inline definitions
 
-### Key Functions
-- `validate_single_active_action()` - Enforces one active action principle
-- `detect_project_environment()` - Smart detection of Python/Node/build tools
-- `run_smart_completion_checks()` - Context-aware validation on completion
-- `cleanup_and_optimize()` - Interactive state cleanup
-- `fix_multiple_active_actions()` - Resolves state conflicts
-- `install_smart_precommit_hook()` - Installs context-aware git hooks
-- `auto_iterate()` - Goal-driven development cycles with approval gates
+### Modular Library Structure (`aicheck-lib/`)
+```
+aicheck-lib/
+├── ui/           # User interface (colors.sh, output.sh)
+├── core/         # Core functionality (errors.sh, state.sh, dispatcher.sh, utilities.sh)
+├── validation/   # Input/action validation (input.sh, actions.sh)
+├── detection/    # Environment detection (environment.sh)
+├── actions/      # Action management (management.sh)
+├── mcp/          # MCP integration (integration.sh)
+├── git/          # Git operations (operations.sh)
+├── automation/   # Auto-iterate feature (auto_iterate.sh)
+├── maintenance/  # Cleanup operations (cleanup.sh)
+└── deployment/   # Deploy validation (validation.sh)
+```
 
-### Installation System
-- **Primary**: `install.sh` - Downloads aicheck, sets up MCP, configures Claude
-- **Backup Strategy**: Uses tar with 30s timeout, keeps only 3 recent backups
-- **MCP Configuration**: Modifies `~/.config/claude/claude_desktop_config.json`
-- **Unique Naming**: Server named `aicheck-{directory}` to prevent conflicts
+### State Management
+- `.aicheck/current_action` - Single active action name
+- `.aicheck/actions_index.md` - Markdown table tracking all actions (5 columns: Action|Description|Status|Progress|Created)
+- `.aicheck/actions/*/status.txt` - Individual action status files
+- Status values: `Not Started`, `In Progress`, `ActiveAction`, `Completed`
+
+### MCP Integration
+- **Server**: `.mcp/server/index.js` - Node.js MCP server
+- **Tools**: Exposes AICheck functions as MCP tools (getCurrentAction, listActions, etc.)
+- **Headers**: Injects compliance reminders showing current action in every file
 
 ## Commands
 
-### Development & Testing
+### Build & Test
 ```bash
 # Syntax validation
 bash -n aicheck
 bash -n install.sh
+bash -n aicheck-lib/*/*.sh
 
-# Run tests
-npm test  # Currently just echoes success
-
-# Test specific functionality
-./aicheck cleanup      # Test cleanup command
-./aicheck status       # Check current state
-./aicheck version      # Verify version
+# Module testing
+./test-all-modules.sh      # Comprehensive module tests
+./test-modules-simple.sh   # Quick module validation
+./test-integration.sh      # Integration tests
 
 # Installation testing
-bash install.sh        # Test full installation
+bash install.sh            # Test full installation
+./test-installer-local.sh  # Test installer locally
 ```
 
-### Version Management
-When releasing a new version:
+### Development Commands
+```bash
+# Version check
+./aicheck version
+
+# Essential commands (v7.4.0 simplified structure)
+./aicheck status           # Current state overview
+./aicheck new <name>       # Create new action
+./aicheck complete         # Finish current action
+./aicheck stuck            # Get help
+./aicheck cleanup          # Fix issues
+
+# Action management (consolidated in v7.4.0)
+./aicheck action new <name>      # Create action
+./aicheck action set <name>      # Set active action
+./aicheck action complete        # Complete action
+./aicheck action list           # List all actions
+./aicheck action status         # Detailed status
+
+# MCP commands (simplified names in v7.4.0)
+./aicheck mcp setup        # Interactive MCP setup
+./aicheck mcp validate     # Check MCP headers
+./aicheck mcp hook         # Install git hook
+```
+
+### Version Release Process
 1. Update `AICHECK_VERSION` in `aicheck` (line ~19)
-2. Update version references in `install.sh`
-3. Update `README.md` title and "What's New" section
-4. Run comprehensive tests before committing
+2. Update `README.md` title and "What's New" section
+3. Test with `bash -n aicheck` and `./test-all-modules.sh`
+4. Commit with descriptive message
+5. Push to main branch (installer pulls from GitHub)
 
-## State Management
+## Critical Implementation Details
 
-### Action Status Values
-- **Not Started** - Created but work hasn't begun
-- **In Progress** - Work started but action not currently active
-- **ActiveAction** - THE currently active action (only ONE allowed)
-- **Completed** - Action finished
-
-### State Synchronization
-Three sources of truth must stay synchronized:
-1. `.aicheck/current_action` file
-2. `ActiveAction` status in `.aicheck/actions_index.md`
-3. `status.txt` files in action directories
-
-The `fix_multiple_active_actions()` function handles synchronization.
-
-## Smart Detection Features
-
-### Project Environment Detection (`detect_project_environment()`)
-Detects and returns array of project characteristics:
-- Package managers: `python-poetry`, `node`, `npm-lock`, `yarn-lock`
-- Build tools: `make`, `gradle`, `maven`
-- Test frameworks: `pytest`, `jest`, `tests-dir`
-- Linters: `black`, `ruff`, `eslint`, `prettier`
-- Type checkers: `mypy`, `typescript`
-
-### Completion Checks (`run_smart_completion_checks()`)
-Runs only relevant checks based on detected environment:
-1. Dependency integrity (lock files in sync)
-2. Test suite (if tests exist)
-3. Code quality (if linters configured)
-4. Git status (uncommitted changes)
-5. Build success (if build system exists)
-
-## MCP Integration
-
-### Server Structure
-```
-MCP/
-├── AICheck_MCP/
-│   └── server.js    # MCP server implementation
-└── package.json     # Dependencies
-```
-
-### MCP Header Types
-- `AICheck_Planner` - Strategic planning files
-- `AICheck_Tracker` - Progress tracking files
-- `AICheck_Scoper` - Code with scope limits
-- `AICheck_Validator` - Test files
-
-## Critical Implementation Notes
-
-### Bash Gotchas
+### Bash Compatibility
+- **Bash 3.2 compatible** for macOS support
+- No `${var,,}` lowercase expansion - use `tr '[:upper:]' '[:lower:]'`
+- macOS sed requires `sed -i ""` not `sed -i`
 - Always quote variables: `"$var"` not `$var`
 - Use `local` only inside functions
-- Check for empty vars: `[ -z "$var" ]` or `[ "$var" = "" ]`
-- Escape regex properly in grep/sed
-- macOS sed requires `sed -i ""` not `sed -i`
 
-### Color Codes
-```bash
-GREEN="\033[0;32m"
-YELLOW="\033[0;33m"
-RED="\033[0;31m"
-CYAN="\033[0;36m"
-BRIGHT_BLURPLE="\033[38;5;135m"
-NC="\033[0m"  # No Color
-```
+### Module Dependencies
+When modules call each other:
+1. UI modules (colors, output) are loaded first
+2. Core modules depend on UI
+3. All other modules depend on core
+4. Circular dependencies prevented by load order
 
-### Error Handling Patterns
-- Check command existence: `command -v tool >/dev/null 2>&1`
-- Suppress errors: `command 2>/dev/null || true`
-- Default values: `${var:-default}`
-- Exit on error in functions: `return 1` not `exit 1`
+### State Synchronization
+Three sources must stay synchronized:
+1. `.aicheck/current_action` file
+2. `ActiveAction` status in `.aicheck/actions_index.md`
+3. Individual `status.txt` files
+
+The `fix_multiple_active_actions()` function handles conflicts.
+
+### Error Patterns
+- Empty grep patterns when `$current_action` is "None" - check with `[ "$current_action" != "None" ]`
+- Integer expression errors from `grep -c` - pipe through `tr -d '\n'`
+- Module not found warnings are non-fatal - inline definitions used as fallback
 
 ## Testing Strategy
 
-Since AICheck creates tools for other projects:
-1. **Syntax Testing**: `bash -n` all shell scripts
-2. **Integration Testing**: Create test directory, run installer, verify functionality
-3. **State Testing**: Create multiple actions, test enforcement
-4. **Edge Cases**: Empty actions_index.md, missing files, corrupted state
+### Module Tests
+- Each module should be independently testable
+- Use `test-all-modules.sh` for comprehensive testing
+- Modules must handle missing dependencies gracefully
 
-## Common Development Tasks
+### Integration Tests
+1. Create test directory
+2. Run installer
+3. Test all commands
+4. Verify MCP integration
+5. Check state management
 
-### Adding a New Command
-1. Add case in main command handling (~line 3811)
-2. Create function if complex logic needed
-3. Update help text in `show_version()`
-4. Test with various edge cases
+### Edge Cases to Test
+- Empty actions_index.md
+- current_action = "None"
+- Missing module files
+- Corrupted state files
+- Multiple active actions
 
-### Debugging State Issues
-1. Check `.aicheck/current_action` contents
-2. Verify `actions_index.md` ActiveAction entries
-3. Check `status.txt` files in action directories
-4. Run `./aicheck cleanup` for interactive fix
+## Recent Changes (v7.4.0)
 
-### Updating Installer
-1. Test backup mechanism with timeout
-2. Verify MCP configuration handling
-3. Check version detection and update logic
-4. Test both fresh install and update paths
+### Simplified Commands
+- Removed aliases: `ACTIVE`→`active`, `Complete`→`complete`, `--version`
+- Consolidated action commands under parent `action` command
+- Renamed MCP commands: `edit`→`setup`, `install-hook`→`hook`
 
-## Memories
+### Enhanced Compliance
+- MCP headers now include active action reminder
+- Clear instructions if work doesn't match action
+- Forces AI to use MCP tools for compliance checking
 
-- Run comprehensive tests on entire codebase before committing changes
-- The main aicheck script has duplicate case statements that need careful handling
-- Local variables declared outside functions cause "local: can only be used in a function" errors
-- Empty grep patterns when no actions exist are cosmetic issues, not critical
+### Bug Fixes
+- Fixed integer expression errors in grep commands
+- Fixed missing `check_compliance` function
+- Fixed empty grep patterns when current_action is "None"
+- Added GRAY color definition for neon purple-gray output

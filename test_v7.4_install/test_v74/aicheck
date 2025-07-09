@@ -3844,9 +3844,7 @@ function launch_ai_editor() {
 # Main command handling
 
 # Validate single active action principle before executing commands
-if [ "$CMD" != "auto-iterate" ]; then
-  validate_single_active_action "$CMD"
-fi
+validate_single_active_action "$CMD"
 
 case "$CMD" in
   "action")

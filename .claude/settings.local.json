@@ -138,7 +138,8 @@
       "Bash(./final-functionality-test.sh:*)",
       "Bash(./test-installer-simulation.sh:*)",
       "Bash(./validate-installer.sh:*)",
-      "mcp__aicheck__aicheck_getActionPlan"
+      "mcp__aicheck__aicheck_getActionPlan",
+      "Bash(pwdx:*)"
     ],
     "deny": []
   },
